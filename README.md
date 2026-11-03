@@ -1,3 +1,11 @@
+# BOSA DAO · practice
+
+**This is BOSA DAO's practice copy of [btc-dao](https://github.com/Bitcoin-DAO/btc-dao)** (stage 1 of 3: practice, testnet, mainnet). It runs btc-dao 0.1.0 on testnet4 with votes of about ten minutes, so a few people can rehearse the whole life of the DAO in one sitting: founding, joining, voting, a lost key, restoring from a card and a payout round. Everything here is thrown away afterwards; the testnet stage is [`bosa-dao`](https://github.com/Bitcoin-DAO/bosa-dao).
+
+The site is at **https://bitcoin-dao.github.io/bosa-practice**, built from `config/dao.json` by `.github/workflows/pages.yml`. After the rehearsal, everyone deletes their practice passkey ("… (prova generale)") and this repository is archived.
+
+---
+
 # btc-dao
 
 A SputnikDAO-style DAO on Bitcoin alone: members propose and vote, a council of keyholders signs payouts from a multisig treasury, and anyone can audit everything.

@@ -1,0 +1,102 @@
+{
+  "configVersion": 1,
+  "stage": "practice",
+  "name": "BOSA DAO",
+  "description": "Prova generale di BOSA DAO: tutto qui verrà buttato via.",
+  "languages": [
+    "it",
+    "en"
+  ],
+  "network": "testnet4",
+  "site": "https://bitcoin-dao.github.io/bosa-practice",
+  "passkeyDomain": "bitcoin-dao.github.io",
+  "council": [
+    {
+      "label": "Council 1",
+      "identityKey": "[npub]",
+      "fingerprint": "[8 hex]",
+      "xpub": "[tpub at m/48'/1'/0'/2']"
+    },
+    {
+      "label": "Council 2",
+      "identityKey": "[npub]",
+      "fingerprint": "[8 hex]",
+      "xpub": "[tpub at m/48'/1'/0'/2']"
+    },
+    {
+      "label": "Council 3",
+      "identityKey": "[npub]",
+      "fingerprint": "[8 hex]",
+      "xpub": "[tpub at m/48'/1'/0'/2']"
+    },
+    {
+      "label": "Council 4",
+      "identityKey": "[npub]",
+      "fingerprint": "[8 hex]",
+      "xpub": "[tpub at m/48'/1'/0'/2']"
+    },
+    {
+      "label": "Council 5",
+      "identityKey": "[npub]",
+      "fingerprint": "[8 hex]",
+      "xpub": "[tpub at m/48'/1'/0'/2']"
+    }
+  ],
+  "founders": [
+    {
+      "name": "[pseudonym]",
+      "identityKey": "[npub]",
+      "verified": "in_person"
+    },
+    {
+      "name": "[pseudonym]",
+      "identityKey": "[npub]",
+      "verified": "remote"
+    }
+  ],
+  "threshold": 3,
+  "descriptor": "wsh(sortedmulti(3,[fp1/48h/1h/0h/2h]tpub1/<0;1>/*,[fp2/48h/1h/0h/2h]tpub2/<0;1>/*,[fp3/48h/1h/0h/2h]tpub3/<0;1>/*,[fp4/48h/1h/0h/2h]tpub4/<0;1>/*,[fp5/48h/1h/0h/2h]tpub5/<0;1>/*))#[checksum]",
+  "relays": [
+    "wss://btc-dao-relay.btcdao.workers.dev",
+    "wss://nos.lol",
+    "wss://relay.damus.io"
+  ],
+  "chainApi": [
+    "https://mempool.space/testnet4/api"
+  ],
+  "rules": {
+    "votingPeriodDays": 0.007,
+    "quorum": "1/3",
+    "simpleMajority": [
+      "payout",
+      "statement",
+      "addMember"
+    ],
+    "twoThirdsMajority": [
+      "removeMember",
+      "changeRules",
+      "changeCouncil",
+      "close"
+    ],
+    "payoutRound": "monthly, 1st of the month",
+    "timezone": "Europe/Rome",
+    "lapseAfterRounds": 2,
+    "maxFeeRateSatVb": 20,
+    "treasuryCapSats": 5000000,
+    "remoteVerification": {
+      "councilMembersOnCall": 2,
+      "remoteMembersMayJoinCouncil": false,
+      "maxRemoteShare": null
+    },
+    "minimumAge": 18,
+    "charterSha256": "[sha256 of the Italian charter text]"
+  },
+  "branding": {
+    "logo": null,
+    "colours": {
+      "ink": "#10292E",
+      "accent": "#B54D0A",
+      "teal": "#1F6B70"
+    }
+  }
+}
