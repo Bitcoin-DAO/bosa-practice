@@ -11,8 +11,8 @@ Test coins have no value. The wallet exists so that the trials behave like the r
 | Name | BTC DAO Testnet Treasury |
 | Network | testnet4 |
 | Held by | Carl, for the Bitcoin-DAO organisation |
-| Wallet | `[wallet app]`, single signature |
-| Return address | `[testnet4 address]` |
+| Wallet | single signature (P2WPKH) |
+| Return address | `tb1q9lg5kyzwj8dwyxlh2k6lauqpku3r0zpeyugs0u` |
 
 The return address is also in each disposable stage's `config/dao.json` as `testnetTreasury`, so the app fills it in when someone proposes closing the DAO. Reusing one address for returns is fine on testnet4; on mainnet it would not be.
 
