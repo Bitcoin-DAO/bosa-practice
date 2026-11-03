@@ -1,7 +1,7 @@
 import { useApp } from '../app';
 import { fmtSats, t } from '../i18n';
 import { sha256Hex } from '../core/util';
-import { Footer, Header } from './parts';
+import { Address, Footer, Header } from './parts';
 import charterText from '../../../docs/charter.it.md?raw';
 
 declare const __APP_VERSION__: string;
@@ -37,6 +37,13 @@ export function Rules() {
             <div style="white-space:pre-wrap;font-size:14px;line-height:1.55;margin-top:12px">{charterText}</div>
           </details>
         </div>
+        {cfg.network !== 'mainnet' && cfg.testnetTreasury && !/\[/.test(cfg.testnetTreasury.address) && (
+          <div class="card">
+            <h3>{t('rules.testCoins')}</h3>
+            <p class="small">{t('rules.testCoinsText', { name: cfg.testnetTreasury.name })}</p>
+            <Address value={cfg.testnetTreasury.address} />
+          </div>
+        )}
         <div class="card">
           <div class="kv"><span>{t('rules.network')}</span><span>{cfg.network}</span></div>
           {app.daoId && <div class="kv"><span>{t('rules.daoId')}</span><span class="mono" style="font-size:12px">{app.daoId}</span></div>}

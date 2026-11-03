@@ -14,6 +14,8 @@ export function NewProposal() {
   const s = app.dao!;
   const network = app.site!.network;
   const [type, setType] = useState<ProposalType>('payout');
+  const returnTo = s.founded!.config.testnetTreasury ?? app.site!.testnetTreasury;
+  const returnOk = !!returnTo && validAddress(returnTo.address, network);
   const [title, setTitle] = useState('');
   const [summary, setSummary] = useState('');
   const [link, setLink] = useState('');
@@ -86,7 +88,11 @@ export function NewProposal() {
         <h1>{t('np.title')}</h1>
         <label class="field">
           {t('np.type')}
-          <select value={type} onChange={e => setType((e.target as HTMLSelectElement).value as ProposalType)} style="min-height:48px;border:1px solid var(--field);border-radius:8px;padding:0 12px;font:inherit;font-size:16px;background:#fff">
+          <select value={type} onChange={e => {
+            const v = (e.target as HTMLSelectElement).value as ProposalType;
+            setType(v);
+            if (v === 'close' && returnOk && !address.trim()) setAddress(returnTo!.address);
+          }} style="min-height:48px;border:1px solid var(--field);border-radius:8px;padding:0 12px;font:inherit;font-size:16px;background:#fff">
             {TYPES.map(x => <option value={x}>{typeLabel(x)}</option>)}
           </select>
         </label>
@@ -141,6 +147,7 @@ export function NewProposal() {
         {type === 'close' && (
           <div class="card">
             <p class="warn">{t('np.closeWarn')}</p>
+            {returnOk && <p class="note">{t('np.returnNote', { name: returnTo!.name })}</p>}
             <label class="field">{t('np.destination')}<input type="text" class="mono" autoComplete="off" spellcheck={false} value={address} onInput={e => setAddress((e.target as HTMLInputElement).value)} /></label>
             {addrError && <p class="error">{addrError}</p>}
             <label class="check"><input type="checkbox" checked={iAm} onChange={e => setIAm((e.target as HTMLInputElement).checked)} />{t('np.iAmRecipient')}</label>

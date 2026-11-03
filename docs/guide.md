@@ -158,7 +158,7 @@ If a founder loses their key before step 5, they sign up again before publicatio
 
 ## 5. Funding the treasury
 
-1. **On testnet4**, fund the treasury with test coins, from a testnet4 faucet or coins the organisers already hold. Test blocks can arrive in bursts or slowly, so expect irregular confirmation times. Run at least one full payout round before going near real money.
+1. **On testnet4** (the practice and testnet stages), fund the treasury from the **BTC DAO Testnet Treasury**, the organisation's own testnet4 wallet: about 100,000 sats for a practice stage, about 1,000,000 for a testnet stage. Copy the donation address from the treasury page, send, and wait for it to appear; test blocks can arrive in bursts or slowly. Each disposable stage returns the coins when it closes (section 10). Step by step in [testnet-treasury.md](testnet-treasury.md). Run at least one full payout round before going near real money.
 2. **On mainnet**, anyone can donate by scanning the treasury page's receive address. Every incoming payment appears on the public treasury page.
 3. Respect the trial cap (5,000,000 sats for BOSA DAO) while the system proves itself.
 
@@ -293,11 +293,13 @@ Every DAO is founded three times. Each stage is a separate DAO, with its own cop
 | Address (BOSA DAO) | `bitcoin-dao.github.io/bosa-practice` | `bitcoin-dao.github.io/bosa-dao` | `bosadao.it` |
 | Repository | `bosa-practice` | `bosa-dao` | created at mainnet time |
 | Relay | the organisation's relay and public relays | the organisation's relay and public relays | its own, `relay.bosadao.it` |
+| Funding | about 100,000 test sats from the BTC DAO Testnet Treasury | about 1,000,000 test sats from the BTC DAO Testnet Treasury | real donations |
+| Last step | close the DAO, coins back to the BTC DAO Testnet Treasury | close the DAO, coins back to the BTC DAO Testnet Treasury | — |
 | Afterwards | thrown away | thrown away once mainnet runs | kept |
 
-**Practice.** One sitting of about an hour: founder sign-up, setup and approvals, protecting keys and printing cards; a proposal, a vote and its count after ten minutes; a new member joining; a lost key replaced; a card restored on another phone; a payout round with a few thousand test sats, signed, broadcast and confirmed. Anything that goes wrong is fixed before the testnet founding. Afterwards everyone deletes their practice passkey (the phone's password manager lists it as "… (prova generale)"), and the repository is archived. The practice banner on every page says it will be thrown away.
+**Practice.** One sitting of about an hour: founder sign-up, setup and approvals, protecting keys and printing cards; funding from the BTC DAO Testnet Treasury; a proposal, a vote and its count after ten minutes; a new member joining; a lost key replaced; a card restored on another phone; a payout round, signed, broadcast and confirmed; and finally closing the DAO, which returns the coins to the BTC DAO Testnet Treasury. Anything that goes wrong is fixed before the testnet founding. Afterwards everyone deletes their practice passkey (the phone's password manager lists it as "… (prova generale)"), and the repository is archived. The practice banner on every page says it will be thrown away.
 
-**Testnet.** The real founding meeting, with real rules and real members, on test coins. It runs for at least one full monthly round and the phase 1 and 2 gates: a payout from proposal to receipt run by five testers, hardware signing, and the treasury restored and spent in Sparrow without the website.
+**Testnet.** The real founding meeting, with real rules and real members, on test coins from the BTC DAO Testnet Treasury. It runs for at least one full monthly round and the phase 1 and 2 gates: a payout from proposal to receipt run by five testers, hardware signing, and the treasury restored and spent in Sparrow without the website. Once the mainnet DAO is running, the testnet DAO is closed and its coins go back to the BTC DAO Testnet Treasury.
 
 **Mainnet.**
 
@@ -333,7 +335,7 @@ A council member's seed belongs to the DAO and does not pass to their heirs. Eac
 
 A DAO is closed by a final proposal of type **Close the DAO**, decided by vote. (Resolved G-19.)
 
-1. A member proposes closing. The proposal names the destination wallet that will receive the whole balance: another DAO's treasury, a cause the members choose, or any address the proposal names.
+1. A member proposes closing. The proposal names the destination wallet that will receive the whole balance: another DAO's treasury, a cause the members choose, or any address the proposal names. Practice and testnet stages always close this way as their last step, with the BTC DAO Testnet Treasury as the destination; the app fills in its address ([testnet-treasury.md](testnet-treasury.md)).
 2. The destination's owner confirms the address, as for a payout to someone else.
 3. It needs two thirds of the votes and quorum.
 4. After the final count, the next round pays the whole balance, minus the fee, to the destination, with no change. Three council members sign.

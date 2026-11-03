@@ -21,7 +21,7 @@ A SputnikDAO-style DAO on Bitcoin alone: members propose and vote, a council of 
 
 **Testnet4 prototype, stages 1–3 built.** The app (`app/`) covers founding, passkey sign-in, identity cards, the treasury page, proposals and votes, new members, leaving, key replacement, and payout rounds signed by the council and broadcast on testnet4. Next: the phase 1 gate, a real testnet4 payout run by five testers. The DAO relay runs on Cloudflare. The first instance is **BOSA DAO**, a proof of concept for a local bitcoin community in Bosa, Sardinia, starting with a trial on testnet4.
 
-Every DAO goes through three stages, each a separate DAO with its own tested build: a **practice** run on testnet4 with ten-minute votes, the **testnet** DAO with the real rules, and the **mainnet** DAO. The first two are thrown away. See [`docs/guide.md`](docs/guide.md#8-the-three-stages-practice-testnet-mainnet).
+Every DAO goes through three stages, each a separate DAO with its own tested build: a **practice** run on testnet4 with ten-minute votes, the **testnet** DAO with the real rules, and the **mainnet** DAO. The first two run on coins from the BTC DAO Testnet Treasury, end by closing the DAO and returning them, and are thrown away. See [`docs/guide.md`](docs/guide.md#8-the-three-stages-practice-testnet-mainnet).
 
 Nothing here is ready for real funds.
 
@@ -37,6 +37,7 @@ All 19 screens are in [`design/`](design/README.md).
 | --- | --- |
 | `docs/what-is-a-bitcoin-dao.md`, `docs/what-is-a-bitcoin-dao.it.md` | A plain-language introduction, in English and Italian: what a Bitcoin DAO is, how it works, what it can be used for |
 | `docs/wallet-guide.it.md`, `docs/wallet-guide.en.md` | "Your first bitcoin wallet in 5 minutes" for members, in Italian and English |
+| `docs/testnet-treasury.md` | The BTC DAO Testnet Treasury: the organisation's testnet4 wallet that funds every practice and testnet stage and gets the coins back when each one closes |
 | `docs/charter.it.md`, `docs/charter.en.md` | BOSA DAO's draft founding charter: Italian (binding) and English translation |
 | `docs/guide.md` | The step-by-step guide to founding and running a DAO, from preparation to closing, with a register of the gaps still open |
 | `docs/spec.md` | The full specification v0.2: roles, keys, onboarding (in person and remote), treasury, governance, proposal fields, payout rounds, event formats, threat model, security requirements, build plan |

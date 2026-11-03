@@ -55,6 +55,8 @@ export interface DaoConfig {
   relays: string[];
   chainApi: string[];
   rules: Rules;
+  /** Practice and testnet stages: the organisation's testnet4 wallet that funds them and gets the coins back at closing. */
+  testnetTreasury?: { name: string; address: string };
   branding?: { logo: string | null; colours?: Record<string, string> };
 }
 
