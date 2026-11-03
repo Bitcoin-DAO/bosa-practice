@@ -91,6 +91,10 @@
     "minimumAge": 18,
     "charterSha256": "[sha256 of the Italian charter text]"
   },
+  "testnetTreasury": {
+    "name": "BTC DAO Testnet Treasury",
+    "address": "[testnet4 address]"
+  },
   "branding": {
     "logo": null,
     "colours": {
