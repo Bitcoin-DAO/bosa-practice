@@ -24,8 +24,8 @@ Do this straight after the founding meeting, once the DAO is founded and the tre
 
 1. Open the DAO's site and copy the donation address from the treasury page (or scan its QR code).
 2. From the BTC DAO Testnet Treasury wallet, send:
-   - **practice:** about 100,000 sats, enough for a few small payouts and their fees;
-   - **testnet:** about 1,000,000 sats, below the trial cap of 5,000,000, enough for several monthly rounds.
+   - **practice:** about 50,000 sats, enough for a few small payouts and their fees;
+   - **testnet:** about 500,000 sats, below the trial cap of 5,000,000, enough for several monthly rounds.
 3. Wait for the payment to appear on the treasury page. Testnet4 blocks can be slow or come in bursts.
 4. Add a line to the log below.
 

@@ -158,7 +158,7 @@ If a founder loses their key before step 5, they sign up again before publicatio
 
 ## 5. Funding the treasury
 
-1. **On testnet4** (the practice and testnet stages), fund the treasury from the **BTC DAO Testnet Treasury**, the organisation's own testnet4 wallet: about 100,000 sats for a practice stage, about 1,000,000 for a testnet stage. Copy the donation address from the treasury page, send, and wait for it to appear; test blocks can arrive in bursts or slowly. Each disposable stage returns the coins when it closes (section 10). Step by step in [testnet-treasury.md](testnet-treasury.md). Run at least one full payout round before going near real money.
+1. **On testnet4** (the practice and testnet stages), fund the treasury from the **BTC DAO Testnet Treasury**, the organisation's own testnet4 wallet: about 50,000 sats for a practice stage, about 500,000 for a testnet stage. Copy the donation address from the treasury page, send, and wait for it to appear; test blocks can arrive in bursts or slowly. Each disposable stage returns the coins when it closes (section 10). Step by step in [testnet-treasury.md](testnet-treasury.md). Run at least one full payout round before going near real money.
 2. **On mainnet**, anyone can donate by scanning the treasury page's receive address. Every incoming payment appears on the public treasury page.
 3. Respect the trial cap (5,000,000 sats for BOSA DAO) while the system proves itself.
 
@@ -293,7 +293,7 @@ Every DAO is founded three times. Each stage is a separate DAO, with its own cop
 | Address (BOSA DAO) | `bitcoin-dao.github.io/bosa-practice` | `bitcoin-dao.github.io/bosa-dao` | `bosadao.it` |
 | Repository | `bosa-practice` | `bosa-dao` | created at mainnet time |
 | Relay | the organisation's relay and public relays | the organisation's relay and public relays | its own, `relay.bosadao.it` |
-| Funding | about 100,000 test sats from the BTC DAO Testnet Treasury | about 1,000,000 test sats from the BTC DAO Testnet Treasury | real donations |
+| Funding | about 50,000 test sats from the BTC DAO Testnet Treasury | about 500,000 test sats from the BTC DAO Testnet Treasury | real donations |
 | Last step | close the DAO, coins back to the BTC DAO Testnet Treasury | close the DAO, coins back to the BTC DAO Testnet Treasury | — |
 | Afterwards | thrown away | thrown away once mainnet runs | kept |
 
