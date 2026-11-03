@@ -39,7 +39,7 @@ Any three council members together can move the treasury. Members cannot move mo
 
 A draft charter exists, in [Italian](charter.it.md) (binding) with an [English translation](charter.en.md), covering purpose, members, the council (including absence and death), the treasury, voting, payments, the public record, conduct, changes, closing and the trial. It still needs the founding meeting's values and a legal review. Its SHA-256 goes in the settings (`charterSha256`), so everyone can check which text is in force.
 
-> **Gap G-01.** The "first wallet in 5 minutes" guide that members are pointed to does not exist yet, and the charter needs its legal review before mainnet.
+> **Gap G-01.** Partly resolved: the "first wallet in 5 minutes" guide now exists ([Italian](wallet-guide.it.md), [English](wallet-guide.en.md)). The charter still needs its legal review before mainnet.
 
 ### 2.2 Choose the council and the founders
 
@@ -49,6 +49,8 @@ A draft charter exists, in [Italian](charter.it.md) (binding) with an [English t
     - can attend a monthly signing session, or will sign remotely with their own SeedSigner;
     - are comfortable keeping a seed plate and a SeedQR card safe for years.
 2. List the founding members who are not on the council. They join at the founding meeting without a vote.
+
+For the practice stage (section 8), 3 to 5 people are enough: the council-to-be, with a threshold that suits the people in the room, for example 2 of 3. The testnet and mainnet stages use the real council of five.
 3. Settle the starting rules. BOSA DAO's defaults:
 
 | Setting | BOSA DAO value |
@@ -67,10 +69,10 @@ A draft charter exists, in [Italian](charter.it.md) (binding) with an [English t
 
 ### 2.3 Choose the addresses and hosting
 
-1. **Trial address.** BOSA DAO's trial runs on GitHub Pages at `bitcoin-dao.github.io/bosa-dao`, published straight from the repository: free, with HTTPS built in. Its passkeys are tied to `bitcoin-dao.github.io`, which is fine because the trial and mainnet DAOs are separate anyway. GitHub Pages cannot send custom security headers, so the content security policy is set inside the page.
+1. **Practice and testnet addresses.** Both disposable stages run on GitHub Pages, published straight from their repositories: free, with HTTPS built in. BOSA DAO's practice stage is at `bitcoin-dao.github.io/bosa-practice` and its testnet stage at `bitcoin-dao.github.io/bosa-dao`. Their passkeys are tied to `bitcoin-dao.github.io`, which is fine because every stage is a separate DAO; practice passkeys are labelled "(prova generale)" so they are easy to delete afterwards. GitHub Pages cannot send custom security headers, so the content security policy is set inside the page.
 2. **Mainnet domains.** Register the DAO's domain and choose the project domain. BOSA DAO uses `bosadao.it` for mainnet, with the relay at `relay.bosadao.it`; the project site and dashboard live at `btcdao.tech`. Pay several years ahead, turn on auto-renew, and give two council members access to the registrar account.
 3. **The domain is permanent.** Passkeys are tied to it. A move is possible (section 7.5), but costs every member a card scan or a key replacement.
-4. **Relay.** The DAO relay runs Nosflare on Cloudflare Workers, under the Bitcoin-DAO organisation's Cloudflare account, with pay-to-relay off and only the DAO's event kinds and tag allowed (protocol 7.3). For the trial it has a `workers.dev` address; on mainnet it moves to `relay.bosadao.it`. Choose two public relays as well.
+4. **Relay.** The DAO relay runs Nosflare on Cloudflare Workers, under the Bitcoin-DAO organisation's Cloudflare account, with pay-to-relay off and only the DAO's event kinds and tag allowed (protocol 7.3). One relay, `btc-dao-relay.btcdao.workers.dev`, serves the practice and testnet stages: after each founding, that DAO's id is added to its list ([relay/README.md](../relay/README.md)). The mainnet DAO gets its own, at `relay.bosadao.it`. Two public relays are listed as well (`nos.lol` and `relay.damus.io` for BOSA DAO).
 5. **Chain data.** Choose an Esplora-compatible block explorer for balances and broadcasting (mempool.space for testnet4), and a second one as fallback.
 
 > **Gap G-03.** Who registers `bosadao.it`, and how ownership passes on, is not settled. The DAO has no legal entity, so a person or organisation must be the registrant.
@@ -93,10 +95,12 @@ Check current prices before buying; nothing here is expensive, and the SeedSigne
 
 ### 2.5 Set up the software
 
-1. Copy (fork) the btc-dao repository for the DAO.
-2. Put the site up at its address in **setup mode**: it shows Founder sign-up and the setup page, and nothing else.
-3. Point it at the chosen relays and block explorer.
-4. Check the site works on members' phones: passkey sign-in and printing a card straight from the browser.
+Done once per stage, each in its own repository in the Bitcoin-DAO organisation (for BOSA DAO: `bosa-practice`, then `bosa-dao`):
+
+1. Create an empty public repository and fill it from btc-dao at a released version (section 8).
+2. Write `config/dao.json`: the stage, name and purpose, network, the site address and passkey domain, the relays and chain API, the starting rules (ten-minute votes for practice) and, for practice and testnet, the BTC DAO Testnet Treasury's return address. The council, founders and descriptor stay as placeholders: the setup page fills them in at the founding meeting.
+3. In the repository's Settings → Pages, set the source to GitHub Actions. Every push then runs the tests and publishes the site (`.github/workflows/pages.yml`). Until the founding it shows founding mode: Founder sign-up and the setup page.
+4. Check the site on members' phones: a test sign-up shows whether the phone can protect the key with its passkey (no yellow warning), and whether it can print a card. Clear the test sign-up and delete its passkey afterwards.
 
 For BOSA DAO a developer does this. For later DAOs, the fork kit (phase 4) turns it into a guided setup.
 
@@ -108,7 +112,9 @@ For BOSA DAO a developer does this. For later DAOs, the fork kit (phase 4) turns
 
 ## 3. The council ceremonies
 
-Each council member goes through two ceremonies before the founding meeting. They can be held on the same day.
+Each council member goes through two ceremonies before the mainnet founding meeting, and before the testnet stage moves to hardware signing in phase 2. They can be held on the same day.
+
+**Practice, and the testnet stage in phase 1, skip the ceremonies.** There, each council member's phone creates a test treasury key when they sign up as a founder and tick "I am on the council": 12 words, shown on their profile page, with only the public key going into their sign-up code. They sign payout rounds on the phone, or in Sparrow or Nunchuk. Test keys must never hold real funds.
 
 ### 3.1 SD card ceremony
 
@@ -146,11 +152,13 @@ The first members join here, because the normal route needs a sponsor, a council
 1. **Open the setup page.** The organiser (a council member) opens it on their phone. Tab 1 holds the basics: name, purpose, address, passkey domain, network and starting rules.
 2. **Founder sign-up.** Each founder, council members included, opens Founder sign-up on their own phone, enters a name and creates a passkey. The app makes a random identity key and keeps it in that browser only for now. Founders must not clear the browser or switch phones until the founding is finished.
 3. **Read the codes aloud.** Each founder shows a QR and a short code. The organiser scans it and both read the short code aloud; it must match. Remote founders send the code by message and read it on the call.
-4. **Council keys.** In tab 2 the organiser links each council member's identity key to their treasury key and fingerprint from the key ceremony.
+4. **Council keys.** In tab 2 the organiser scans each council member's code and sets the threshold. On testnet the code already carries the member's test treasury key; on mainnet, and wherever a member uses their own wallet, "Use another treasury key" takes the key and fingerprint from the key ceremony (`[fingerprint/48h/…/2h]tpub…`).
 5. **Check and publish.** In tab 4 everyone checks the summary together: the DAO, the council and threshold, the founders, the DAO id. The organiser signs and publishes the founding settings. Nothing in them can change later except by proposal.
 6. **Council approval.** At least three council members approve the founding settings on their own phones. Their approval stands in for verifying each founder: they heard every short code read aloud and approved the list. At the third approval BOSA DAO exists.
 7. **Protect and print.** Each founder's app now knows the DAO id. The passkey protects the identity key, and the founder can print their identity card. Council members print theirs before signing anything else.
-8. **Hand-out.** Each council member takes their copy of the recovery sheet. The shared SeedSigner and the spare are sealed and stored.
+8. **Hand-out** (mainnet, and testnet from phase 2). Each council member takes their copy of the recovery sheet. The shared SeedSigner and the spare are sealed and stored.
+
+Next comes funding (section 5). In the practice and testnet stages, also add the new DAO id to the relay's list and to the site's `config/dao.json` (`daoId`); the setup page shows it once the DAO is founded.
 
 > **Gap G-07.** Who keeps the shared SeedSigner and the spare between rounds, and where, is not assigned. S8 says sealed, bought from different sources, and signing times not announced, but not who holds them.
 
@@ -172,13 +180,11 @@ If a founder loses their key before step 5, they sign up again before publicatio
 
 1. The candidate asks a member who knows them to sponsor them.
 2. They meet with the sponsor and one council member, or with two council members on a video call.
-3. The candidate opens the site, taps Become a member, chooses a name and creates a passkey.
-4. They show their code; the sponsor and the council member scan it and all three read the short code aloud.
-5. The council member's phone signs a verification (in person or remote).
-6. The candidate ticks the charter, the public-record consent and the age confirmation, and sends.
-7. The sponsor's phone publishes the add-member proposal, pre-filled and linked to the verification.
-8. Members vote for 7 days. If it passes, a council member signs the final count and three council members approve the new member list. The candidate can then vote.
-9. The candidate is offered the identity card and the wallet guide.
+3. The candidate opens the site, taps **Become a member**, chooses a name, ticks the age, charter and public-record box, and creates a passkey. Their phone shows a QR code and a short code.
+4. The council member opens **Council → Check a candidate**, scans the code, and both read the short code aloud. The council member's phone signs the check, in person or remote. A remote candidate needs this from two council members.
+5. The sponsor opens **Profile → Propose a new member** and scans the same code. Once the check is in, the sponsor's phone publishes the add-member proposal, pre-filled and linked to it.
+6. Members vote. If it passes, a council member's phone publishes the final count, and three council members approve the new member list (**Council → Member list**).
+7. The candidate's waiting page sees them on the list and asks for the passkey once more to protect the key. They can then vote, and print their identity card.
 
 Remote members are marked "verified remotely" until someone verifies them in person, and in the trial they cannot join the council.
 
@@ -194,7 +200,7 @@ Remote members are marked "verified remotely" until someone verifies them in per
 1. Every member on the member list when the proposal was published can vote yes, no or abstain, and change their vote until the end.
 2. The vote always runs 7 days. A member who leaves before the close loses their vote; one whose key is replaced keeps it.
 3. At the close, a council member signs the final count: which votes counted, which were excluded and why, the result, and the proposal's permanent number.
-4. Any member's app timestamps the record on Bitcoin with OpenTimestamps.
+4. Any member's app timestamps the record on Bitcoin with OpenTimestamps. (Not in the app yet: G-20.)
 5. If two council members publish different counts, the proposal is disputed until three council members approve one.
 
 Nobody has to remember to publish the count: every council member's app publishes it automatically the first time it opens after the close, unless a count is already there, and identical counts from two council members are one count, not a dispute. Receipts and timestamps are published the same way by whichever app sees the confirmation or the closed vote first. (Resolved G-11.)
@@ -203,17 +209,17 @@ Nobody has to remember to publish the count: every council member's app publishe
 
 Once a month, every approved payment goes out in one transaction.
 
-1. **Prepare.** On the round date (the 1st of the month, Europe/Rome time; resolved G-12), any council member taps Prepare round. The app gathers every passed, counted and confirmed payout not yet paid, adds change back to the treasury and a fee, and publishes the round. Only one round can be open at a time.
+1. **Prepare.** Around the round date (the 1st of the month, Europe/Rome time; resolved G-12), any council member opens **Council → Prepare the payout round**. The round date is what counts for lapse; a round can be prepared at any time. The app gathers every passed, counted and confirmed payout not yet paid, picks the treasury's coins, adds change back to the treasury and a fee within the cap, and publishes the round; the preparer's phone signs it straight away. Only one round can be open at a time.
 2. **Verify.** Every other council member's app rebuilds the payments from the approved proposals and refuses to offer signing if anything differs by a single sat, the fee is above the cap, or the change does not return to the treasury.
-3. **Sign.** Each council member, in any order, alone or together:
+3. **Sign.** In the practice stage, and the testnet stage in phase 1, each council member opens the round, checks every address and amount against the proposals, and taps **Sign with the trial key**; or copies the PSBT into Sparrow or Nunchuk, signs there and pastes it back. With SeedSigner (mainnet, and testnet from phase 2; animated QR not in the app yet, G-20), each council member, in any order, alone or together:
     1. inserts their own SD card into the SeedSigner and boots it;
     2. scans their SeedQR card and checks the fingerprint matches their line on the recovery sheet;
     3. loads the descriptor (from the recovery sheet QR) so the device can check the change;
     4. selects Scan PSBT and scans the round's animated QR from the app;
     5. checks every address in full and every amount on the device screen against the proposal page;
     6. signs and shows the signed QR back to the app.
-4. **Send.** The app that collects the third valid signature combines them and broadcasts. Any app can broadcast again; doing so is harmless.
-5. **Receipt.** Once the transaction confirms, a receipt is published and the proposals show as paid.
+4. **Send.** Once the threshold is reached, anyone can tap **Broadcast the transaction**, and council phones do it by themselves. Broadcasting again is harmless. If the browser cannot reach the chain API, the round page offers the signed transaction to paste into mempool.space's broadcast page.
+5. **Receipt.** Once the transaction confirms, a council phone publishes the receipt and the proposals show as paid; the treasury's movements name the round.
 6. **Decline.** A council member may refuse to sign, with a public reason. A round that never reaches three signatures can be replaced by a new round that spends at least one of the same coins, so the two can never both pay.
 
 > **Gap G-13.** Signing-session logistics are not described: who calls the session, where, how council members who are away sign, and what happens if fewer than three can attend before payouts lapse.
@@ -221,7 +227,7 @@ Once a month, every approved payment goes out in one transaction.
 ### 6.5 Keeping the record
 
 1. Every event is on the DAO relay and at least two public relays.
-2. After every payout round, each council member exports the DAO's full event history (one button on the site) and keeps the last two exports. Public relays may delete old events without notice, so the exports and the DAO relay are the long-term record. (Resolved G-14.)
+2. After every payout round, each council member exports the DAO's full event history (one button on the site; not in the app yet, G-20) and keeps the last two exports. Public relays may delete old events without notice, so the exports and the DAO relay are the long-term record. (Resolved G-14.)
 3. Every closed vote is timestamped on Bitcoin.
 
 ### 6.6 Members leaving, lost phones, lost cards
@@ -245,7 +251,7 @@ A remove-member proposal needs two thirds. After the final count, three council 
 
 ### 7.3 Changing the council
 
-Used when a council member steps down, becomes unavailable, loses their seed, or the members want a different keyholder or threshold.
+Used when a council member steps down, becomes unavailable, loses their seed, or the members want a different keyholder or threshold. Not in the app yet (G-20); it comes with phase 2.
 
 1. The incoming council member is already a member. They hold the SD card and key ceremonies (section 3) and print their identity card.
 2. A member proposes a change-council proposal: outgoing and incoming member, the incoming public key and fingerprint, the threshold, and the new treasury descriptor.
@@ -262,7 +268,7 @@ See section 6.6. In person, one council member verifies and three approve; remot
 
 ### 7.5 Moving to a new web address
 
-Used if the domain is lost, seized or not renewed.
+Used if the domain is lost, seized or not renewed. The DAO listing it relies on is not in the app yet (G-20).
 
 1. The maintainer puts the site up at the new address. The relay on the old domain goes down with it; the public relays still hold every event.
 2. Three council members approve a new DAO listing naming the new address and relays.
@@ -366,5 +372,6 @@ A DAO is closed by a final proposal of type **Close the DAO**, decided by vote. 
 | G-17 | Membership | Carrying members from the trial to mainnet | Mainnet founding | Resolved |
 | G-18 | Council | Death or long incapacity of a council member | Charter | Resolved in the draft charter (Article 4.8) |
 | G-19 | Governance | Winding up a DAO | Charter | Resolved |
+| G-20 | Software | Parts of the design not in the app yet: OpenTimestamps anchoring, the event-history export, the DAO listing (moving address), council changes with migration and sweep rounds, SeedSigner signing by animated QR, signed reproducible releases | Phase 2, and mainnet for releases | Open |
 
-Still open from the design and listed in [decisions.md](decisions.md): who sits on the BOSA DAO council and who the founders are; whether votes on payouts should be public by name; the event kind numbers; and the phase 1 checks (passkey support on members' phones, printing a card without a saved file, SeedSigner change verification, OpenTimestamps from the browser).
+Still open from the design and listed in [decisions.md](decisions.md): who sits on the BOSA DAO council and who the founders are; the event kind numbers; and the phase 1 checks: passkey support on every member's phone (confirmed on the first Android phone tested), printing a card without a saved file, SeedSigner change verification, and OpenTimestamps from the browser. Votes are public by name (decided).
