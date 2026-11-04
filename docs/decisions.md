@@ -31,7 +31,8 @@
 | Wallet for members | BlueWallet for mainnet payouts; Nunchuk or Mycelium Testnet for the trial |
 | Moving address | If the domain is lost, the council endorses a new address in a `dao.listing`; members scan their cards there and make a new passkey. Same identities, no re-verification. Members find the new address on btcdao.tech (a separate domain) or from the council; every card carries that fallback line. The DAO relay on the lost domain is replaced, and public relays bridge the gap |
 | Votes | Public by name, like everything else in the record: every vote is a signed event, and each proposal's page lists who voted what |
-| Round timing | The 1st of each month (Europe/Rome) is the round date that counts for lapse; the council may prepare a round at any time, so the trial can test payouts without waiting |
+| Round timing | Round dates count for lapse: the 1st of each month (Europe/Rome) by default, or every Monday when a DAO sets `payoutRound` to `weekly` (labels `2026-W45`); the council may prepare a round at any time, so the trial can test payouts without waiting |
+| Standing payout addresses | A member may confirm one address for all their payouts, until they replace or withdraw it; a payout output names the member it is for, and the match is checked when the round is published. Ends on leaving, removal or key replacement. Each member chooses; no DAO setting. A standing xpub was dropped: it would reveal the whole wallet branch |
 | Trial signing keys | In the testnet4 trial each council phone makes a test treasury key (12 words, shown on the profile), signs rounds in the browser, and can export the PSBT to Sparrow or Nunchuk instead; SeedSigner arrives in phase 2 |
 | Signing (first DAO) | One shared SeedSigner plus a spare; each council member has their own verified SD card, a 12-word CompactSeedQR card (21x21) and a steel plate at home. No passphrase in the trial |
 | Addresses | Shown as SeedSigner shows them: first 7 and last 7 characters highlighted, middle in full; compared in full |
@@ -52,7 +53,7 @@
 
 ## Open questions
 
-- [ ] Sun to Sats showcase (`showcase-sun-to-sats.md`): distribution rule and reserve share. Weekly cadence and standing payout addresses are decided; the protocol change for both is still to be drafted
+- [ ] Sun to Sats showcase (`showcase-sun-to-sats.md`): distribution rule and reserve share. Weekly rounds with `lapseAfterRounds` 4, and standing payout addresses, are decided and in the protocol
 - [ ] Sun to Sats sunblocks (Layer 01, `showcase-sun-to-sats.md` section 6): distribution weights for base and panel shares, price risk on instalments, whether non-members can pledge, and how a pledge address goes on the public record
 - [ ] Legal check: does holding pledges for members count as holding client money (Italy, UK)? Add to the custody question below
 - [ ] Which funding model for UNO's mainnet DAO? Members to read `funding-models.md` and decide before the mainnet charter is drafted

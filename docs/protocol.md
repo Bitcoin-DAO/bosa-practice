@@ -150,7 +150,7 @@ If two different versions with the same number each reach `threshold` endorsemen
   "version": 2,
   "prev": "<sha256 of settings version 1 content>",
   "basis": ["<id of the passed change_rules or change_council proposal>", "<id of the migration's dao.receipt, for a council change>"],
-  "rules": { "votingPeriodDays": 7, "quorum": "1/3", "timezone": "Europe/Rome", "maxFeeRateSatVb": 20, "fundingModel": "production", "charterLanguage": "it", "charterSha256": "<sha256 of the binding charter text>", "treasuryCapSats": 5000000, "...": "..." },
+  "rules": { "votingPeriodDays": 7, "quorum": "1/3", "timezone": "Europe/Rome", "payoutRound": "monthly", "lapseAfterRounds": 2, "maxFeeRateSatVb": 20, "fundingModel": "production", "charterLanguage": "it", "charterSha256": "<sha256 of the binding charter text>", "treasuryCapSats": 5000000, "...": "..." },
   "closed": false,
   "council": [{"label": "Council 1", "identityKey": "<hex>", "fingerprint": "<8 hex>", "xpub": "<xpub>"}],
   "threshold": 3,
@@ -198,7 +198,7 @@ Common fields: `type`, `title` (≤ 80 characters), `summary` (≤ 500 character
 
 | `type` | `payload` |
 | --- | --- |
-| `payout` | `recipient` (display name), `outputs`: 1 to 10 `{address, amount_sat}`, each address once |
+| `payout` | `recipient` (display name), `outputs`: 1 to 10 `{address, amount_sat, member?}`, each address once; `member`, optional, is the identity key of the member an output pays (section 4.2) |
 | `statement` | `{}` |
 | `add_member` | `candidate_key`, `name`, `verify`: ids of the `dao.verify` events |
 | `remove_member` | `member_key`, `reason` |
@@ -217,9 +217,13 @@ Valid when:
 
 ### 4.2 `dao.confirm`
 
-Tags: `["e", <proposal id>]`. Content: `{"address": "<address being confirmed>"}`, optionally with `"bip322": "<signature>"` when the recipient's wallet can sign a message with that address.
+**For one proposal.** Tags: `["e", <proposal id>]`. Content: `{"address": "<address being confirmed>"}`, optionally with `"bip322": "<signature>"` when the recipient's wallet can sign a message with that address.
 
 Valid when the address appears in the proposal's outputs, or is the `destination` of a `close` proposal, which needs a confirmation in the same way. Any key may sign it, member or not. Every payout address needs a valid `dao.confirm` before it can enter a round; a proposer who is also the recipient confirms in the same step as proposing. There is no deadline: confirming is the recipient's responsibility, and it may come before, during or after the vote. A passed payout that is still unconfirmed waits, and lapses under the usual rule if it is not made binding within the lapse limit (2 rounds in the reference rules). A BIP-322 signature proves control of the address; without it, the confirmation shows only that someone with the confirmation link agreed.
+
+**Standing.** A member may instead confirm one address for all their payouts: no `e` tag, content `{"address": "<address>", "standing": true}`, optionally with `"bip322"`. It is valid when the signer is on the roster at its `created_at`, and the address is valid for the DAO's network, is not a treasury address and is not reserved for a pledge. A member has at most one standing address: their latest valid standing confirmation counts, by `created_at`, then by `id`, and `{"standing": false}` withdraws it. It ends when the member leaves, is removed or has their key replaced (sections 5.2, 5.3); a new key sets its own.
+
+A payout output whose `member` field names a member counts as confirmed if, when a round including it is published, that member's standing address is that output's address. The check is made then, not when the proposal is published, so a member who replaces or withdraws a lost wallet's address stops every unpaid payout to it. An output that no standing address covers needs a confirmation for its proposal, as above. A standing address is reused on chain; a fresh address per payout remains more private, and apps should say so.
 
 ### 4.3 `dao.vote`
 
@@ -266,11 +270,11 @@ Valid when the signer is on the council and `short_code` matches the one derived
 
 Tags: `["p", <old key>]`, `["p", <new key>]`. Content: `{"old_key": "<hex>", "new_key": "<hex>", "mode": "in_person" | "remote", "short_code": "<of the new key>"}`.
 
-Takes effect with `threshold` endorsements (object `rekey`); remote mode also needs a second council member's `dao.verify` of the new key. From the effective time, events signed with the old key are ignored; earlier ones stay valid.
+Takes effect with `threshold` endorsements (object `rekey`); remote mode also needs a second council member's `dao.verify` of the new key. From the effective time, events signed with the old key are ignored; earlier ones stay valid. The old key's standing payout address (section 4.2) ends then; the new key sets its own.
 
 ### 5.3 `dao.leave`
 
-Content: `{}`. Signed by the member leaving. Not valid for council members, who leave through a `change_council` proposal. From its `created_at`, the member's votes on still-open proposals are withdrawn; the next roster version drops them.
+Content: `{}`. Signed by the member leaving. Not valid for council members, who leave through a `change_council` proposal. From its `created_at`, the member's votes on still-open proposals are withdrawn and their standing payout address (section 4.2) ends; the next roster version drops them. A removal ends the standing address in the same way, from the roster version that removes the member.
 
 ### 5.4 `dao.keywrap`
 
@@ -294,14 +298,14 @@ Signed by the identity key it protects, which shows the publisher held that key.
 
 Every client that shows the round rebuilds the expected outputs and refuses to offer signing unless all of these hold:
 - the outputs are exactly the payout outputs of the listed proposals, with nothing added;
-- each listed proposal is passed, tallied, confirmed where needed, not yet paid, and not lapsed;
+- each listed proposal is passed, tallied, confirmed where needed (by a confirmation for the proposal, or by a standing address in force when the round is published, section 4.2), not yet paid, and not lapsed;
 - any other output is change to the treasury's change branch (`/1/*`) at an unused index;
 - inputs are unspent treasury outputs;
 - `fee_sat` matches the PSBT, and the fee rate is at most `maxFeeRateSatVb` from the rules (requirement S5);
 - for a `change_council` migration round, the single output pays the full balance, minus fee, to the first receive address of `new_descriptor`;
 - no other round is open, unless this round spends at least one of the open round's inputs. A round is open from its publication until it has a receipt. Two rounds that share an input can never both confirm, so a replacement round is safe; once one confirms, the other is void.
 
-**Round dates** are computed in the settings' `timezone` (Europe/Rome in the reference rules): the 1st of each month at 00:00. They set when payouts lapse; a council member may publish a round at any time, and its `round` label is the month (`YYYY-MM`) it was prepared in. If fees are above the fee-rate cap on a round date, no round is built that month and the payouts wait.
+**Round dates** are computed in the settings' `timezone` (Europe/Rome in the reference rules), from `rules.payoutRound`: with `"monthly"` (the default), the 1st of each month at 00:00; with `"weekly"`, every Monday at 00:00. Any other value is read as `"monthly"`. Each round date follows the settings in force at that moment, so after a change of cadence a waiting payout counts the new dates from the change. Round dates set when payouts lapse; a council member may publish a round at any time, and its `round` label is the period it was prepared in: the month (`YYYY-MM`) for monthly rounds, the ISO 8601 week (`YYYY-Www`, for example `2026-W45`) for weekly ones. If fees are above the fee-rate cap on a round date, no round is built for that period and the payouts wait.
 
 **Building a round** (reference app): coins largest first; change to the lowest unused address on the change branch, or no change if it would be at or below the dust limit (546 sats), the remainder going to the fee; the fee rate checked against the cap uses an upper-bound size estimate with 72-byte signatures.
 

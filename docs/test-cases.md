@@ -85,6 +85,16 @@ Cases marked with a gap number tested a rule `protocol.md` did not settle when t
 | C-05 | Still unconfirmed at the second round date after its tally | Status Lapsed (Gap 6) | 4.2, 6.1 |
 | C-06 | Confirmation with a valid BIP-322 signature | Shown as "address proven" | 4.2 |
 | C-07 | Confirmation with an invalid BIP-322 signature | Accepted as a plain confirmation, with a warning | 4.2 |
+| C-S01 | Member F1 publishes a standing confirmation of address X; a passed payout output pays X with `member: F1` | Confirmed without a per-proposal `dao.confirm` | 4.2 |
+| C-S02 | As C-S01, but the output has no `member` field | Needs a per-proposal confirmation | 4.2 |
+| C-S03 | Output pays X with `member: F2`, where X is F1's standing address | Not confirmed by F1's standing address | 4.2 |
+| C-S04 | Standing confirmation by a key not on the roster | Rejected | 4.2 |
+| C-S05 | Standing address that is a treasury address or reserved for a pledge | Rejected | 4.2 |
+| C-S06 | F1 replaces X with Y after a proposal paying X passed, before the round | Output to X is unconfirmed; it can be paid only with a per-proposal confirmation of X | 4.2 |
+| C-S07 | F1 publishes `{"standing": false}` | No standing address; later rounds need per-proposal confirmations | 4.2 |
+| C-S08 | F1 leaves, is removed, or has their key replaced | Standing address ends at that moment; the new key has none | 4.2, 5.2, 5.3 |
+| C-S09 | Two standing confirmations by F1 with the same `created_at` | The one with the higher `id` counts | 4.2 |
+| C-S10 | Round published including an output covered only by a standing address that was withdrawn before the round | Sign refused | 4.2, 6.1 |
 
 ## 6. Votes
 
@@ -172,6 +182,14 @@ Cases marked with a gap number tested a rule `protocol.md` did not settle when t
 | P-R12 | A second round published while the first is open, with no shared input | Sign refused (Gap 12) | 6.1 |
 | P-R12b | Replacement round sharing an input with the open round | Sign offered; whichever confirms first voids the other | 6.1 |
 | P-R13 | Change-council migration round sending everything to the new descriptor | Sign offered; after its receipt, the new settings version takes the council and descriptor | 6.1, 3.4 |
+| P-W01 | `payoutRound: "weekly"`, Europe/Rome: round dates after Wed 4 Nov 2026 | Mon 9 Nov 00:00, Mon 16 Nov 00:00 (local) | 6.1 |
+| P-W02 | Weekly round prepared on Fri 1 Jan 2027 | Label `2026-W53` | 6.1 |
+| P-W03 | Weekly round prepared on Mon 4 Jan 2027 | Label `2027-W01` | 6.1 |
+| P-W04 | Weekly, `lapseAfterRounds: 2`, tallied Mon 9 Nov 2026 at 10:00, unpaid | Lapses at Mon 23 Nov 00:00 | 6.1 |
+| P-W05 | As P-W04, but fees above the cap at 00:00 on 16 Nov | 16 Nov not counted; lapses at Mon 30 Nov 00:00 | 6.1 |
+| P-W06 | `payoutRound: "monthly, 1st of the month"` | Read as monthly; dates and labels as before | 6.1 |
+| P-W07 | Payout tallied under monthly rules; a change to weekly takes effect 3 days later | Weekly dates count from the change; the new lapse date is shown | 3.4, 6.1 |
+| P-W08 | First weekly date after summer time starts (Sun 28 Mar 2027) | Mon 29 Mar 00:00 CEST, which is Sun 28 Mar 22:00 UTC | 6.1 |
 
 ## 12. Signatures and receipts
 
