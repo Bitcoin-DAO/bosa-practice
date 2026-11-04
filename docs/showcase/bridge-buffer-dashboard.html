@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bitcoin Bridge Buffer — dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#15130E; --surface:#1D1A13; --surface2:#242018;
+    --line:#332D22; --line-soft:#28241B;
+    --text:#EDE7D8; --text-dim:#9A9484; --text-faint:#6E6858;
+    --amber:#F2A93B; --amber-dim:#8A6423;
+    --teal:#39B08D; --teal-dim:#1F5A48;
+    --red:#E2665B;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:'Space Grotesk',sans-serif;
+    padding:0 0 80px;
+  }
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  header{
+    padding:40px 24px 28px; max-width:920px; margin:0 auto;
+    border-bottom:1px solid var(--line);
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.08em;
+    color:var(--amber); text-transform:uppercase; margin:0 0 10px;
+  }
+  h1{font-size:26px; font-weight:600; margin:0 0 8px; letter-spacing:-.01em;}
+  .sub{color:var(--text-dim); font-size:14px; line-height:1.6; max-width:640px; margin:0;}
+  main{max-width:920px; margin:0 auto; padding:32px 24px 0;}
+  .panel{
+    background:var(--surface); border:1px solid var(--line);
+    border-radius:10px; padding:22px 24px; margin-bottom:24px;
+  }
+  .panel h2{font-size:15px; font-weight:600; margin:0 0 4px;}
+  .panel .desc{color:var(--text-dim); font-size:13px; margin:0 0 18px; line-height:1.55;}
+  label{display:block; font-size:12px; color:var(--text-dim); margin-bottom:6px;}
+  input[type=text], textarea{
+    width:100%; background:var(--surface2); border:1px solid var(--line);
+    color:var(--text); border-radius:6px; padding:10px 12px;
+    font-family:'IBM Plex Mono',monospace; font-size:13px;
+  }
+  textarea{min-height:110px; resize:vertical;}
+  input[type=text]:focus, textarea:focus{outline:1px solid var(--amber); border-color:var(--amber);}
+  .row{display:flex; gap:12px; flex-wrap:wrap; margin-bottom:14px;}
+  .row > div{flex:1; min-width:200px;}
+  button{
+    background:var(--amber); color:#221704; border:none; border-radius:6px;
+    padding:10px 18px; font-family:'Space Grotesk',sans-serif; font-weight:600;
+    font-size:13px; cursor:pointer;
+  }
+  button.ghost{
+    background:transparent; color:var(--text-dim); border:1px solid var(--line);
+  }
+  button:focus-visible{outline:2px solid var(--amber); outline-offset:2px;}
+  .status{font-size:12.5px; margin-top:10px; padding:9px 12px; border-radius:6px; display:none;}
+  .status.show{display:block;}
+  .status.warn{background:rgba(226,102,91,.12); color:#F0A197; border:1px solid rgba(226,102,91,.3);}
+  .status.ok{background:rgba(57,176,141,.12); color:#8FD6BE; border:1px solid rgba(57,176,141,.3);}
+  table{width:100%; border-collapse:collapse; font-family:'IBM Plex Mono',monospace; font-size:12.5px;}
+  th{
+    text-align:left; color:var(--text-faint); font-weight:500; font-size:11px;
+    letter-spacing:.05em; text-transform:uppercase; padding:0 10px 10px; border-bottom:1px solid var(--line);
+  }
+  th.num, td.num{text-align:right;}
+  td{padding:10px; border-bottom:1px solid var(--line-soft);}
+  tr:last-child td{border-bottom:none;}
+  .worker{color:var(--text);}
+  .pct{color:var(--amber);}
+  .payout{color:var(--teal); font-weight:500;}
+  .empty{
+    text-align:center; padding:32px 12px; color:var(--text-faint); font-size:13px;
+  }
+  .total-row td{border-top:1px solid var(--line); border-bottom:none; padding-top:14px; font-weight:500; color:var(--text);}
+  .note{
+    font-size:12px; color:var(--text-faint); line-height:1.65; margin-top:16px;
+    padding-top:14px; border-top:1px solid var(--line-soft);
+  }
+  .note b{color:var(--text-dim); font-weight:500;}
+  footer{max-width:920px; margin:40px auto 0; padding:0 24px; color:var(--text-faint); font-size:11.5px; line-height:1.7;}
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Sun to Sats · Bridge Buffer</p>
+  <h1>BB dashboard — MVP</h1>
+  <p class="sub">Pulls per-worker hash-share data for a CKPool solo account, then splits a weekly treasury payout across workers in proportion to hash contributed. Weekly measurement window, weekly disbursement.</p>
+</header>
+
+<main>
+
+  <div class="panel">
+    <h2>1 · Load worker data</h2>
+    <p class="desc">Enter the Bitcoin address this account mines to. This tries a direct fetch from raw.stats.ckpool.org — most browsers block that cross-origin, so a manual paste fallback is provided below either way.</p>
+    <div class="row">
+      <div>
+        <label for="addr">BTC address (CKPool username)</label>
+        <input type="text" id="addr" class="mono" placeholder="bc1q...">
+      </div>
+    </div>
+    <button id="fetchBtn">Try live fetch</button>
+    <button class="ghost" id="sampleBtn" style="margin-left:8px;">Load sample data</button>
+    <div class="status" id="fetchStatus"></div>
+
+    <div style="margin-top:20px;">
+      <label for="pasteArea">Or paste the JSON from raw.stats.ckpool.org/users/&lt;address&gt; directly</label>
+      <textarea id="pasteArea" class="mono" placeholder='{"hashrate1hr":"5.2T","hashrate1d":"5.0T","hashrate7d":"4.8T","worker":[{"workername":"sardinia-site1-asic1","hashrate7d":"2.4T"},{"workername":"sardinia-site1-asic2","hashrate7d":"2.4T"}]}'></textarea>
+      <button class="ghost" id="parseBtn" style="margin-top:10px;">Parse pasted JSON</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>2 · Weekly treasury payout</h2>
+    <p class="desc">Total amount the Bridge Buffer reserve is paying out this week, split across workers by their share of hashrate7d.</p>
+    <div class="row">
+      <div>
+        <label for="payout">Weekly payout (sats)</label>
+        <input type="text" id="payout" class="mono" value="50000">
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>3 · Split</h2>
+    <p class="desc" id="splitDesc">Load worker data above to see the breakdown.</p>
+    <div id="tableWrap"></div>
+  </div>
+
+  <div class="note">
+    <b>On the live-fetch step:</b> CKPool's stats endpoint is a bare server with no cross-origin headers, so a browser fetch from this dashboard will very likely fail with a CORS error — that's expected, not a bug. The production version of this needs a small server-side poller (a good fit for the Cloudflare Worker + D1 + Cron setup already planned for Sun to Sats) that fetches the CKPool JSON on a schedule, stores a weekly snapshot per worker in D1, and serves that stored history to this dashboard same-origin. That also solves a second problem the live endpoint can't: CKPool only exposes the current rolling window, not a historical archive, so weekly figures have to be captured and stored as they happen, not reconstructed after the fact.
+  </div>
+
+  <div class="note" style="border-top:none; padding-top:0;">
+    <b>Field used:</b> <span class="mono">hashrate7d</span> per worker, matching the weekly measurement window. Workers with no reported hashrate7d are shown with a zero share rather than excluded, so a quiet worker is visible, not silently dropped.
+  </div>
+
+</main>
+
+<footer>
+  Bitcoin Bridge Buffer — internal MVP tool. Not for production payout decisions until the Cloudflare-backed history store described above is in place.
+</footer>
+
+<script>
+let workers = [];
+
+function setStatus(msg, kind){
+  const el = document.getElementById('fetchStatus');
+  el.textContent = msg;
+  el.className = 'status show ' + kind;
+}
+
+function parseHashStr(v){
+  if (v === undefined || v === null) return 0;
+  if (typeof v === 'number') return v;
+  const s = String(v).trim();
+  const m = s.match(/^([\d.]+)\s*([kKmMgGtTpPeE]?)/);
+  if (!m) return 0;
+  const num = parseFloat(m[1]);
+  const unit = (m[2] || '').toUpperCase();
+  const mult = {'':1,'K':1e3,'M':1e6,'G':1e9,'T':1e12,'P':1e15,'E':1e18}[unit] || 1;
+  return num * mult;
+}
+
+function formatHash(h){
+  if (h >= 1e12) return (h/1e12).toFixed(2) + ' TH/s';
+  if (h >= 1e9) return (h/1e9).toFixed(2) + ' GH/s';
+  if (h >= 1e6) return (h/1e6).toFixed(2) + ' MH/s';
+  return h.toFixed(0) + ' H/s';
+}
+
+function loadFromPayload(payload){
+  const list = Array.isArray(payload.worker) ? payload.worker : [];
+  workers = list.map(w => ({
+    name: w.workername || w.name || '(unnamed)',
+    hash7d: parseHashStr(w.hashrate7d)
+  }));
+  if (workers.length === 0 && payload.hashrate7d){
+    workers = [{ name: payload.username || 'account total', hash7d: parseHashStr(payload.hashrate7d) }];
+  }
+  render();
+}
+
+document.getElementById('fetchBtn').addEventListener('click', async () => {
+  const addr = document.getElementById('addr').value.trim();
+  if (!addr){ setStatus('Enter a BTC address first.', 'warn'); return; }
+  setStatus('Fetching from raw.stats.ckpool.org…', 'warn');
+  try{
+    const res = await fetch('https://raw.stats.ckpool.org/users/' + addr);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const payload = await res.json();
+    loadFromPayload(payload);
+    setStatus('Loaded live data for ' + addr, 'ok');
+  }catch(err){
+    setStatus('Live fetch blocked (expected — see note below on the CORS/proxy issue). Paste the JSON manually instead, or load sample data.', 'warn');
+  }
+});
+
+document.getElementById('parseBtn').addEventListener('click', () => {
+  const raw = document.getElementById('pasteArea').value.trim();
+  if (!raw){ setStatus('Paste the JSON first.', 'warn'); return; }
+  try{
+    const payload = JSON.parse(raw);
+    loadFromPayload(payload);
+    setStatus('Parsed pasted data.', 'ok');
+  }catch(err){
+    setStatus('Could not parse that as JSON: ' + err.message, 'warn');
+  }
+});
+
+document.getElementById('sampleBtn').addEventListener('click', () => {
+  loadFromPayload({
+    worker: [
+      { workername: 'sardinia-site1-asic1', hashrate7d: '2.6T' },
+      { workername: 'sardinia-site1-asic2', hashrate7d: '2.3T' },
+      { workername: 'sardinia-site2-asic1', hashrate7d: '1.1T' },
+      { workername: 'sardinia-site3-asic1', hashrate7d: '4.9T' },
+      { workername: 'sardinia-site3-asic2', hashrate7d: '0T' }
+    ]
+  });
+  setStatus('Loaded sample data (5 workers, 3 sites).', 'ok');
+});
+
+document.getElementById('payout').addEventListener('input', render);
+
+function render(){
+  const wrap = document.getElementById('tableWrap');
+  const desc = document.getElementById('splitDesc');
+  if (workers.length === 0){
+    wrap.innerHTML = '<div class="empty">No worker data loaded yet.</div>';
+    return;
+  }
+  const totalHash = workers.reduce((s,w) => s + w.hash7d, 0);
+  const payoutSats = parseFloat(document.getElementById('payout').value) || 0;
+  desc.textContent = workers.length + ' worker' + (workers.length===1?'':'s') + ' · total hashrate7d ' + formatHash(totalHash) + ' · splitting ' + payoutSats.toLocaleString() + ' sats';
+
+  let rows = workers.map(w => {
+    const pct = totalHash > 0 ? (w.hash7d / totalHash) : 0;
+    return { ...w, pct, sats: Math.round(pct * payoutSats) };
+  }).sort((a,b) => b.hash7d - a.hash7d);
+
+  let html = '<table><thead><tr><th>Worker</th><th class="num">Hashrate (7d)</th><th class="num">Share</th><th class="num">Payout (sats)</th></tr></thead><tbody>';
+  rows.forEach(r => {
+    html += '<tr><td class="worker mono">'+r.name+'</td><td class="num mono">'+formatHash(r.hash7d)+'</td><td class="num pct mono">'+(r.pct*100).toFixed(1)+'%</td><td class="num payout mono">'+r.sats.toLocaleString()+'</td></tr>';
+  });
+  const sumSats = rows.reduce((s,r) => s + r.sats, 0);
+  html += '<tr class="total-row"><td class="mono">Total</td><td class="num mono">'+formatHash(totalHash)+'</td><td class="num mono">100.0%</td><td class="num mono">'+sumSats.toLocaleString()+'</td></tr>';
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+}
+
+render();
+</script>
+</body>
+</html>

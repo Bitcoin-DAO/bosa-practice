@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sun to Sats — Community Treasury</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#12151A;
+    --panel:#1B2028;
+    --panel-2:#20262F;
+    --border:#2A2F38;
+    --pv-blue:#2B5A72;
+    --pv-blue-bright:#4C8FB0;
+    --gold:#E7A83B;
+    --mint:#6FCF97;
+    --text:#EDEAE1;
+    --muted:#8B93A1;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'IBM Plex Sans',sans-serif;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:'Space Grotesk',sans-serif;letter-spacing:-0.01em;margin:0;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  a{color:inherit;}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px;}
+  :focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+
+  /* NAV */
+  nav{
+    position:sticky;top:0;z-index:20;
+    background:rgba(18,21,26,0.88);backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--border);
+  }
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px;}
+  .brand{display:flex;align-items:center;gap:10px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:1.05rem;}
+  .brand-mark{flex-shrink:0;display:block;}
+  .btn{
+    display:inline-block;padding:10px 20px;border-radius:8px;font-size:0.9rem;font-weight:600;
+    text-decoration:none;border:1px solid transparent;cursor:pointer;transition:transform .12s, opacity .12s;
+    font-family:'IBM Plex Sans',sans-serif;
+  }
+  .btn:hover{transform:translateY(-1px);}
+  .btn-gold{background:var(--gold);color:#1A1305;}
+  .btn-ghost{background:transparent;border-color:var(--border);color:var(--text);}
+
+  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:0.78rem;color:var(--pv-blue-bright);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:18px;}
+
+  /* HERO — sun graphic */
+  header.hero{padding:56px 0 40px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;align-items:center;text-align:center;}
+  .sun-caption{max-width:640px;padding:0 24px;}
+  .sun-caption h1{font-size:clamp(1.7rem,3.6vw,2.6rem);line-height:1.15;margin-top:8px;}
+  .sunscape{position:relative;width:min(640px,92vw);height:min(640px,92vw);margin:28px auto 4px;}
+  #orbit{width:100%;height:100%;overflow:visible;}
+  .sun-hint{font-family:'IBM Plex Mono',monospace;font-size:0.78rem;color:var(--muted);margin:6px 0 0;}
+  .hero-actions{display:flex;gap:14px;margin-top:26px;flex-wrap:wrap;justify-content:center;}
+  .miner-pulse{animation:minerPulse 4s ease-in-out infinite;}
+  @keyframes minerPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.02);}}
+
+  .sun-panel{
+    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
+    padding:22px 26px;width:min(300px,80%);text-align:left;box-shadow:0 12px 40px rgba(0,0,0,0.45);z-index:5;
+  }
+  .sun-panel .l{color:var(--muted);font-size:0.85rem;}
+  .sun-panel .k{font-size:1.3rem;}
+  .sun-panel-close{position:absolute;top:10px;right:14px;cursor:pointer;color:var(--muted);font-size:1.1rem;line-height:1;}
+  .sun-panel-close:hover{color:var(--text);}
+
+  .node-tip{
+    position:absolute;background:var(--panel);border:1px solid var(--border);border-radius:8px;
+    padding:10px 14px;font-family:'IBM Plex Mono',monospace;font-size:0.78rem;color:var(--text);
+    transform:translate(-50%,-130%);white-space:nowrap;z-index:6;pointer-events:auto;
+    box-shadow:0 8px 24px rgba(0,0,0,0.4);
+  }
+  .node-tip .m{color:var(--muted);}
+  .tip-link{color:var(--gold);text-decoration:none;display:inline-block;margin-top:10px;font-family:'IBM Plex Mono',monospace;font-size:0.82rem;}
+  .tip-link:hover{text-decoration:underline;}
+
+
+  /* TICKER — signature element */
+  .ticker-outer{border-bottom:1px solid var(--border);background:var(--panel);overflow:hidden;position:relative;}
+  .ticker-outer::before,.ticker-outer::after{content:'';position:absolute;top:0;bottom:0;width:60px;z-index:2;}
+  .ticker-outer::before{left:0;background:linear-gradient(90deg,var(--panel),transparent);}
+  .ticker-outer::after{right:0;background:linear-gradient(270deg,var(--panel),transparent);}
+  .ticker-track{display:flex;gap:0;width:max-content;animation:scroll 34s linear infinite;padding:14px 0;}
+  @media (prefers-reduced-motion:reduce){.ticker-track{animation:none;}}
+  @keyframes scroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+  .receipt{display:flex;align-items:center;gap:10px;padding:0 28px;border-right:1px solid var(--border);font-family:'IBM Plex Mono',monospace;font-size:0.82rem;white-space:nowrap;color:var(--muted);}
+  .receipt .badge{color:var(--mint);}
+  .receipt .amt{color:var(--text);}
+
+  /* SECTIONS */
+  section{padding:72px 0;border-bottom:1px solid var(--border);}
+  .section-head{max-width:600px;margin-bottom:42px;}
+  .section-head .eyebrow{margin-bottom:12px;}
+  .section-head h2{font-size:clamp(1.5rem,3vw,2rem);}
+  .section-head p{color:var(--muted);margin-top:12px;}
+  .treasury-explainer{color:var(--text);max-width:640px;font-size:0.98rem;line-height:1.7;margin-bottom:14px;}
+  .treasury-verify{color:var(--muted);max-width:640px;font-size:0.9rem;margin-bottom:36px;}
+
+  /* DASHBOARD CARDS */
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+  .grid-2{display:grid;grid-template-columns:1.1fr 0.9fr;gap:24px;}
+  @media (max-width:760px){.grid-3{grid-template-columns:1fr;}.grid-2{grid-template-columns:1fr;}}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:24px;}
+  .card .k{font-family:'IBM Plex Mono',monospace;font-size:1.7rem;color:var(--text);}
+  .card .l{color:var(--muted);font-size:0.85rem;margin-top:6px;}
+  .card .l a{color:var(--pv-blue-bright);text-decoration:none;}
+  .card .l a:hover{text-decoration:underline;}
+
+  .demo-note{display:inline-flex;align-items:center;gap:8px;font-size:0.78rem;color:var(--muted);font-family:'IBM Plex Mono',monospace;background:var(--panel-2);border:1px solid var(--border);padding:6px 12px;border-radius:100px;margin-bottom:20px;}
+  .demo-note .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);}
+
+  /* INDIVIDUAL VIEW */
+  .member-panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:28px;}
+  .profile-strip{display:flex;flex-wrap:wrap;gap:22px 34px;padding-bottom:22px;border-bottom:1px solid var(--border);}
+  .profile-item .l{font-size:0.78rem;margin-bottom:4px;}
+  .member-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);font-size:0.92rem;}
+  .member-row:last-child{border-bottom:none;}
+  .member-row .evt{color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:0.8rem;}
+  .member-row .amt{font-family:'IBM Plex Mono',monospace;color:var(--mint);}
+  .threshold-bar{height:6px;background:var(--panel-2);border-radius:100px;overflow:hidden;margin-top:16px;border:1px solid var(--border);}
+  .threshold-fill{height:100%;background:linear-gradient(90deg,var(--pv-blue),var(--pv-blue-bright));width:64%;}
+
+  /* LAYERS */
+  .layer{display:grid;grid-template-columns:64px 1fr;gap:22px;padding:26px 0;border-bottom:1px solid var(--border);}
+  .layer:last-child{border-bottom:none;}
+  .layer-num{font-family:'IBM Plex Mono',monospace;font-size:1.1rem;color:var(--muted);}
+  .layer.active .layer-num{color:var(--gold);}
+  .layer h3{font-size:1.15rem;display:flex;align-items:center;gap:10px;}
+  .tag{font-family:'IBM Plex Mono',monospace;font-size:0.7rem;padding:3px 9px;border-radius:100px;letter-spacing:0.03em;}
+  .tag-live{background:rgba(111,207,151,0.14);color:var(--mint);border:1px solid rgba(111,207,151,0.3);}
+  .tag-locked{background:var(--panel-2);color:var(--muted);border:1px solid var(--border);}
+  .layer p{color:var(--muted);margin-top:8px;font-size:0.93rem;max-width:560px;}
+  .layer.locked h3, .layer.locked p{opacity:0.55;}
+
+  /* FORM */
+  .form-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:30px;max-width:520px;}
+  label{display:block;font-size:0.82rem;color:var(--muted);margin-bottom:6px;margin-top:18px;}
+  label:first-child{margin-top:0;}
+  input{
+    width:100%;padding:11px 13px;background:var(--panel-2);border:1px solid var(--border);border-radius:7px;
+    color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:0.9rem;
+  }
+  input::placeholder{color:#5c6472;}
+  .hint{font-size:0.78rem;color:var(--muted);margin-top:6px;}
+  .form-card .btn{margin-top:24px;width:100%;text-align:center;}
+
+  footer{padding:36px 0;color:var(--muted);font-size:0.82rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 60 60" width="26" height="26" aria-hidden="true">
+        <circle cx="30" cy="30" r="28" fill="#E2791E" stroke="#12151A" stroke-width="2"/>
+        <image href="data:image/png;base64,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" x="16" y="9" width="28" height="37"/>
+      </svg>
+      Sun to Sats
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="sun-caption">
+    <div class="eyebrow">Treasury Pilot · Layer 0</div>
+    <h1>One treasury. Ten wallets.<br>Powered by the sun.</h1>
+  </div>
+  <div class="sunscape" id="sunscape">
+    <svg id="orbit" viewBox="0 0 640 640" aria-hidden="true"></svg>
+    <div class="sun-panel" id="sunPanel" hidden>
+      <div class="sun-panel-close" id="sunPanelClose">×</div>
+      <div class="l" style="margin-bottom:4px;">Treasury wallet</div>
+      <div class="k mono" id="sunPanelFigure">1,842,006 sats</div>
+      <div class="l" style="margin-top:10px;">One mainnet address. Mining income arrives continuously; settlements go out in a single batch.</div>
+      <a href="#community" class="tip-link">view treasury details →</a>
+    </div>
+    <div class="node-tip" id="nodeTip" hidden></div>
+  </div>
+  <p class="sun-hint">tap the sun for treasury details · tap a wallet to view it or join</p>
+</header>
+
+<section id="about">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">New here?</div>
+      <h2>Start with this</h2>
+    </div>
+    <p class="treasury-explainer">
+      Bitcoin is real money you can hold yourself — no bank, no company standing between
+      you and it. "Sats" (short for satoshis) are just its smallest unit, the way cents
+      are to a euro. Everything on this page is built toward one thing: eventually, the
+      value shown here becomes genuinely yours — something only you control, that nobody,
+      including us, can freeze, take back, or lose on your behalf.
+    </p>
+    <p class="treasury-explainer">
+      Joining costs nothing. Our solar panels power mining hardware directly, so every day
+      the sun shines, that hardware harvests sats that flow straight into the Treasury.
+      There's no catch and no fine print asking for your money —
+      just a free share of what our solar powered mining already earns. If that still
+      sounds too good to be true, good — stay skeptical, and check every step yourself
+      using the on-chain links on this page. That's the whole point.
+    </p>
+    <p class="treasury-explainer" style="margin-bottom:0;">
+      One thing worth knowing before you start: once Bitcoin moves, it can't be undone
+      the way a bank transfer can. Your 12 recovery words are the only thing that controls
+      your funds — share your wallet address freely, but never those words, with anyone,
+      ever.
+    </p>
+  </div>
+</section>
+
+<div class="ticker-outer">
+  <div class="ticker-track" id="ticker"></div>
+</div>
+
+<section id="community">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Community view — public, no login</div>
+      <h2>The Community Treasury</h2>
+    </div>
+    <p class="treasury-explainer">
+      The Treasury is one shared Bitcoin wallet the whole community can see into. It's funded by
+      the sats our solar powered mining activity earns each day, which build up here until
+      there's enough to pay out sensibly. On a regular schedule, the Treasury sends everyone
+      their share in a single, real Bitcoin transaction — landing straight in each member's own
+      wallet, where only they hold the key.
+    </p>
+    <p class="treasury-verify">Anyone can check these figures against the on-chain record. Nothing here depends on taking the platform's word for it.</p>
+    <div class="grid-3">
+      <div class="card">
+        <div class="k mono">10</div>
+        <div class="l">Members in the pilot</div>
+      </div>
+      <div class="card">
+        <div class="k mono">1,842,006</div>
+        <div class="l">Sats accrued this round</div>
+      </div>
+      <div class="card">
+        <div class="k mono">3</div>
+        <div class="l">Settlements confirmed — <a href="#" onclick="return false;">view on mempool.space ↗</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="member">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Individual view — behind member login</div>
+      <h2>Your wallet</h2>
+      <p>What a registered member sees after signing in. This is mock data for the prototype.</p>
+    </div>
+    <span class="demo-note"><span class="dot"></span>demo data — not a live account</span>
+
+    <div class="member-panel">
+      <div class="profile-strip">
+        <div class="profile-item"><div class="l">Member</div><div class="k mono" style="font-size:1rem;">sofia1</div></div>
+        <div class="profile-item"><div class="l">Joined</div><div class="k mono" style="font-size:1rem;">12 Jun 2026</div></div>
+        <div class="profile-item"><div class="l">Wallet slot</div><div class="k mono" style="font-size:1rem;">#1</div></div>
+        <div class="profile-item"><div class="l">Allocated PV capacity</div><div class="k mono" style="font-size:1rem;">100W</div></div>
+        <div class="profile-item"><div class="l">Layer</div><div class="k mono" style="font-size:1rem;">0 · gifted share</div></div>
+      </div>
+
+      <div style="margin-top:26px;">
+        <div class="l" style="margin-bottom:4px;">Your accrued balance</div>
+        <div class="k mono" style="font-size:2.2rem;">184,200 sats</div>
+        <div class="l mono" style="font-size:0.95rem;margin-top:2px;">≈ €102.78 <span style="color:var(--muted);font-family:'IBM Plex Sans',sans-serif;font-size:0.78rem;">today's rate, moves with the market</span></div>
+        <div class="threshold-bar"><div class="threshold-fill"></div></div>
+        <div class="hint">64% of the way to this round's settlement threshold</div>
+      </div>
+
+      <div style="margin-top:26px;">
+        <div class="member-row"><span class="evt">grant · layer 0</span><span class="amt">+100,000</span></div>
+        <div class="member-row"><span class="evt">daily accrual</span><span class="amt">+2,140</span></div>
+        <div class="member-row"><span class="evt">daily accrual</span><span class="amt">+1,960</span></div>
+        <div class="member-row"><span class="evt">settled · round 3</span><span class="amt mono" style="color:var(--muted);">txid a19f…c02e ↗</span></div>
+      </div>
+
+      <div style="margin-top:26px;padding-top:22px;border-top:1px solid var(--border);">
+        <h3 style="font-size:1rem;margin-bottom:14px;">Your receiving address</h3>
+        <div class="mono" style="font-size:0.82rem;color:var(--muted);word-break:break-all;line-height:1.7;">bc1q6f...redacted...92kd</div>
+        <p style="color:var(--muted);font-size:0.85rem;margin-top:12px;">This is where your next settlement lands. Only you hold the key to it.</p>
+        <a class="btn btn-ghost" style="margin-top:16px;display:inline-block;font-size:0.85rem;">Update address</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="layers">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">The path</div>
+      <h2>Two layers, one direction</h2>
+      <p>Layer 0 is where the pilot lives today. Layer 1 is next. Nothing further is promised on this site yet.</p>
+    </div>
+
+    <div class="layer active">
+      <div class="layer-num">00</div>
+      <div>
+        <h3>Gifted share <span class="tag tag-live">active</span></h3>
+        <p>A free fractional claim on the array's output, plus the accrual dashboard and settlement pipeline shown above. This is where the pilot lives today.</p>
+      </div>
+    </div>
+    <div class="layer locked">
+      <div class="layer-num">01</div>
+      <div>
+        <h3>Own a panel <span class="tag tag-locked">coming soon</span></h3>
+        <p>Buy one full solar panel outright. Your stake becomes a physical, auditable object — and your share of daily accrual grows to match.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="join" style="border-bottom:none;">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Get started</div>
+      <h2>Register for the pilot</h2>
+      <p>Ten places. If you don't have a Bitcoin address yet, we'll walk you through generating your first one — that's part of the point.</p>
+    </div>
+    <div class="form-card">
+      <label for="name">Name or handle</label>
+      <input id="name" type="text" placeholder="How the community will know you">
+      <label for="addr">Bitcoin address</label>
+      <input id="addr" type="text" placeholder="bc1q… — or tell us you need help generating one">
+      <div class="hint">New to this? Leave it blank and we'll help you set one up before the first round. If you're using BlueWallet, give us the address from its on-chain (Native SegWit) wallet — not the Lightning wallet.</div>
+      <a class="btn btn-gold" id="registerBtn">Register</a>
+      <div class="hint" id="registerMsg" style="margin-top:14px;"></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap" style="display:flex;justify-content:space-between;width:100%;flex-wrap:wrap;gap:10px;">
+    <span>Sun to Sats — community treasury pilot</span>
+    <span class="mono">prototype build · not yet live</span>
+  </div>
+</footer>
+
+<script>
+  // Mock ticker data
+  const receipts = [
+    {badge:'✓ confirmed', amt:'349,120 sats', to:'10 members', tx:'a19f…c02e'},
+    {badge:'✓ confirmed', amt:'298,440 sats', to:'9 members', tx:'7b3e…91aa'},
+    {badge:'✓ confirmed', amt:'412,880 sats', to:'10 members', tx:'2d0c…f451'},
+  ];
+  const track = document.getElementById('ticker');
+  function buildReceipt(r){
+    const el = document.createElement('div');
+    el.className = 'receipt';
+    el.innerHTML = `<span class="badge">${r.badge}</span><span class="amt">${r.amt}</span><span>→ ${r.to}</span><span>tx ${r.tx} ↗</span>`;
+    return el;
+  }
+  for(let i=0;i<2;i++){ receipts.forEach(r => track.appendChild(buildReceipt(r))); }
+</script>
+
+<script>
+  // ---- Sun graphic: treasury, income inflow, member nodes, batch settlement ----
+  const svg = document.getElementById('orbit');
+  const NS = 'http://www.w3.org/2000/svg';
+  const cx = 320, cy = 320, minerHalf = 58, orbitR = 230, sunBgR = 300;
+  const memberCount = 10;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function el(tag, attrs){
+    const e = document.createElementNS(NS, tag);
+    for(const k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+
+  const defs = el('defs', {});
+  defs.innerHTML = `
+    <radialGradient id="sunBgGrad" cx="50%" cy="50%" r="55%">
+      <stop offset="0%" stop-color="#FFCE45" stop-opacity="0.92"/>
+      <stop offset="78%" stop-color="#FFCE45" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#FFCE45" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="minerGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#E2791E"/>
+      <stop offset="100%" stop-color="#C05F0F"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="10" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>`;
+  svg.appendChild(defs);
+
+  // background sun glow, sits behind everything
+  svg.appendChild(el('circle', {cx, cy, r:sunBgR, fill:'url(#sunBgGrad)'}));
+
+  // sun rays — spikes poking out past the disc edge, slowly rotating
+  const sunRays = el('g', {opacity:'0.6'});
+  const rayCount = 12;
+  for(let i=0;i<rayCount;i++){
+    const angle = (i / rayCount) * 360;
+    const halfW = 6, r0 = sunBgR*0.5, r1 = sunBgR*1.22;
+    const rad = a => a * Math.PI/180;
+    const x0a = cx + r0*Math.cos(rad(angle-halfW)), y0a = cy + r0*Math.sin(rad(angle-halfW));
+    const x0b = cx + r0*Math.cos(rad(angle+halfW)), y0b = cy + r0*Math.sin(rad(angle+halfW));
+    const x1 = cx + r1*Math.cos(rad(angle)), y1 = cy + r1*Math.sin(rad(angle));
+    sunRays.appendChild(el('path', {d:`M${x0a},${y0a} L${x1},${y1} L${x0b},${y0b} Z`, fill:'#FFCE45'}));
+  }
+  if(!reduceMotion){
+    sunRays.appendChild(el('animateTransform', {
+      attributeName:'transform', type:'rotate', from:`0 ${cx} ${cy}`, to:`360 ${cx} ${cy}`,
+      dur:'120s', repeatCount:'indefinite'
+    }));
+  }
+  svg.appendChild(sunRays);
+  svg.appendChild(el('circle', {cx, cy, r:sunBgR*0.62, fill:'url(#sunBgGrad)'}));
+
+  svg.appendChild(el('circle', {cx, cy, r:orbitR, fill:'none', stroke:'#2A2F38', 'stroke-width':1, 'stroke-dasharray':'2 6'}));
+
+  const raysLayer = el('g', {id:'raysLayer'});
+  svg.appendChild(raysLayer);
+
+  const incomeLayer = el('g', {id:'incomeLayer'});
+  svg.appendChild(incomeLayer);
+
+  const miner = el('circle', {
+    cx, cy, r:minerHalf,
+    fill:'url(#minerGrad)', stroke:'#12151A', 'stroke-width':3,
+    style:'cursor:pointer;transform-box:fill-box;transform-origin:center;'
+  });
+  if(!reduceMotion) miner.classList.add('miner-pulse');
+  svg.appendChild(miner);
+
+  const satHref = 'data:image/png;base64,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';
+  const satImgW = 275, satImgH = 364;
+  const satDisplayH = minerHalf * 1.5;
+  const satDisplayW = satDisplayH * (satImgW / satImgH);
+  const satGlyph = el('image', {
+    href:satHref, 'xlink:href':satHref,
+    x:cx - satDisplayW/2, y:cy - satDisplayH/2, width:satDisplayW, height:satDisplayH,
+    style:'pointer-events:none;'
+  });
+  svg.appendChild(satGlyph);
+
+  const nodes = [];
+  const registeredMap = Array.from({length:memberCount}, (_, i) => i < 7); // first 7 registered, last 3 available — demo data
+  for(let i=0;i<memberCount;i++){
+    const angle = (i / memberCount) * 2 * Math.PI - Math.PI/2;
+    const nx = cx + orbitR * Math.cos(angle);
+    const ny = cy + orbitR * Math.sin(angle);
+    const isRegistered = registeredMap[i];
+    const g = el('g', {class:'wallet-node', style:'cursor:pointer'});
+    if(isRegistered){
+      g.appendChild(el('circle', {cx:nx, cy:ny, r:14, fill:'rgba(76,143,176,0.18)'}));
+      const dot = el('circle', {cx:nx, cy:ny, r:7, fill:'#4C8FB0', stroke:'#0E1216', 'stroke-width':2});
+      g.appendChild(dot);
+      nodes.push({x:nx, y:ny, dot, g, id:i, registered:true});
+    } else {
+      g.appendChild(el('circle', {cx:nx, cy:ny, r:14, fill:'none', stroke:'#4A505C', 'stroke-width':1.4, 'stroke-dasharray':'3 3'}));
+      const dot = el('circle', {cx:nx, cy:ny, r:6, fill:'none', stroke:'#6B7280', 'stroke-width':1.6});
+      g.appendChild(dot);
+      nodes.push({x:nx, y:ny, dot, g, id:i, registered:false});
+    }
+    svg.appendChild(g);
+  }
+
+  const sunPanel = document.getElementById('sunPanel');
+  const sunPanelFigure = document.getElementById('sunPanelFigure');
+  const sunPanelClose = document.getElementById('sunPanelClose');
+  const nodeTip = document.getElementById('nodeTip');
+  const sunscape = document.getElementById('sunscape');
+
+  let treasuryTotal = 1842006;
+
+  miner.addEventListener('click', () => {
+    sunPanelFigure.textContent = treasuryTotal.toLocaleString('en-US') + ' sats';
+    sunPanel.hidden = false;
+    nodeTip.hidden = true;
+  });
+  sunPanelClose.addEventListener('click', () => sunPanel.hidden = true);
+
+  const memberBalances = Array.from({length:memberCount}, () => 120000 + Math.floor(Math.random()*90000));
+  const usernames = {0:'sofia1', 1:'marco2', 3:'elena4', 4:'giovanni5', 6:'anna7'}; // 5 named, nodes 2 & 5 stay "member N"
+  nodes.forEach(n => {
+    n.g.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const rect = sunscape.getBoundingClientRect();
+      const scale = rect.width / 640;
+      nodeTip.style.left = (n.x * scale) + 'px';
+      nodeTip.style.top = (n.y * scale) + 'px';
+      if(n.registered){
+        const label = usernames[n.id] || `member ${n.id+1}`;
+        nodeTip.innerHTML = `${label}<br><span class="m">${memberBalances[n.id].toLocaleString('en-US')} sats accrued</span><br><a href="#member" class="tip-link">member login →</a>`;
+      } else {
+        nodeTip.innerHTML = `slot ${n.id+1} — available<br><a href="#join" class="tip-link">join the pilot →</a>`;
+      }
+      nodeTip.hidden = false;
+      sunPanel.hidden = true;
+    });
+  });
+  document.addEventListener('click', (e) => {
+    if(!e.target.closest('#orbit') && !e.target.closest('#nodeTip')){ nodeTip.hidden = true; }
+  });
+
+  function spawnParticle(){
+    const angle = Math.random() * 2 * Math.PI;
+    const startR = orbitR + 10 + Math.random() * (sunBgR - orbitR - 30);
+    const sx = cx + startR * Math.cos(angle);
+    const sy = cy + startR * Math.sin(angle);
+    const p = el('circle', {cx:sx, cy:sy, r:2.8, fill:'#FFF6DE', stroke:'#12151A', 'stroke-width':0.6, opacity:'0.95'});
+    incomeLayer.appendChild(p);
+    if(reduceMotion){ p.remove(); return; }
+    const dur = 2600 + Math.random()*1200;
+    const anim = p.animate(
+      [ { transform:'translate(0px,0px)', opacity:0.9 },
+        { transform:`translate(${cx-sx}px,${cy-sy}px)`, opacity:0 } ],
+      { duration:dur, easing:'ease-in' }
+    );
+    anim.onfinish = () => p.remove();
+  }
+  if(!reduceMotion) setInterval(spawnParticle, 380);
+
+  function runSettlement(){
+    nodes.filter(n => n.registered).forEach((n, i) => {
+      setTimeout(() => {
+        const ray = el('line', {x1:cx, y1:cy, x2:n.x, y2:n.y, stroke:'#FFF6DE', 'stroke-width':2, filter:'url(#glow)', opacity:'0'});
+        raysLayer.appendChild(ray);
+        if(reduceMotion){ n.dot.setAttribute('fill', '#6FCF97'); setTimeout(()=>n.dot.setAttribute('fill','#4C8FB0'), 600); return; }
+        ray.animate([{opacity:0},{opacity:1},{opacity:0}], {duration:900, easing:'ease-out'}).onfinish = () => ray.remove();
+        n.dot.animate([
+          { fill:'#4C8FB0', r:7 }, { fill:'#6FCF97', r:10 }, { fill:'#4C8FB0', r:7 }
+        ], { duration:900 });
+      }, i * 60);
+    });
+  }
+  if(!reduceMotion) setInterval(runSettlement, 9000);
+
+  // registration form — claims the next available node with a name+number username
+  const registerBtn = document.getElementById('registerBtn');
+  const registerMsg = document.getElementById('registerMsg');
+  const nameInput = document.getElementById('name');
+  registerBtn.addEventListener('click', () => {
+    const raw = nameInput.value.trim();
+    if(!raw){
+      registerMsg.textContent = 'Enter a name or handle first.';
+      return;
+    }
+    const slot = nodes.find(n => !n.registered);
+    if(!slot){
+      registerMsg.textContent = 'All ten pilot places are currently filled.';
+      return;
+    }
+    slot.registered = true;
+    const handle = raw.toLowerCase().replace(/[^a-z0-9]/g,'') + (slot.id+1);
+    usernames[slot.id] = handle;
+    memberBalances[slot.id] = 0;
+    // redraw the node as registered
+    const halo = slot.g.children[0], dot = slot.g.children[1];
+    halo.setAttribute('fill', 'rgba(76,143,176,0.18)');
+    halo.setAttribute('stroke', 'none');
+    halo.removeAttribute('stroke-dasharray');
+    dot.setAttribute('fill', '#4C8FB0');
+    dot.setAttribute('stroke', '#0E1216');
+    dot.setAttribute('stroke-width', '2');
+    dot.setAttribute('r', '7');
+    registerMsg.textContent = `Registered as ${handle} — tap wallet ${slot.id+1} on the graphic to see it.`;
+    nameInput.value = '';
+  });
+</script>
+
+</body>
+</html>

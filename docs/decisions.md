@@ -51,6 +51,7 @@
 
 ## Open questions
 
+- [ ] Sun to Sats showcase (`showcase-sun-to-sats.md`): distribution rule, reserve share, cadence, and whether to add a standing payout address to the protocol
 - [ ] Which funding model for UNO's mainnet DAO? Members to read `funding-models.md` and decide before the mainnet charter is drafted
 - [ ] Who are UNO's five council members, and who are the founding members?
 - [ ] What is the mainnet DAO called? The council decides, before the mainnet founding; the domain follows the name
