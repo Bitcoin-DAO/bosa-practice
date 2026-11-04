@@ -2,13 +2,32 @@ import { useState } from 'preact/hooks';
 import { signAndPublish, signOut, useApp } from '../app';
 import { KIND } from '../core/events';
 import { fmtDate, t } from '../i18n';
-import { Footer, Header, PrintCard, ShortCode, go } from './parts';
+import { validAddress } from '../core/state';
+import { Address, Footer, Header, PrintCard, ShortCode, errText, go } from './parts';
 
 export function Profile() {
   const app = useApp();
   const dao = app.site!.name;
   const [words, setWords] = useState(false);
   const [left, setLeft] = useState(false);
+  const [payAddr, setPayAddr] = useState('');
+  const [editing, setEditing] = useState(false);
+  const [payMsg, setPayMsg] = useState<string>();
+  const [busy, setBusy] = useState(false);
+  const setStanding = async (address?: string) => {
+    if (!address && !confirm(t('profile.payoutRemoveConfirm'))) return;
+    setPayMsg(undefined);
+    setBusy(true);
+    try {
+      await signAndPublish(KIND.confirm, address ? { address, standing: true } : { standing: false });
+      setEditing(false);
+      setPayAddr('');
+    } catch (e) {
+      setPayMsg(errText(e));
+    } finally {
+      setBusy(false);
+    }
+  };
   const leave = async () => {
     if (!confirm(t('profile.leaveConfirm', { dao }))) return;
     await signAndPublish(KIND.leave, {});
@@ -28,6 +47,11 @@ export function Profile() {
     );
   }
   const tk = app.identity?.treasury;
+  const s = app.dao;
+  const network = app.site!.network;
+  const standing = s?.standingAt(me.key, s.now);
+  const pa = payAddr.trim();
+  const payErr = pa && (!validAddress(pa, network) ? t('np.addressBad', { network }) : s?.isTreasuryAddress(pa) ? t('np.addressTreasury') : undefined);
   return (
     <>
       <Header />
@@ -46,6 +70,28 @@ export function Profile() {
             <p class="small">{t('profile.treasuryKeyText', { fp: tk.fingerprint })}</p>
             <button type="button" class="btn link" style="align-self:flex-start" onClick={() => setWords(!words)}>{words ? t('profile.hideWords') : t('profile.showWords')}</button>
             {words && <p class="mono" style="font-size:15px;line-height:1.8">{tk.mnemonic}</p>}
+          </div>
+        )}
+        {app.secret && s && (
+          <div class="card">
+            <h3>{t('profile.payout')}</h3>
+            <p class="small">{t('profile.payoutText')}</p>
+            {standing ? <Address value={standing.address} /> : <p class="small">{t('profile.payoutNone')}</p>}
+            {(editing || !standing) && (
+              <>
+                <label class="field">{t('profile.payoutNew')}<input type="text" class="mono" autoComplete="off" spellcheck={false} value={payAddr} onInput={e => setPayAddr((e.target as HTMLInputElement).value)} /></label>
+                {payErr && <p class="error">{payErr}</p>}
+                <button type="button" class="btn primary" disabled={!pa || !!payErr || busy || pa === standing?.address} onClick={() => setStanding(pa)}>{t('profile.payoutSave')}</button>
+              </>
+            )}
+            {standing && !editing && (
+              <div class="row" style="justify-content:flex-start;gap:8px">
+                <button type="button" class="btn secondary" onClick={() => setEditing(true)}>{t('profile.payoutReplace')}</button>
+                <button type="button" class="btn link" disabled={busy} onClick={() => setStanding()}>{t('profile.payoutRemove')}</button>
+              </div>
+            )}
+            <p class="note">{t('profile.payoutPrivacy')}</p>
+            {payMsg && <p class="warnbox">{payMsg}</p>}
           </div>
         )}
         {app.secret && (

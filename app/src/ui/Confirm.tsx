@@ -32,7 +32,7 @@ export function Confirm({ id }: { id: string }) {
     try {
       const key = app.secret ?? newSecret();
       for (const a of p.addresses) {
-        if (p.confirmations.has(a)) continue;
+        if (p.confirmations.has(a) || p.byStanding.has(a)) continue;
         await publishSigned(sign(template(KIND.confirm, s.founded!.daoId, { address: a }, [['e', p.event.id]]), key));
       }
       setDone(true);

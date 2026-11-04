@@ -1,6 +1,7 @@
 import { useApp } from '../app';
 import { fmtSats, t } from '../i18n';
 import { sha256Hex } from '../core/util';
+import { cadenceOf } from '../core/time';
 import { Address, Footer, Header } from './parts';
 import charterText from '@charter?raw';
 
@@ -22,7 +23,7 @@ export function Rules() {
           {app.dao?.settings.length ? <span class="small">{t('rules.settingsVersion', { v: app.dao.settings[app.dao.settings.length - 1].content.version })}</span> : null}
           <div class="kv"><span>{t('setup.voting')}</span><span>{t('setup.days', { n: r.votingPeriodDays })}</span></div>
           <div class="kv"><span>{t('setup.quorum')}</span><span>{t('setup.quorumVal', { q: r.quorum })}</span></div>
-          <div class="kv"><span>{t('setup.payouts')}</span><span>{t('setup.monthly')}</span></div>
+          <div class="kv"><span>{t('setup.payouts')}</span><span>{cadenceOf(r.payoutRound) === 'weekly' ? t('setup.weekly') : t('setup.monthly')}</span></div>
           <div class="kv"><span>{t('setup.maxFee')}</span><span>{r.maxFeeRateSatVb} sat/vB</span></div>
           <div class="kv"><span>{t('setup.cap')}</span><span>{fmtSats(r.treasuryCapSats)} sats</span></div>
           <p class="small">{t('rules.simple', { list: r.simpleMajority.join(', ') })}</p>

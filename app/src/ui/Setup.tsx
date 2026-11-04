@@ -12,6 +12,7 @@ import { store, type SetupState } from '../lib/store';
 import { Header, ScanModal, ShortCode, errText, go } from './parts';
 import { GenesisSummary } from './Founder';
 import charterText from '@charter?raw';
+import { cadenceOf } from '../core/time';
 
 type Tab = 1 | 2 | 3 | 4;
 
@@ -162,7 +163,7 @@ export function Setup() {
               <h3>{t('setup.rules')}</h3>
               <div class="kv"><span>{t('setup.voting')}</span><span>{t('setup.days', { n: site.rules.votingPeriodDays })}</span></div>
               <div class="kv"><span>{t('setup.quorum')}</span><span>{t('setup.quorumVal', { q: site.rules.quorum })}</span></div>
-              <div class="kv"><span>{t('setup.payouts')}</span><span>{t('setup.monthly')}</span></div>
+              <div class="kv"><span>{t('setup.payouts')}</span><span>{cadenceOf(site.rules.payoutRound) === 'weekly' ? t('setup.weekly') : t('setup.monthly')}</span></div>
               <div class="kv"><span>{t('setup.maxFee')}</span><span>{site.rules.maxFeeRateSatVb} sat/vB</span></div>
               <div class="kv"><span>{t('setup.cap')}</span><span>{fmtSats(site.rules.treasuryCapSats)} sats</span></div>
               <div class="kv"><span>{t('setup.charter')}</span><span class="mono">{charterSha256.slice(0, 8)} …</span></div>

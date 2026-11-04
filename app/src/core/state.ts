@@ -7,7 +7,7 @@ import { btcNetwork, parseDescriptor, treasuryAddress } from './descriptor';
 import { shortCode } from './shortcode';
 import { hashJson, nowSec, parseJson } from './util';
 import { inspectRound, memberSignatures, type RoundContent, type RoundInspection } from './round';
-import { roundDatesAfter } from './time';
+import { cadenceOf, roundDatesAfter } from './time';
 
 // ---------- types ----------
 
@@ -65,6 +65,14 @@ const RULE_NAME: Record<ProposalType, string> = {
 export interface Output {
   address: string;
   amount_sat: number;
+  /** Identity key of the member this output pays; lets a standing address confirm it (protocol 4.2). */
+  member?: string;
+}
+
+/** A member's standing payout address (protocol 4.2): set by a dao.confirm with no `e` tag. */
+export interface StandingAddress {
+  address: string;
+  event: Event;
 }
 
 export interface ProposalContent {
@@ -119,8 +127,14 @@ export interface ProposalView {
   untallied: string[]; // votes dated before close that the tally neither counts nor excludes
   status: ProposalStatus;
   addresses: string[]; // that need a recipient confirmation
-  confirmations: Map<string, Event[]>;
-  confirmed: boolean;
+  confirmations: Map<string, Event[]>; // per-proposal confirmations
+  /** Addresses confirmed now by their member's standing address. */
+  byStanding: Set<string>;
+  /** Addresses that waited on a standing address that its member has since replaced or withdrawn. */
+  standingMoved: string[];
+  confirmed: boolean; // now
+  /** Every address confirmed at time t: per proposal, or by a standing address in force then. */
+  confirmedAt(t: number): boolean;
 }
 
 export interface Rejected {
@@ -212,6 +226,8 @@ export interface DaoState {
   rosterAt(t: number): Versioned<RosterContent>;
   settingsAt(t: number): Versioned<SettingsContent>;
   isTreasuryAddress(addr: string): boolean;
+  /** The standing payout address of the member holding `key`, in force at time t. */
+  standingAt(key: string, t: number): StandingAddress | undefined;
 }
 
 // ---------- helpers ----------
@@ -269,6 +285,7 @@ export function proposalSchemaError(c: ProposalContent, network: DaoConfig['netw
       for (const o of p.outputs as Output[]) {
         if (!validAddress(o?.address, network)) return 'address';
         if (!Number.isInteger(o.amount_sat) || o.amount_sat <= DUST) return 'amount';
+        if (o.member !== undefined && !isKey(o.member)) return 'member';
       }
       if (new Set((p.outputs as Output[]).map(o => o.address)).size !== p.outputs.length) return 'duplicate address';
       return;
@@ -349,7 +366,7 @@ export function rebuild(site: SiteConfig, events: Event[], prefer?: string, now 
     keywraps: new Map(), rejected,
     personOf: k => k, keyOf: p => p, isCouncilAt: () => false, memberAt: () => false,
     rosterAt: () => { throw new Error('not founded'); }, settingsAt: () => { throw new Error('not founded'); },
-    isTreasuryAddress: () => false,
+    isTreasuryAddress: () => false, standingAt: () => undefined,
   };
   if (!founded) return empty;
 
@@ -375,6 +392,11 @@ export function rebuild(site: SiteConfig, events: Event[], prefer?: string, now 
   const settings: Versioned<SettingsContent>[] = [{ content: settings1, hash: hashJson(settings1), effectiveAt: T0 }];
   const rosterAt = (t: number) => [...rosters].reverse().find(r => r.effectiveAt <= t) ?? rosters[0];
   const settingsAt = (t: number) => [...settings].reverse().find(s => s.effectiveAt <= t) ?? settings[0];
+  /** Round dates follow the settings in force at each moment (6.1). */
+  const roundRulesAt = (t: number) => {
+    const r = settingsAt(t).content.rules;
+    return { cadence: cadenceOf(r.payoutRound), tz: r.timezone || 'UTC', changes: settings.map(s => s.effectiveAt) };
+  };
 
   // Persons and keys: a key replacement moves a person to a new key from its effective time.
   const personByKey = new Map<string, string>();
@@ -473,6 +495,16 @@ export function rebuild(site: SiteConfig, events: Event[], prefer?: string, now 
 
   const passed = (id: string) => proposals.find(p => p.event.id === id && p.status === 'passed');
 
+  // Standing payout addresses (4.2): dao.confirm with no `e` tag. Checked against membership in each pass.
+  let standingList: { event: Event; address?: string }[] = [];
+  const standingAt = (key: string, t: number): StandingAddress | undefined => {
+    const person = personOf(key);
+    let last: { event: Event; address?: string } | undefined;
+    for (const x of standingList) if (x.event.created_at <= t && personOf(x.event.pubkey) === person) last = x; // in time order
+    if (!last?.address || !memberAt(last.event.pubkey, t)) return; // withdrawn, or ended by leaving, removal or a new key
+    return { address: last.address, event: last.event };
+  };
+
   for (let iter = 0; iter < 50; iter++) {
     // rekeys in effect
     for (const r of rekeys) {
@@ -540,6 +572,15 @@ export function rebuild(site: SiteConfig, events: Event[], prefer?: string, now 
 
     const votes = ofKind(KIND.vote);
     const confirms = ofKind(KIND.confirm);
+    standingList = [];
+    for (const k of confirms.filter(k => tagValue(k, 'e') === undefined)) {
+      const b = parseJson<{ address?: string; standing?: boolean }>(k.content);
+      if (!b || typeof b.standing !== 'boolean') { proposalRejected.push({ event: k, reason: 'confirm: malformed' }); continue; }
+      if (!memberAt(k.pubkey, k.created_at)) { proposalRejected.push({ event: k, reason: 'standing address: signer is not a member' }); continue; }
+      if (b.standing && !validAddress(b.address, network)) { proposalRejected.push({ event: k, reason: 'standing address: invalid address' }); continue; }
+      if (b.standing && isTreasuryAddress(b.address!)) { proposalRejected.push({ event: k, reason: 'standing address: a treasury address' }); continue; }
+      standingList.push({ event: k, address: b.standing ? b.address : undefined });
+    }
     return kept.map(({ e, c }, i) => {
       const number = i + 1;
       const sv = settingsAt(e.created_at);
@@ -616,10 +657,19 @@ export function rebuild(site: SiteConfig, events: Event[], prefer?: string, now 
         if (!b || !addresses.includes(b.address)) { proposalRejected.push({ event: k, reason: 'confirm: address not in the proposal' }); continue; }
         confirmations.set(b.address, [...(confirmations.get(b.address) ?? []), k]);
       }
+      const memberOf = new Map(c.type === 'payout' ? (c.payload.outputs as Output[]).filter(o => o.member).map(o => [o.address, o.member!]) : []);
+      const coveredAt = (a: string, t: number) => {
+        const m = memberOf.get(a);
+        return !!m && standingAt(m, t)?.address === a;
+      };
+      const confirmedAt = (t: number) => addresses.every(a => confirmations.has(a) || coveredAt(a, t));
+      const byStanding = new Set(addresses.filter(a => !confirmations.has(a) && coveredAt(a, now)));
+      const standingMoved = addresses.filter(a => !confirmations.has(a) && !byStanding.has(a) && memberOf.has(a)
+        && standingList.some(x => x.address === a && personOf(x.event.pubkey) === personOf(memberOf.get(a)!) && x.event.created_at <= now));
       return {
         event: e, content: c, number, closeAt, rules, rosterVersion: rv.content.version, settingsVersion: sv.content.version,
         eligible, votes: latest, counts, quorumNeeded, twoThirds, recount, tally, disputed, tallyMismatch, untallied, status,
-        addresses, confirmations, confirmed: addresses.every(a => confirmations.has(a)),
+        addresses, confirmations, byStanding, standingMoved, confirmed: confirmedAt(now), confirmedAt,
       };
     });
   }
@@ -633,7 +683,7 @@ export function rebuild(site: SiteConfig, events: Event[], prefer?: string, now 
     const lapseAt = (p: ProposalView) => {
       const t = tallyAt(p);
       if (!Number.isFinite(t)) return undefined;
-      return roundDatesAfter(t, p.rules.timezone || 'UTC', Math.max(1, p.rules.lapseAfterRounds ?? 2)).pop();
+      return roundDatesAfter(t, p.rules.timezone || 'UTC', Math.max(1, p.rules.lapseAfterRounds ?? 2), roundRulesAt).pop();
     };
     for (const e of ofKind(KIND.round)) {
       const c = parseJson<RoundContent>(e.content);
@@ -659,7 +709,7 @@ export function rebuild(site: SiteConfig, events: Event[], prefer?: string, now 
       for (const [i, p] of props.entries()) {
         if (!p) { errors.push(`unknown proposal ${c.proposals[i].slice(0, 8)}`); continue; }
         if (p.status !== 'passed' || !['payout', 'close'].includes(p.content.type)) errors.push(`proposal ${p.number} is not a passed payout`);
-        if (!p.confirmed) errors.push(`proposal ${p.number} is not confirmed by its recipient`);
+        if (!p.confirmedAt(e.created_at)) errors.push(`proposal ${p.number} is not confirmed by its recipient`);
         const paid = paidAt.get(p.event.id);
         if (paid !== undefined && paid <= e.created_at) errors.push(`proposal ${p.number} is already paid`);
         const l = lapseAt(p);
@@ -915,7 +965,7 @@ export function rebuild(site: SiteConfig, events: Event[], prefer?: string, now 
     rosters, settings, rosterCandidates, settingsCandidates, rosterDisputed, settingsDisputed,
     members, rules: settings[settings.length - 1].content.rules, proposals, verifies, rekeys, leaves,
     pendingRoster, pendingSettings, rounds, payments, closed: closedNow, keywraps,
-    personOf, keyOf, isCouncilAt, memberAt, rosterAt, settingsAt, isTreasuryAddress,
+    personOf, keyOf, isCouncilAt, memberAt, rosterAt, settingsAt, isTreasuryAddress, standingAt,
   };
 }
 

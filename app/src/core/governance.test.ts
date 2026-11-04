@@ -10,6 +10,7 @@ import { newSecret, pubkeyOf, treasuryKeyFromMnemonic } from './identity';
 import { shortCode } from './shortcode';
 import { nextRoster, nextSettings, rebuild, type DaoState, type ProposalContent, type TallyContent } from './state';
 import { hashJson, parseJson } from './util';
+import { roundDatesAfter } from './time';
 
 const MNEMONICS = [
   'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
@@ -34,12 +35,12 @@ const site: SiteConfig = {
 };
 
 /** A founded DAO: 5 council (c0..c4), 4 founders (f0..f3). 9 members, quorum 3. */
-function dao() {
+function dao(rules: Partial<SiteConfig['rules']> = {}) {
   const c = MNEMONICS.map(() => newSecret());
   const f = [0, 1, 2, 3].map(() => newSecret());
   const tk = MNEMONICS.map(m => treasuryKeyFromMnemonic(m, 'testnet4'));
   const descriptor = buildDescriptor(3, tk, 'testnet4');
-  const genesis = buildGenesis(site, {
+  const genesis = buildGenesis({ ...site, rules: { ...site.rules, ...rules } }, {
     name: 'UNO', description: 'd',
     council: c.map((s, i) => ({ label: `@c${i}`, identityKey: pubkeyOf(s), fingerprint: tk[i].fingerprint, xpub: tk[i].xpub })),
     founders: f.map((s, i) => ({ name: `@f${i}`, identityKey: pubkeyOf(s), verified: 'in_person' as const })),
@@ -422,5 +423,116 @@ describe('payout rounds (6.1-6.3)', () => {
     s = d.state(t + 11);
     expect(s.closed).toBe(true);
     expect(s.rejected.some(x => x.event.id === late.id && x.reason === 'proposal: the DAO is closed')).toBe(true);
+  });
+});
+
+describe('weekly rounds and standing payout addresses (4.2, 6.1)', () => {
+  const masters = MNEMONICS.map(m => masterFromSeed(mnemonicToSeedSync(m), 'testnet4'));
+  const X = p2wpkh(secp256k1.getPublicKey(hexToBytes('33'.repeat(32)), true), TEST_NETWORK).address!;
+  const Y = p2wpkh(secp256k1.getPublicKey(hexToBytes('44'.repeat(32)), true), TEST_NETWORK).address!;
+
+  /** A passed payout of X, optionally naming the member it pays; no per-proposal confirmation. */
+  function payout(d: ReturnType<typeof dao>, at: number, member?: string, address = X) {
+    const p = d.propose(d.f[0], { type: 'payout', payload: { recipient: 'Quota settimanale', outputs: [{ address, amount_sat: 41_200, ...(member ? { member } : {}) }] } }, at);
+    for (const i of [0, 1, 2]) d.vote(d.f[i], p, 'yes', at + 2);
+    d.tally(d.c[0], d.state(at + 8 * DAY), p, at + 8 * DAY);
+    return p;
+  }
+  const standing = (d: ReturnType<typeof dao>, secret: string, address: string | undefined, at: number) =>
+    d.ev(KIND.confirm, address ? { address, standing: true } : { standing: false }, secret, at);
+  function roundFor(d: ReturnType<typeof dao>, p: Event, at: number) {
+    const desc = parseDescriptor(d.state(d.T).settings[0].content.descriptor, 'testnet4');
+    const utxos: Utxo[] = [{ txid: '1'.repeat(64), vout: 0, value: 300_000, address: treasuryAddress(desc, 'testnet4', 0, 0).address, branch: 0, index: 0 }];
+    const r = buildRound({ d: desc, network: 'testnet4', utxos, outputs: [{ address: X, amount_sat: 41_200 }], feeRate: 2, changeIndex: 0 });
+    return d.ev(KIND.round, { round: '1970-W02', proposals: [p.id], psbt: r.psbt, fee_rate_sat_vb: 2, fee_sat: r.fee }, d.c[0], at);
+  }
+  const after = (d: ReturnType<typeof dao>) => d.T + 8 * DAY + 100;
+
+  it('P-W04: a weekly payout lapses at the second Monday after its tally', () => {
+    const d = dao({ payoutRound: 'weekly' });
+    const p = payout(d, d.T, undefined);
+    d.ev(KIND.confirm, { address: X }, newSecret(), d.T + 1, [['e', p.id]]);
+    const tallied = d.T + 8 * DAY;
+    const [, second] = roundDatesAfter(tallied, 'Europe/Rome', 2, 'weekly');
+    const pay = d.state(tallied + 1).payments.get(p.id)!;
+    expect(pay.lapseAt).toBe(second);
+    expect(second - tallied).toBeLessThanOrEqual(14 * DAY);
+    expect(d.state(second - 1).payments.get(p.id)?.status).toBe('waiting');
+    expect(d.state(second).payments.get(p.id)?.status).toBe('lapsed');
+  });
+
+  it('C-S01, C-S02, C-S03: a standing address confirms only an output naming its member', () => {
+    const d = dao();
+    standing(d, d.f[1], X, d.T - 10);
+    const named = payout(d, d.T, pubkeyOf(d.f[1]));
+    const unnamed = payout(d, d.T + 1);
+    const wrong = payout(d, d.T + 2, pubkeyOf(d.f[2]));
+    const s = d.state(after(d));
+    expect(view(s, named).confirmed).toBe(true);
+    expect(view(s, named).byStanding.has(X)).toBe(true);
+    expect(s.payments.get(named.id)?.status).toBe('waiting');
+    expect(view(s, unnamed).confirmed).toBe(false);
+    expect(view(s, wrong).confirmed).toBe(false);
+  });
+
+  it('C-S04, C-S05: standing confirmations from non-members or of treasury addresses are rejected', () => {
+    const d = dao();
+    const outsider = standing(d, newSecret(), X, d.T);
+    const treasury = standing(d, d.f[1], d.treasury0, d.T + 1);
+    const s = d.state(d.T + 2);
+    expect(s.rejected.find(r => r.event.id === outsider.id)?.reason).toContain('not a member');
+    expect(s.rejected.find(r => r.event.id === treasury.id)?.reason).toContain('treasury');
+    expect(s.standingAt(pubkeyOf(d.f[1]), d.T + 2)).toBeUndefined();
+  });
+
+  it('C-S06, C-S07, C-S09: replacing or withdrawing a standing address stops unpaid payouts to the old one', () => {
+    const d = dao();
+    const f1 = pubkeyOf(d.f[1]);
+    standing(d, d.f[1], X, d.T - 10);
+    const p = payout(d, d.T, f1);
+    standing(d, d.f[1], Y, d.T + 8 * DAY + 50);
+    let s = d.state(after(d));
+    expect(view(s, p).confirmed).toBe(false);
+    expect(view(s, p).standingMoved).toEqual([X]);
+    expect(s.payments.get(p.id)?.status).toBe('unconfirmed');
+    // a per-proposal confirmation of the old address still pays it
+    d.ev(KIND.confirm, { address: X }, d.f[1], after(d) + 1, [['e', p.id]]);
+    expect(view(d.state(after(d) + 2), p).confirmed).toBe(true);
+    // withdrawing leaves no standing address
+    standing(d, d.f[1], undefined, after(d) + 3);
+    s = d.state(after(d) + 4);
+    expect(s.standingAt(f1, s.now)).toBeUndefined();
+    // same created_at: the higher id counts
+    const a = standing(d, d.f[1], X, after(d) + 10);
+    const b = standing(d, d.f[1], Y, after(d) + 10);
+    const winner = a.id > b.id ? X : Y;
+    expect(d.state(after(d) + 11).standingAt(f1, after(d) + 11)?.address).toBe(winner);
+  });
+
+  it('C-S08: leaving ends a standing address', () => {
+    const d = dao();
+    const f1 = pubkeyOf(d.f[1]);
+    standing(d, d.f[1], X, d.T);
+    expect(d.state(d.T + 1).standingAt(f1, d.T + 1)?.address).toBe(X);
+    d.ev(KIND.leave, {}, d.f[1], d.T + 2);
+    expect(d.state(d.T + 3).standingAt(f1, d.T + 3)).toBeUndefined();
+  });
+
+  it('C-S10: the standing address is checked when the round is published', () => {
+    const d = dao();
+    const f1 = pubkeyOf(d.f[1]);
+    standing(d, d.f[1], X, d.T - 10);
+    const p = payout(d, d.T, f1);
+    const t = after(d);
+    const ok = roundFor(d, p, t);
+    let s = d.state(t + 1);
+    expect(s.rounds.find(r => r.event.id === ok.id)?.errors).toEqual([]);
+    // the round is signed at threshold before the withdrawal: it stays valid
+    for (const i of [0, 1, 2]) d.ev(KIND.sign, { psbt: signWithMnemonicKey(parseJson<any>(ok.content).psbt, masters[i]) }, d.c[i], t + 2, [['e', ok.id]]);
+    standing(d, d.f[1], undefined, t + 3);
+    const late = roundFor(d, p, t + 4);
+    s = d.state(t + 5);
+    expect(s.rounds.find(r => r.event.id === ok.id)?.status).toBe('open');
+    expect(s.rounds.find(r => r.event.id === late.id)?.errors.join('; ')).toContain('not confirmed by its recipient');
   });
 });

@@ -4,6 +4,7 @@ import { signAndPublish, useApp } from '../app';
 import { fmtSats, t } from '../i18n';
 import { KIND } from '../core/events';
 import { DUST, proposalSchemaError, validAddress, type ProposalContent, type ProposalType } from '../core/state';
+import { cadenceOf } from '../core/time';
 import { Footer, Header, errText, go } from './parts';
 import { EDITABLE_RULES, ruleLabel, typeLabel } from './Proposals';
 
@@ -24,6 +25,7 @@ export function NewProposal() {
   const [amount, setAmount] = useState('');
   const [iAm, setIAm] = useState(false);
   const [member, setMember] = useState('');
+  const [forMember, setForMember] = useState('');
   const [reason, setReason] = useState('');
   const [rule, setRule] = useState<(typeof EDITABLE_RULES)[number]>('votingPeriodDays');
   const [value, setValue] = useState('');
@@ -48,13 +50,14 @@ export function NewProposal() {
   const amtError = amount && !(Number.isInteger(amt) && amt > DUST) ? t('np.amountBad', { dust: DUST }) : undefined;
   const current = s.rules?.[rule];
   const parsedValue = (() => {
+    if (rule === 'payoutRound') return value === 'weekly' || value === 'monthly' ? value : undefined;
     if (rule === 'quorum') return /^\d+\/\d+$/.test(value.trim()) ? value.trim() : undefined;
     const n = Number(value);
     return value.trim() && Number.isFinite(n) && n > 0 ? n : undefined;
   })();
 
   let payload: Record<string, unknown> = {};
-  if (type === 'payout') payload = { recipient: recipient.trim(), outputs: [{ address: addr, amount_sat: amt }] };
+  if (type === 'payout') payload = { recipient: recipient.trim(), outputs: [{ address: addr, amount_sat: amt, ...(forMember ? { member: forMember } : {}) }] };
   if (type === 'remove_member') payload = { member_key: member, reason: reason.trim() };
   if (type === 'change_rules') payload = { changes: [{ path: `rules.${rule}`, from: current, to: parsedValue }] };
   if (type === 'close') payload = { destination: addr };
@@ -63,14 +66,14 @@ export function NewProposal() {
     ...(link.trim() ? { link: { url: link.trim() } } : {}),
   };
   const schemaErr = proposalSchemaError(content, network);
-  const ok = !schemaErr && !addrError && !amtError && !(type === 'change_rules' && (parsedValue === undefined || parsedValue === current));
+  const ok = !schemaErr && !addrError && !amtError && !(type === 'change_rules' && (parsedValue === undefined || parsedValue === current || (rule === 'payoutRound' && parsedValue === cadenceOf(current))));
 
   const publish = async () => {
     setMsg(undefined);
     setBusy(true);
     try {
       const { event } = await signAndPublish(KIND.proposal, content);
-      if (iAm && (type === 'payout' || type === 'close')) await signAndPublish(KIND.confirm, { address: addr }, [['e', event.id]]);
+      if (iAm && !(type === 'payout' && payee && payeeStanding?.address === addr) && (type === 'payout' || type === 'close')) await signAndPublish(KIND.confirm, { address: addr }, [['e', event.id]]);
       go(`/p/${event.id}`);
     } catch (e) {
       setMsg(errText(e));
@@ -80,6 +83,15 @@ export function NewProposal() {
   };
 
   const removable = s.members.filter(m => !m.council && m.key !== app.me!.key);
+  const payee = s.members.find(m => m.key === forMember);
+  const payeeStanding = payee ? s.standingAt(payee.key, s.now) : undefined;
+  const chooseMember = (key: string) => {
+    setForMember(key);
+    const st = key ? s.standingAt(key, s.now) : undefined;
+    const m = s.members.find(x => x.key === key);
+    if (st) setAddress(st.address);
+    if (m && !recipient.trim()) setRecipient(m.name);
+  };
 
   return (
     <>
@@ -107,14 +119,29 @@ export function NewProposal() {
 
         {type === 'payout' && (
           <div class="card">
+            <label class="field">
+              {t('np.forMember')}
+              <select value={forMember} onChange={e => chooseMember((e.target as HTMLSelectElement).value)} style="min-height:48px;border:1px solid var(--field);border-radius:8px;padding:0 12px;font:inherit;font-size:16px;background:#fff">
+                <option value="">—</option>
+                {s.members.map(m => <option value={m.key}>{m.name}</option>)}
+              </select>
+            </label>
             <label class="field">{t('np.recipient')}<input type="text" maxLength={80} value={recipient} onInput={e => setRecipient((e.target as HTMLInputElement).value)} /></label>
             <label class="field">{t('np.address')}<input type="text" class="mono" autoComplete="off" spellcheck={false} value={address} onInput={e => setAddress((e.target as HTMLInputElement).value)} /></label>
             {addrError && <p class="error">{addrError}</p>}
+            {payee && addr && !addrError && (
+              payeeStanding?.address === addr ? <p class="ok">{t('np.standingUsed', { name: payee.name })}</p>
+                : <p class="small">{t(payeeStanding ? 'np.standingOther' : 'np.noStanding', { name: payee.name })}</p>
+            )}
             <label class="field">{t('np.amount')}<input type="text" inputMode="numeric" value={amount} onInput={e => setAmount((e.target as HTMLInputElement).value.replace(/[^\d]/g, ''))} /></label>
             {amount && !amtError && <span class="small">{fmtSats(amt)} sats</span>}
             {amtError && <p class="error">{amtError}</p>}
-            <label class="check"><input type="checkbox" checked={iAm} onChange={e => setIAm((e.target as HTMLInputElement).checked)} />{t('np.iAmRecipient')}</label>
-            {!iAm && <p class="small">{t('np.recipientLater')}</p>}
+            {!(payee && payeeStanding?.address === addr) && (
+              <>
+                <label class="check"><input type="checkbox" checked={iAm} onChange={e => setIAm((e.target as HTMLInputElement).checked)} />{t('np.iAmRecipient')}</label>
+                {!iAm && <p class="small">{t('np.recipientLater')}</p>}
+              </>
+            )}
           </div>
         )}
 
@@ -140,7 +167,18 @@ export function NewProposal() {
               </select>
             </label>
             <span class="small">{t('np.current', { v: String(current) })}</span>
-            <label class="field">{t('np.newValue')}<input type="text" value={value} onInput={e => setValue((e.target as HTMLInputElement).value)} /></label>
+            {rule === 'payoutRound' ? (
+              <label class="field">
+                {t('np.newValue')}
+                <select value={value} onChange={e => setValue((e.target as HTMLSelectElement).value)} style="min-height:48px;border:1px solid var(--field);border-radius:8px;padding:0 12px;font:inherit;font-size:16px;background:#fff">
+                  <option value="">—</option>
+                  <option value="monthly">{t('setup.monthly')}</option>
+                  <option value="weekly">{t('setup.weekly')}</option>
+                </select>
+              </label>
+            ) : (
+              <label class="field">{t('np.newValue')}<input type="text" value={value} onInput={e => setValue((e.target as HTMLInputElement).value)} /></label>
+            )}
           </div>
         )}
 

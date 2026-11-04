@@ -115,6 +115,21 @@ export function ProposalDetail({ id }: { id: string }) {
       setBusy(false);
     }
   };
+  const memberOf = (a: string) => {
+    const o = c.type === 'payout' ? (c.payload.outputs as Output[]).find(x => x.address === a) : undefined;
+    return o?.member ? s.personOf(o.member) : undefined;
+  };
+  const confirmOne = async (a: string) => {
+    setMsg(undefined);
+    setBusy(true);
+    try {
+      await signAndPublish(KIND.confirm, { address: a }, [['e', p.event.id]]);
+    } catch (e) {
+      setMsg(errText(e));
+    } finally {
+      setBusy(false);
+    }
+  };
   const copyLink = async () => {
     try {
       await navigator.clipboard.writeText(`${app.site!.site.replace(/\/$/, '')}/#/confirm/${p.event.id}`);
@@ -152,7 +167,13 @@ export function ProposalDetail({ id }: { id: string }) {
             {p.addresses.map(a => (
               <div class="stack" style="gap:4px">
                 <Address value={a} />
-                {p.confirmations.has(a) ? <span class="ok">{t('pd.confirmed')}</span> : <span class="warn">{t('pd.unconfirmed')}</span>}
+                {p.confirmations.has(a) ? <span class="ok">{t('pd.confirmed')}</span>
+                  : p.byStanding.has(a) ? <span class="ok">{t('pd.byStanding')}</span>
+                  : p.standingMoved.includes(a) ? <span class="warn">{t('pd.standingMoved')}</span>
+                  : <span class="warn">{t('pd.unconfirmed')}</span>}
+                {!p.confirmations.has(a) && !p.byStanding.has(a) && app.secret && memberOf(a) === myPerson && (
+                  <button type="button" class="btn secondary" disabled={busy} onClick={() => confirmOne(a)}>{t('pd.confirmThis')}</button>
+                )}
               </div>
             ))}
             {!p.confirmed && <button type="button" class="btn secondary" onClick={copyLink}>{copied ? t('home.copied') : t('pd.confirmLink')}</button>}
@@ -228,7 +249,12 @@ function Payload({ p }: { p: ProposalView }) {
       return (
         <>
           <div class="kv"><span>{t('pd.recipient')}</span><span>{pl.recipient}</span></div>
-          {(pl.outputs as Output[]).map(o => <div class="kv"><span>{t('pd.amount')}</span><span class="mono">{fmtSats(o.amount_sat)} sats</span></div>)}
+          {(pl.outputs as Output[]).map(o => (
+            <>
+              {o.member && <div class="kv"><span>{t('pd.for')}</span><span>{nameOf(o.member)}</span></div>}
+              <div class="kv"><span>{t('pd.amount')}</span><span class="mono">{fmtSats(o.amount_sat)} sats</span></div>
+            </>
+          ))}
         </>
       );
     case 'add_member': {
@@ -263,7 +289,7 @@ function Payload({ p }: { p: ProposalView }) {
   }
 }
 
-export const EDITABLE_RULES = ['votingPeriodDays', 'quorum', 'maxFeeRateSatVb', 'treasuryCapSats', 'lapseAfterRounds'] as const;
+export const EDITABLE_RULES = ['votingPeriodDays', 'quorum', 'payoutRound', 'lapseAfterRounds', 'maxFeeRateSatVb', 'treasuryCapSats'] as const;
 
 export function ruleLabel(key: string) {
   switch (key) {
@@ -271,7 +297,8 @@ export function ruleLabel(key: string) {
     case 'quorum': return t('setup.quorum');
     case 'maxFeeRateSatVb': return t('setup.maxFee');
     case 'treasuryCapSats': return t('setup.cap');
-    case 'lapseAfterRounds': return 'lapseAfterRounds';
+    case 'lapseAfterRounds': return t('np.ruleLapse');
+    case 'payoutRound': return t('setup.payouts');
     default: return key;
   }
 }

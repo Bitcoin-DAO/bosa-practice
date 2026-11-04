@@ -1,6 +1,6 @@
 # Draft protocol change: weekly rounds and standing payout addresses
 
-November 2026 · **approved and applied** to [`protocol.md`](../protocol.md) (sections 3.4, 4.1, 4.2, 5.2, 5.3, 6.1) and [`test-cases.md`](../test-cases.md). Kept as the record of why; the app changes below are still to do.
+November 2026 · **approved and applied** to [`protocol.md`](../protocol.md) (sections 3.4, 4.1, 4.2, 5.2, 5.3, 6.1) and [`test-cases.md`](../test-cases.md). Kept as the record of why. The app changes below are built (November 2026).
 
 Two small changes, needed first by the Sun to Sats showcase ([`showcase-sun-to-sats.md`](../showcase-sun-to-sats.md)), and open to any DAO. Neither adds an event kind, and a DAO that changes nothing in its settings behaves exactly as before.
 

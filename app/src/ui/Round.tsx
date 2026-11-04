@@ -8,7 +8,7 @@ import { usable } from '../core/config';
 import { feeRate as suggestedFeeRate, txStatus } from '../core/chain';
 import { parseDescriptor } from '../core/descriptor';
 import { buildRound, finalizeRound, masterFromSeed, memberSignatures, signWithMnemonicKey, type BuiltRound } from '../core/round';
-import { roundLabel } from '../core/time';
+import { cadenceOf, roundLabel } from '../core/time';
 import { proposalLabel, type Output, type RoundView } from '../core/state';
 import { Address, Footer, Header, errText, go } from './parts';
 import { useNameOf } from './Proposals';
@@ -67,7 +67,7 @@ export function PrepareRound() {
     setBusy(true);
     try {
       const { event } = await signAndPublish(KIND.round, {
-        round: roundLabel(s.now, settings.rules.timezone), proposals: list.map(p => p.event.id), psbt: built.psbt, fee_rate_sat_vb: r, fee_sat: built.fee,
+        round: roundLabel(s.now, settings.rules.timezone, cadenceOf(settings.rules.payoutRound)), proposals: list.map(p => p.event.id), psbt: built.psbt, fee_rate_sat_vb: r, fee_sat: built.fee,
       });
       const tk = app.identity?.treasury;
       if (tk) await signAndPublish(KIND.sign, { psbt: signWithMnemonicKey(built.psbt, masterFromSeed(mnemonicToSeedSync(tk.mnemonic), cfg.network)) }, [['e', event.id]]);

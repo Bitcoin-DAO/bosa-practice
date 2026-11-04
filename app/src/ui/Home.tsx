@@ -5,7 +5,7 @@ import { Address, Footer, Header, Qr, go } from './parts';
 import { Join } from './Join';
 import { ProposalCard } from './Proposals';
 import { councilTodo } from './Council';
-import { roundDatesAfter } from '../core/time';
+import { cadenceOf, roundDatesAfter } from '../core/time';
 import { proposalLabel, type RoundView } from '../core/state';
 
 export function Home() {
@@ -24,7 +24,7 @@ export function Home() {
   const waiting = app.dao!.proposals.filter(p => app.dao!.payments.get(p.event.id)?.status === 'waiting' && p.content.type === 'payout');
   const waitingSats = waiting.reduce((s, p) => s + (p.content.payload.outputs as { amount_sat: number }[]).reduce((a, o) => a + o.amount_sat, 0), 0);
   const nextRoundDate = new Intl.DateTimeFormat(app.lang === 'en' ? 'en-GB' : 'it-IT', { day: 'numeric', month: 'long', timeZone: current.rules.timezone })
-    .format(new Date(roundDatesAfter(app.dao!.now, current.rules.timezone, 1)[0] * 1000));
+    .format(new Date(roundDatesAfter(app.dao!.now, current.rules.timezone, 1, cadenceOf(current.rules.payoutRound))[0] * 1000));
   const paidRounds = new Map(app.dao!.rounds.filter(r => r.status === 'paid' && r.inspection).map(r => [r.inspection!.txid, r]));
   return (
     <>
