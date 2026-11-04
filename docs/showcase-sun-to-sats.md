@@ -6,12 +6,12 @@ Sun to Sats runs a shared solar site in Sardinia: ten members, ten panels, one o
 
 It is the first `production` DAO ([funding models](funding-models.md)): the miner pays into the treasury every month, so its steady I/O sits above 1, and the dashboard shows that beside **unauthorised spends: 0**.
 
-## 1. The monthly cycle
+## 1. The weekly cycle
 
 1. **Sun to treasury.** The PV system powers the miner. The pool pays straight to one treasury address, and every payment is reconciled on chain as income.
-2. **Distribution proposal.** Once a month, a council member loads the month's pool data. The app computes each member's share under the distribution rule and pre-fills a payout proposal: one output per member, up to the protocol's 10.
+2. **Distribution proposal.** Once a week, a council member loads the week's pool data. The app computes each member's share under the distribution rule and pre-fills a payout proposal: one output per member, up to the protocol's 10.
 3. **Vote and pay.** Members vote. The council signs the round on SeedSigner, and the payout reaches each member's own wallet.
-4. **Reserve.** A share of each month's income stays in the treasury as the Bridge Buffer reserve.
+4. **Reserve.** A share of each week's income stays in the treasury as the Bridge Buffer reserve.
 5. **Public proof.** btcdao.tech shows the DAO as production, its steady I/O and its reconciled treasury.
 
 The panel and miner wiring, curtailment ([SolarSats v2](https://github.com/blankworker1/solar-sats/blob/main/docs/v2-design.md)) and pool choice stay outside the DAO. The DAO starts where the pool pays.
@@ -32,7 +32,7 @@ The key ceremonies match too: btckeys (Entropia, hand-stamped plates, SeedSigner
 ## 3. What remains to build
 
 1. **Distribution helper** in the DAO's app, from [`showcase/bridge-buffer-dashboard.html`](showcase/bridge-buffer-dashboard.html). Its core (split a total by share, show idle members at 0%) carries over. Its inputs change: members own panels, not miners, so the share comes from the distribution rule (section 4), not from hashrate per worker. Pool data is pasted at first; a small Cloudflare Worker can poll the pool later, because browsers cannot fetch pool stats directly.
-2. **Sun front page**, from [`showcase/sun-to-sats-treasury-prototype.html`](showcase/sun-to-sats-treasury-prototype.html): a read-only page in the Sun to Sats DAO's own copy of btc-dao, rebuilding state from relays and the chain like the app does.
+2. **Sun front page**: a preview with demo data is built at [`showcase/sun-to-sats/`](../showcase/sun-to-sats/index.html) and published at https://bitcoin-dao.github.io/btc-dao/showcase/sun-to-sats/. Its demo state is one JSON block shaped like the app's rebuilt state, so going live replaces that block. It started from [`showcase/sun-to-sats-treasury-prototype.html`](showcase/sun-to-sats-treasury-prototype.html): a read-only page in the Sun to Sats DAO's own copy of btc-dao, rebuilding state from relays and the chain like the app does.
 
 | In the prototype (mock data) | Real source |
 | --- | --- |
@@ -47,6 +47,8 @@ Replaced by btc-dao: the PIN login and register form (join flow), the accrued ba
 
 ## 4. Decisions before building
 
+Decided: weekly cadence (changeable by a rules vote), and payout addresses carried in each distribution proposal. Both need a small protocol change, drafted separately: weekly round dates, and a standing confirmation so members confirm their address once.
+
 1. **Distribution rule.** Equal split per member, or by panel ownership or energy share. With one shared miner, hashrate per worker cannot attribute income to members.
 2. **Reserve share.** What percentage of each month's income stays in the treasury for the Bridge Buffer.
 3. **Cadence.** Monthly, matching btc-dao's payout rounds and one vote a month, rather than the Bridge Buffer's weekly design.
@@ -57,9 +59,31 @@ Also to align: the council is 3-of-5 (the protocol's fixed five keys), five of t
 ## 5. Order
 
 1. Make decisions 1 to 4, and write the rule and reserve share into a charter module.
-2. Build the distribution helper and rehearse the monthly cycle in `uno-practice`, with simulated pool payments.
+2. Build the distribution helper and rehearse the weekly cycle in `uno-practice`, with simulated pool payments.
 3. Connect the sun front page to the practice DAO.
 4. Found the Sun to Sats DAO on mainnet with the site live, funding model `production`, listed on btcdao.tech.
+
+## 6. Later: Layer 01, sunblocks
+
+A **sunblock** is a whole solar panel (500 W) that a member buys through the DAO and owns outright. It is a structured contribution layer on top of the weekly cycle: members pay in sats to cover the cost of their own panel, and the panel's output is counted in their share. The rules are drafted as the [member assets charter module](charter-modules/member-assets.md).
+
+**The flow**
+
+1. **Pledge.** A member asks for a sunblock. The app reserves a treasury receive address for that pledge, derived from the treasury's own descriptor, so its payments can be told apart from mining income.
+2. **Pay in.** The member pays the panel's price in sats, at once or in instalments. Progress shows against the pledge.
+3. **Purchase.** When the pledge is covered, a payout proposal pays the supplier for the panel and its share of mounting and cabling. Members vote; the council signs; reconciliation matches the spend.
+4. **Record ownership.** After installation, a statement proposal records the sunblock, its owner and the pledge that funded it. Once passed, it is permanent and public: the sunblock register is the chain of these records.
+5. **Earn.** The distribution rule gives each member a base share, plus a panel share for each sunblock they own.
+
+**Dashboard.** Pledge payments are capital, not income. The dashboard shows them as **capital in** and leaves them out of steady I/O, so a member buying a panel does not make the DAO look more self-sustaining than it is ([dashboard spec](dashboard-spec.md), section 2a).
+
+**Protocol.** Nothing new is needed to start: pledges, purchases and ownership records use the existing payout and statement proposals, plus the pledge address convention. If it works, a `pledge` proposal type could formalise it for any DAO buying shared assets for its members.
+
+**Decisions for later**
+
+1. The weights in the distribution rule: base share against panel share.
+2. Who carries the price risk while a pledge is paid in instalments.
+3. Whether only members, or anyone, can buy a sunblock.
 
 ## Reference files
 

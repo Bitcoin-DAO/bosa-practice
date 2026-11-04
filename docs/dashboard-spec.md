@@ -50,6 +50,7 @@ It measures whether money arrives **regularly** compared with what the DAO regul
 - **Inflow** is every payment received at a treasury address, from any descriptor the DAO has used.
 - **Outflow** is every reconciled spend: the payout outputs plus the network fee.
 - **Not counted:** change back to the treasury, and sweeps from an earlier descriptor to the current one. Both are the DAO moving its own money.
+- **Capital in, shown apart:** payments into addresses a DAO has reserved for a member's pledge (for example to buy a panel the member will own, see the [member assets module](charter-modules/member-assets.md)) are capital, not income. They are shown as **capital in** beside the totals and left out of steady I/O, so buying an asset never looks like regular income. The payout that spends a pledge on the asset is likewise left out of outflow.
 
 **Shown with it**
 
