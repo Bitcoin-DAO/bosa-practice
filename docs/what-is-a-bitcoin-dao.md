@@ -26,9 +26,9 @@ A Bitcoin DAO has two kinds of people, and keeping them separate is what makes i
 | Role | Who | What they do | What they need |
 | --- | --- | --- | --- |
 | Member | Anyone the group admits | Propose ideas and vote on them | A phone |
-| Council member | A small group chosen by the members, five in BOSA DAO | Approve payments by signing, and confirm changes to the member list and rules | A small signing device kept offline, and their key on a card at home |
+| Council member | A small group chosen by the members, five in the first DAO | Approve payments by signing, and confirm changes to the member list and rules | A small signing device kept offline, and their key on a card at home |
 
-Members decide; the council carries out the decision. The council cannot spend without a vote, and members cannot spend without the council. In BOSA DAO, any three of the five council members must sign before a single satoshi moves.
+Members decide; the council carries out the decision. The council cannot spend without a vote, and members cannot spend without the council. In the first DAO, any three of the five council members must sign before a single satoshi moves.
 
 A payment goes from idea to payment in five steps:
 
@@ -59,13 +59,13 @@ A payment goes from idea to payment in five steps:
 - **Every council member checks before signing.** Their signing device shows each address and amount on its own screen, so a hacked website cannot quietly change where the money goes.
 - **Everything is public.** Members, rules, proposals, votes, the balance and every payment can be checked by anyone, without signing in.
 - **It can always be recovered.** A one-page recovery sheet plus any three council keys restores the whole treasury in a standard Bitcoin wallet, with no need for this software or its website.
-- **A trial starts small.** BOSA DAO starts on Bitcoin's test network and then caps its treasury at an amount the community can afford to lose while the system proves itself.
+- **A trial starts small.** The first DAO rehearses twice on Bitcoin's test network, under the name UNO, and then caps its treasury at an amount the community can afford to lose while the system proves itself.
 
 ## What it can be used for
 
 A Bitcoin DAO suits any group that shares money, wants everyone to have a say, and makes a handful of payments a month.
 
-- **A local community fund.** BOSA DAO, the first one, funds a bitcoin community in Bosa, Sardinia: meetups, printed flyers, workshops.
+- **A local community fund.** A DAO can fund a local bitcoin community: meetups, printed flyers, workshops.
 - **Small grants.** Members propose local projects, artists or volunteers to support, and vote on which to fund.
 - **Events and festivals.** A shared budget for a yearly event, with every expense proposed and visible.
 - **Shared tools and spaces.** A tool library, a community garden or a workshop, with repairs and purchases decided together.
@@ -93,4 +93,4 @@ Each Bitcoin DAO runs its own copy of the software, with its own website, keys a
 4. **Practise first.** Run a round or two on Bitcoin's test network, with play money, before any real funds go in.
 5. **Be found, if you want.** A shared directory at btcdao.tech lists DAOs that choose to appear, with their balance and open proposals. It holds no keys and can't change anything.
 
-BOSA DAO is the first DAO, and the release waits until it has run for real and a second group has set up its own from the kit. The design, the specification and the progress are public on [GitHub](https://github.com/Bitcoin-DAO/btc-dao).
+UNO is the first DAO: it rehearses on the test network, then its council names the DAO that goes to the main network. The release waits until that DAO has run for real and a second group has set up its own from the kit. The design, the specification and the progress are public on [GitHub](https://github.com/Bitcoin-DAO/btc-dao).

@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="utf-8">
-<title>BOSA DAO · Dettaglio proposta</title>
+<title>UNO · Dettaglio proposta</title>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -110,42 +110,42 @@ dot: 'flex-shrink: 0; margin-top: 4px; width: 12px; height: 12px; border-radius:
 labelStyle: 'font-size: 14px; ' + (isDone ? 'font-weight: 600; color: #10292E;' : 'color: #4A5D61;')
 });
 const P = [
-{ id: 'BOSA-0008', type: 'Pagamento', status: 'In votazione', statusStyle: voting, title: 'Caffè e cornetti per il meetup di gennaio',
+{ id: 'UNO-0008', type: 'Pagamento', status: 'In votazione', statusStyle: voting, title: 'Caffè e cornetti per il meetup di gennaio',
 summary: 'Colazione per circa 30 partecipanti al meetup di gennaio, pagata in bitcoin al bar che ci ospita.',
 rows: [{ k: 'Importo', v: '40.000 sats' }, { k: 'Beneficiario', v: 'Bar della piazza · indirizzo confermato ✓' }, { k: 'Proposta da', v: '@anna' }],
 yes: 4, no: 0, abs: 0, tally: 'Conteggio finale: alla chiusura un membro del Consiglio pubblica l’elenco firmato dei voti contati.',
 steps: [st('Pubblicata', '2 nov', true), st('Indirizzo confermato dal beneficiario', '2 nov', true), st('Chiusura del voto', '9 nov', false), st('Conteggio finale firmato', 'alla chiusura', false), st('Ancorata su Bitcoin', 'dopo il conteggio', false), st('Pagata', 'giro successivo', false)] },
-{ id: 'BOSA-0007', type: 'Pagamento', status: 'In votazione', statusStyle: voting, title: 'Stampa dei volantini per il meetup di dicembre',
+{ id: 'UNO-0007', type: 'Pagamento', status: 'In votazione', statusStyle: voting, title: 'Stampa dei volantini per il meetup di dicembre',
 summary: '500 volantini A5 per invitare commercianti e residenti al meetup sul bitcoin del 14 dicembre.',
 rows: [{ k: 'Importo', v: '120.000 sats' }, { k: 'Beneficiario', v: 'Tipografia locale · indirizzo confermato ✓' }, { k: 'Proposta da', v: '@maria' }],
 yes: 9, no: 2, abs: 1, tally: 'Conteggio finale: alla chiusura un membro del Consiglio pubblica l’elenco firmato dei voti contati.',
 steps: [st('Pubblicata', '29 ott', true), st('Indirizzo confermato dal beneficiario', '30 ott', true), st('Chiusura del voto', '5 nov', false), st('Conteggio finale firmato', 'alla chiusura', false), st('Ancorata su Bitcoin', 'dopo il conteggio', false), st('Pagata', 'giro del 1 dic', false)] },
-{ id: 'BOSA-0006', type: 'Dichiarazione', status: 'In votazione', statusStyle: voting, title: 'Carta fondativa di BOSA DAO',
+{ id: 'UNO-0006', type: 'Dichiarazione', status: 'In votazione', statusStyle: voting, title: 'Carta fondativa di UNO',
 summary: 'A cosa servono i fondi e come ci comportiamo come membri. Una pagina, accettata da ogni nuovo membro.',
 rows: [{ k: 'Proposta da', v: '@anna' }],
 yes: 11, no: 0, abs: 0, tally: 'Conteggio finale: alla chiusura un membro del Consiglio pubblica l’elenco firmato dei voti contati.',
 steps: [st('Pubblicata', '31 ott', true), st('Chiusura del voto', '7 nov', false), st('Conteggio finale firmato', 'alla chiusura', false), st('Ancorata su Bitcoin', 'dopo il conteggio', false)] },
-{ id: 'BOSA-0005', type: 'Nuovo membro', status: 'Approvata', statusStyle: passed, title: 'Ammettere @giuseppe',
+{ id: 'UNO-0005', type: 'Nuovo membro', status: 'Approvata', statusStyle: passed, title: 'Ammettere @giuseppe',
 summary: 'Presentato da @anna, verificato di persona da un membro del Consiglio.',
 rows: [{ k: 'Presentato da', v: '@anna' }, { k: 'Conferme Consiglio', v: '2 di 3' }],
 yes: 10, no: 1, abs: 0, tally: 'Conteggio firmato da @marco il 27 ott: 11 voti contati, nessuno escluso.',
 steps: [st('Pubblicata', '20 ott', true), st('Voto chiuso: approvata', '27 ott', true), st('Conteggio finale firmato', '27 ott · @marco', true), st('Ancorata su Bitcoin', '28 ott · blocco [numero]', true), st('Conferme del Consiglio', '2 di 3', false)] },
-{ id: 'BOSA-0004', type: 'Pagamento', status: 'Nel giro del 1 dic', statusStyle: passed, title: 'Un SeedSigner di riserva per il Consiglio',
+{ id: 'UNO-0004', type: 'Pagamento', status: 'Nel giro del 1 dic', statusStyle: passed, title: 'Un SeedSigner di riserva per il Consiglio',
 summary: 'Rimborso a @luca per l’acquisto del secondo SeedSigner, tenuto sigillato tra un giro e l’altro.',
 rows: [{ k: 'Importo', v: '85.000 sats' }, { k: 'Beneficiario', v: '@luca (membro: non ha votato)' }, { k: 'Proposta da', v: '@sara' }],
 yes: 8, no: 3, abs: 2, tally: 'Conteggio firmato da @anna il 22 ott: 13 voti contati, 1 escluso perché arrivato dopo la chiusura.',
 steps: [st('Pubblicata', '15 ott', true), st('Voto chiuso: approvata', '22 ott', true), st('Conteggio finale firmato', '22 ott · @anna', true), st('Ancorata su Bitcoin', '23 ott · blocco [numero]', true), st('Pagata', 'giro del 1 dic', false)] },
-{ id: 'BOSA-0003', type: 'Pagamento', status: 'Pagata', statusStyle: done, title: 'Workshop wallet per principianti',
+{ id: 'UNO-0003', type: 'Pagamento', status: 'Pagata', statusStyle: done, title: 'Workshop wallet per principianti',
 summary: 'Sala, proiettore e materiali per un pomeriggio di workshop sui wallet bitcoin.',
 rows: [{ k: 'Importo', v: '150.000 sats' }, { k: 'Firmata da', v: '3 su 5 del Consiglio' }],
 yes: 12, no: 0, abs: 1, tally: 'Conteggio firmato da @pietro il 17 set: 13 voti contati, nessuno escluso.',
 steps: [st('Pubblicata', '10 set', true), st('Voto chiuso: approvata', '17 set', true), st('Conteggio finale firmato', '17 set · @pietro', true), st('Ancorata su Bitcoin', '18 set · blocco [numero]', true), st('Pagata · ricevuta sulla blockchain', '1 ott', true)] },
-{ id: 'BOSA-0002', type: 'Dichiarazione', status: 'Approvata', statusStyle: done, title: 'Regole iniziali di voto',
+{ id: 'UNO-0002', type: 'Dichiarazione', status: 'Approvata', statusStyle: done, title: 'Regole iniziali di voto',
 summary: 'Un membro, un voto; quorum di un terzo; voto di 7 giorni; pagamenti una volta al mese.',
 rows: [{ k: 'Proposta da', v: '@marco' }],
 yes: 9, no: 0, abs: 0, tally: 'Conteggio firmato da @sara l’8 set: 9 voti contati, nessuno escluso.',
 steps: [st('Pubblicata', '1 set', true), st('Voto chiuso: approvata', '8 set', true), st('Conteggio finale firmato', '8 set · @sara', true), st('Ancorata su Bitcoin', '9 set · blocco [numero]', true)] },
-{ id: 'BOSA-0001', type: 'Dichiarazione', status: 'Approvata', statusStyle: done, title: 'Nascita di BOSA DAO e Consiglio fondatore',
+{ id: 'UNO-0001', type: 'Dichiarazione', status: 'Approvata', statusStyle: done, title: 'Nascita di UNO e Consiglio fondatore',
 summary: 'Fondazione della DAO e nomina dei cinque custodi delle chiavi della tesoreria.',
 rows: [{ k: 'Proposta da', v: '@anna' }],
 yes: 7, no: 0, abs: 0, tally: 'Conteggio firmato dal Consiglio fondatore il 1 set: 7 voti contati.',

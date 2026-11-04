@@ -1,11 +1,11 @@
 {
   "configVersion": 1,
   "stage": "testnet",
-  "name": "BOSA DAO",
-  "description": "Community bitcoin treasury for Bosa, Sardinia. Proof of concept.",
+  "name": "UNO",
+  "description": "The first DAO built with btc-dao: a trial on testnet4. Proof of concept.",
   "languages": ["it", "en"],
   "network": "testnet4",
-  "site": "https://bitcoin-dao.github.io/bosa-dao",
+  "site": "https://bitcoin-dao.github.io/uno-testnet",
   "passkeyDomain": "bitcoin-dao.github.io",
   "council": [
     { "label": "Council 1", "identityKey": "[npub]", "fingerprint": "[8 hex]", "xpub": "[tpub at m/48'/1'/0'/2']" },

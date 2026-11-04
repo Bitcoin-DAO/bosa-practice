@@ -49,7 +49,7 @@ The ciphertext is kept in the browser and published as a `dao.keywrap` event (se
 
 Where the phone has no PRF support, the secret stays in that browser's storage and the member uses their identity card (section 1.7) on other devices. Nostr users may instead sign with their existing key through a NIP-07 browser extension and back it up their own way.
 
-The WebAuthn relying-party id is the config's `passkeyDomain`. It is the DAO's registrable domain (for BOSA DAO on mainnet, `bosadao.it`), not the full host, so pages on any of its subdomains share passkeys. On a host whose parent domain is a public suffix, such as GitHub Pages, it is the full host instead: `bitcoin-dao.github.io` for BOSA DAO's trial at `bitcoin-dao.github.io/bosa-dao`. Every DAO published under that GitHub account then shares one passkey domain, which is harmless because the PRF salt includes each DAO's id. The trial and mainnet DAOs have different DAO ids and different passkey domains, so each member has a separate identity in each.
+The WebAuthn relying-party id is the config's `passkeyDomain`. It is the DAO's registrable domain (for a DAO at `dao.example`, `dao.example`), not the full host, so pages on any of its subdomains share passkeys. On a host whose parent domain is a public suffix, such as GitHub Pages, it is the full host instead: `bitcoin-dao.github.io` for UNO's stages at `bitcoin-dao.github.io/uno-practice` and `/uno-testnet`. Every DAO published under that GitHub account then shares one passkey domain, which is harmless because the PRF salt includes each DAO's id. The trial and mainnet DAOs have different DAO ids and different passkey domains, so each member has a separate identity in each.
 
 A passkey only works on its own domain. If the DAO moves to a new address (section 7.2), members restore from their identity cards there and register new passkeys. Their identity keys, and so the roster and history, are unchanged.
 
@@ -66,7 +66,7 @@ A key swapped in transit gives a different short code, which is the whole point 
 An identity card is a member's paper backup of their identity key: one card each, optional for ordinary members and required for council members before the key ceremony. There are no passwords. Cards are printed straight from the browser and never saved as files.
 
 - QR payload: `BTCDAO:1:<dao8>:<secret>`, where `dao8` is the first 8 hex characters of the DAO id and `secret` is the 64-character key. All hex is upper case, so the payload fits QR alphanumeric mode (version 4 or smaller, about 3 cm square in print).
-- The printed text beside the QR (never inside it) gives the DAO name, the member's pseudonym, their short code, "Council" for a council member, the print date, and a fixed fallback line naming where to find the DAO if its site stops working: the project dashboard and the council (for BOSA DAO: "If bosadao.it stops working, find the new address at btcdao.tech or ask a council member").
+- The printed text beside the QR (never inside it) gives the DAO name, the member's pseudonym, their short code, "Council" for a council member, the print date, and a fixed fallback line naming where to find the DAO if its site stops working: the project dashboard and the council (for example: "If dao.example stops working, find the new address at btcdao.tech or ask a council member").
 - Council members keep the card apart from their SeedQR card. A council identity key gives one of the `threshold` endorsements any change needs and can never move funds, so one lost card is handled by a key replacement.
 
 Scanning accepts the payload in any letter case and ignores spaces and line breaks; printing always uses upper case.
@@ -107,7 +107,7 @@ Compared with the spec v0.1 event table, this adds `dao.settings` (versions of t
 {
   "kind": 3570,
   "tags": [["D", "<dao_id>"], ["v", "1"]],
-  "content": "<the genesis config, as in config/bosa-dao.testnet4.example.json>"
+  "content": "<the genesis config, as in config/example.testnet4.json>"
 }
 ```
 
@@ -158,7 +158,7 @@ If two different versions with the same number each reach `threshold` endorsemen
 }
 ```
 
-Settings hold everything about the DAO that can change by vote: the rules, the council's keys, the threshold and the treasury descriptor. Version 1 is implied by the genesis: `{"version": 1, "rules", "closed": false, "council", "threshold", "descriptor"}`, taken from the genesis config. `rules.charterSha256` fixes which charter text is in force: the SHA-256 of the binding (Italian, for BOSA DAO) text as UTF-8. The app shows the charter and checks it against this hash; a charter change is a `change_rules` proposal that changes the hash. Version 1 is taken from the genesis config. Same chain, basis and conflict rules as rosters. A rules change needs a passed and tallied `change_rules` proposal. A council change needs a passed and tallied `change_council` proposal plus the `dao.receipt` of its migration round; the new version names the new council, threshold and descriptor, and from its effective time payout rounds spend from the new descriptor.
+Settings hold everything about the DAO that can change by vote: the rules, the council's keys, the threshold and the treasury descriptor. Version 1 is implied by the genesis: `{"version": 1, "rules", "closed": false, "council", "threshold", "descriptor"}`, taken from the genesis config. `rules.charterSha256` fixes which charter text is in force: the SHA-256 of the binding text (Italian, for UNO) as UTF-8. The app shows the charter and checks it against this hash; a charter change is a `change_rules` proposal that changes the hash. Version 1 is taken from the genesis config. Same chain, basis and conflict rules as rosters. A rules change needs a passed and tallied `change_rules` proposal. A council change needs a passed and tallied `change_council` proposal plus the `dao.receipt` of its migration round; the new version names the new council, threshold and descriptor, and from its effective time payout rounds spend from the new descriptor.
 
 ### 3.5 Founding
 
@@ -172,7 +172,7 @@ The genesis config holds `council` (label, identity key, fingerprint, xpub for e
 4. A council member publishes `dao.genesis`; at least `threshold` council members endorse it. There are no `dao.verify` events for founders.
 5. Once a founder's browser sees an endorsed genesis listing its key, it wraps the secret with the passkey (section 1.5), publishes `dao.keywrap` and offers the identity card (section 1.7), which needs `dao8`. Council members print their cards before signing any event other than their genesis endorsement.
 
-A DAO that replaces an earlier one, such as BOSA DAO on mainnet after its trial on testnet4, lists the earlier DAO's members as founders. They sign up afresh, because identity keys are separate per DAO, but no one has to be voted in again.
+A DAO that replaces an earlier one, such as a mainnet DAO after its trial (UNO) on testnet4, lists the earlier DAO's members as founders. They sign up afresh, because identity keys are separate per DAO, but no one has to be voted in again.
 
 A founder's key lost before the genesis is published is simply replaced by signing up again. After publication, a lost key goes through `dao.rekey` like any other.
 
@@ -206,7 +206,7 @@ Common fields: `type`, `title` (≤ 80 characters), `summary` (≤ 500 character
 | `change_council` | `out_key`, `in_key`, `in_xpub`, `in_fingerprint`, `threshold`, `new_descriptor` |
 | `close` | `destination`: the address that receives the whole balance |
 
-The human-readable number (`BOSA-0007`) is not in the proposal event. Clients derive it by sorting all valid proposals by `created_at`, then by `id`, and numbering from 1, so every client shows the same numbers without a coordinator. The proposal's tally records the number (section 4.4), and from then on it never changes. A proposal dated before the most recently tallied proposal is rejected, so a backdated proposal can never renumber a closed one; one dated before an open proposal it arrived after is accepted and flagged as backdated.
+The human-readable number (`UNO-0007`) is not in the proposal event. Clients derive it by sorting all valid proposals by `created_at`, then by `id`, and numbering from 1, so every client shows the same numbers without a coordinator. The proposal's tally records the number (section 4.4), and from then on it never changes. A proposal dated before the most recently tallied proposal is rejected, so a backdated proposal can never renumber a closed one; one dated before an open proposal it arrived after is accepted and flagged as backdated.
 
 Valid when:
 - the signer is on the roster in effect at `created_at`;
@@ -219,7 +219,7 @@ Valid when:
 
 Tags: `["e", <proposal id>]`. Content: `{"address": "<address being confirmed>"}`, optionally with `"bip322": "<signature>"` when the recipient's wallet can sign a message with that address.
 
-Valid when the address appears in the proposal's outputs, or is the `destination` of a `close` proposal, which needs a confirmation in the same way. Any key may sign it, member or not. Every payout address needs a valid `dao.confirm` before it can enter a round; a proposer who is also the recipient confirms in the same step as proposing. There is no deadline: confirming is the recipient's responsibility, and it may come before, during or after the vote. A passed payout that is still unconfirmed waits, and lapses under the usual rule if it is not made binding within the lapse limit (2 rounds for BOSA DAO). A BIP-322 signature proves control of the address; without it, the confirmation shows only that someone with the confirmation link agreed.
+Valid when the address appears in the proposal's outputs, or is the `destination` of a `close` proposal, which needs a confirmation in the same way. Any key may sign it, member or not. Every payout address needs a valid `dao.confirm` before it can enter a round; a proposer who is also the recipient confirms in the same step as proposing. There is no deadline: confirming is the recipient's responsibility, and it may come before, during or after the vote. A passed payout that is still unconfirmed waits, and lapses under the usual rule if it is not made binding within the lapse limit (2 rounds in the reference rules). A BIP-322 signature proves control of the address; without it, the confirmation shows only that someone with the confirmation link agreed.
 
 ### 4.3 `dao.vote`
 
@@ -301,7 +301,7 @@ Every client that shows the round rebuilds the expected outputs and refuses to o
 - for a `change_council` migration round, the single output pays the full balance, minus fee, to the first receive address of `new_descriptor`;
 - no other round is open, unless this round spends at least one of the open round's inputs. A round is open from its publication until it has a receipt. Two rounds that share an input can never both confirm, so a replacement round is safe; once one confirms, the other is void.
 
-**Round dates** are computed in the settings' `timezone` (Europe/Rome for BOSA DAO): the 1st of each month at 00:00. They set when payouts lapse; a council member may publish a round at any time, and its `round` label is the month (`YYYY-MM`) it was prepared in. If fees are above the fee-rate cap on a round date, no round is built that month and the payouts wait.
+**Round dates** are computed in the settings' `timezone` (Europe/Rome in the reference rules): the 1st of each month at 00:00. They set when payouts lapse; a council member may publish a round at any time, and its `round` label is the month (`YYYY-MM`) it was prepared in. If fees are above the fee-rate cap on a round date, no round is built that month and the payouts wait.
 
 **Building a round** (reference app): coins largest first; change to the lowest unused address on the change branch, or no change if it would be at or below the dust limit (546 sats), the remainder going to the fee; the fee rate checked against the cap uses an upper-bound size estimate with 72-byte signatures.
 
@@ -338,7 +338,7 @@ Tags: `["e", <tally id>]`. Content: `{"digest": "<sha256>", "covers": ["<event i
 
 ### 7.2 `dao.listing`
 
-Content: `{"name": "BOSA DAO", "site": "https://...", "relays": ["wss://..."], "descriptor": "<public descriptor>", "software": "btc-dao 0.1.0", "build": "<sha256 of the release bundle>"}`. Takes effect with `threshold` endorsements. Dashboards list only endorsed listings, and flag any DAO whose `software` is older than the latest release or whose `build` does not match the signed release. The app shows its own version and build fingerprint on the Rules page, so members can compare.
+Content: `{"name": "UNO", "site": "https://...", "relays": ["wss://..."], "descriptor": "<public descriptor>", "software": "btc-dao 0.1.0", "build": "<sha256 of the release bundle>"}`. Takes effect with `threshold` endorsements. Dashboards list only endorsed listings, and flag any DAO whose `software` is older than the latest release or whose `build` does not match the signed release. The app shows its own version and build fingerprint on the Rules page, so members can compare.
 
 The `site` of the latest endorsed listing is the DAO's address. Moving the DAO to a new domain is done by publishing a new listing and collecting `threshold` endorsements; no member needs re-verifying. The card-restore screen shows the endorsed address and its endorsements, and clients warn when they are opened at any other address. Members should never scan an identity card on an address the council has not endorsed.
 
@@ -353,7 +353,7 @@ Each DAO runs one relay of its own beside at least two public relays. Its policy
 - no payment for access, and rate limits per key and per connection to keep spam small;
 - keep every accepted event; never delete.
 
-The reference setup is Nosflare on Cloudflare Workers, configured in `relay/`: pay-to-relay and sign-in off, only kinds 3570–3586, a required `D` tag (pinned to the DAO id once it exists), and pruning off. For BOSA DAO's trial it runs at a `workers.dev` address under the Bitcoin-DAO organisation's Cloudflare account; on mainnet it moves to `relay.bosadao.it`. Any relay with the same policy can replace it.
+The reference setup is Nosflare on Cloudflare Workers, configured in `relay/`: pay-to-relay and sign-in off, only kinds 3570–3586, a required `D` tag (pinned to the DAO id once it exists), and pruning off. For UNO's stages it runs at a `workers.dev` address under the Bitcoin-DAO organisation's Cloudflare account; a mainnet DAO runs its own on its own domain. Any relay with the same policy can replace it.
 
 ## 8. Rebuilding state
 

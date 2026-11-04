@@ -2,7 +2,7 @@ import { useApp } from '../app';
 import { fmtSats, t } from '../i18n';
 import { sha256Hex } from '../core/util';
 import { Address, Footer, Header } from './parts';
-import charterText from '../../../docs/charter.it.md?raw';
+import charterText from '@charter?raw';
 
 declare const __APP_VERSION__: string;
 declare const __BUILD_ID__: string;

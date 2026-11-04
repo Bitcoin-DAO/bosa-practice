@@ -17,8 +17,8 @@ export const AUTH_TIMEOUT_MS = 600000; // 10 minutes - how long the challenge is
 
 // Relay info
 export const relayInfo: RelayInfo = {
-  name: "BOSA DAO relay",
-  description: "Relay for BOSA DAO (btc-dao). Accepts only the DAO's own events, kinds 3570-3586 with its D tag, and keeps all of them.",
+  name: "btc-dao relay",
+  description: "Relay for btc-dao DAOs. Accepts only the DAO's own events, kinds 3570-3586 with its D tag, and keeps all of them.",
   pubkey: "",
   contact: "https://github.com/Bitcoin-DAO/btc-dao",
   supported_nips: [1, 11, 12, 16, 20],

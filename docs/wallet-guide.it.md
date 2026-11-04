@@ -2,7 +2,7 @@
 
 Novembre 2026 · [English](wallet-guide.en.md)
 
-Per votare in BOSA DAO non serve un wallet. Serve solo per ricevere un pagamento: questa guida ti porta da zero a un indirizzo bitcoin tuo, in pochi minuti, senza dare i tuoi soldi a nessuno.
+Per votare nella DAO non serve un wallet. Serve solo per ricevere un pagamento: questa guida ti porta da zero a un indirizzo bitcoin tuo, in pochi minuti, senza dare i tuoi soldi a nessuno.
 
 ## Prima di iniziare
 
@@ -26,7 +26,7 @@ Ti consigliamo **BlueWallet**: gratuito, open source, per Android e iPhone, e le
 
 - **Scaricalo solo dallo store ufficiale** (Google Play o App Store) e controlla che lo sviluppatore sia quello della tabella. Esistono app false con nomi simili.
 - Evita i wallet di un exchange o di una banca: lì i bitcoin sono loro, non tuoi.
-- BOSA DAO non ha accordi con BlueWallet e non riceve nulla per consigliarlo.
+- La DAO non ha accordi con BlueWallet e non riceve nulla per consigliarlo.
 
 Fonte: [BlueWallet](https://bluewallet.io/)
 
@@ -45,7 +45,7 @@ Le 12 parole **non** si fotografano, non si scrivono in una nota del telefono, n
 
 Fatto: hai un wallet bitcoin tuo.
 
-## Ricevere un pagamento da BOSA DAO
+## Ricevere un pagamento dalla DAO
 
 1. **Mostra il tuo indirizzo.** Nel wallet tocca «Ricevi». L'app mostra un indirizzo bitcoin (inizia con `bc1`) e il suo codice QR.
 2. **Fallo scansionare** a chi scrive la proposta: lo inquadra con la casella dell'indirizzo, così non ci sono errori di battitura. Se la proposta la scrivi tu, scansionalo tu.
@@ -56,7 +56,7 @@ Usa un indirizzo nuovo per ogni pagamento: il wallet ne crea uno nuovo ogni volt
 
 ## Durante la prova
 
-Nella fase di prova BOSA DAO usa testnet4, una rete di prova di Bitcoin: i pagamenti sono veri nel funzionamento, ma i bitcoin non valgono nulla. Gli indirizzi di prova iniziano con `tb1`, non con `bc1`.
+Nella fase di prova la DAO usa testnet4, una rete di prova di Bitcoin: i pagamenti sono veri nel funzionamento, ma i bitcoin non valgono nulla. Gli indirizzi di prova iniziano con `tb1`, non con `bc1`.
 
 - Il wallet per i bitcoin veri non serve ancora: crealo quando vuoi, ma non usarlo per la prova.
 - Per ricevere un pagamento di prova usa un wallet che funziona su testnet4: Nunchuk (Android e iPhone) o Mycelium Testnet (Android), da installare a parte. Il Consiglio ti aiuta la prima volta.
@@ -65,7 +65,7 @@ Nella fase di prova BOSA DAO usa testnet4, una rete di prova di Bitcoin: i pagam
 ## Le regole d'oro
 
 1. **Le 12 parole sono i tuoi bitcoin.** Chi le ha, ha i soldi. Restano su carta, a casa tua.
-2. **Nessuno te le chiederà mai.** Né BOSA DAO, né il Consiglio, né l'app, né un «tecnico». Chi le chiede sta cercando di derubarti.
+2. **Nessuno te le chiederà mai.** Né la DAO, né il Consiglio, né l'app, né un «tecnico». Chi le chiede sta cercando di derubarti.
 3. **Solo app dallo store ufficiale,** dello sviluppatore giusto.
 4. **Controlla l'indirizzo** prima di farlo scansionare o di confermarlo: inizio e fine devono coincidere con quelli del tuo wallet.
 5. **Nel dubbio, chiedi** a un membro del Consiglio a un incontro, non a sconosciuti in chat.
@@ -81,4 +81,4 @@ I bitcoin non sono nel telefono: sono sulla rete Bitcoin, e le 12 parole li apro
 
 Se perdi sia il telefono sia il foglio, i bitcoin sono persi per sempre: nessuno può recuperarli. Per questo il foglio conta più del telefono.
 
-Per BOSA DAO, invece, ti basta la passkey o la tua tessera d'identità: il wallet e la DAO sono due cose separate.
+Per la DAO, invece, ti basta la passkey o la tua tessera d'identità: il wallet e la DAO sono due cose separate.

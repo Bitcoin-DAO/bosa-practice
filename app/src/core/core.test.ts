@@ -95,8 +95,8 @@ describe('identity', () => {
 // ---- founding, end to end on events ----
 
 const site: SiteConfig = {
-  configVersion: 1, name: 'BOSA DAO', description: 'x', languages: ['it', 'en'], network: 'testnet4',
-  site: 'https://bitcoin-dao.github.io/bosa-dao', passkeyDomain: 'bitcoin-dao.github.io',
+  configVersion: 1, name: 'UNO', description: 'x', languages: ['it', 'en'], network: 'testnet4',
+  site: 'https://bitcoin-dao.github.io/uno-testnet', passkeyDomain: 'bitcoin-dao.github.io',
   council: [], founders: [], threshold: 3, descriptor: '',
   relays: ['wss://relay.example', 'wss://[public relay 1]'], chainApi: ['https://mempool.space/testnet4/api'],
   rules: {
@@ -111,7 +111,7 @@ function founding() {
   const founderSecret = newSecret();
   const tkeys = MNEMONICS.map(m => treasuryKeyFromMnemonic(m, 'testnet4'));
   const genesis = buildGenesis(site, {
-    name: 'BOSA DAO', description: 'd',
+    name: 'UNO', description: 'd',
     council: councilSecrets.map((s, i) => ({ label: `@c${i}`, identityKey: pubkeyOf(s), fingerprint: tkeys[i].fingerprint, xpub: tkeys[i].xpub })),
     founders: [{ name: '@elena', identityKey: pubkeyOf(founderSecret), verified: 'in_person' }],
     threshold: 3, descriptor: buildDescriptor(3, tkeys, 'testnet4'), charterSha256: 'ab'.repeat(32),

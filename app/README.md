@@ -13,7 +13,7 @@ The DAO's website: one static page that members open on their phones. It holds n
 
 Stage 2:
 
-- proposals of every kind except a council change: payout, statement, new member, removal, rules change, closing the DAO; numbers like BOSA-0007 derived by every client;
+- proposals of every kind except a council change: payout, statement, new member, removal, rules change, closing the DAO; numbers like UNO-0007 derived by every client;
 - voting, changing a vote until the close, quorum and simple or two-thirds majority, from the rules in force when the proposal was published;
 - the final count, published automatically by council phones after the close; conflicting counts are shown as disputed;
 - recipient confirmation by link, with or without a DAO key;
@@ -50,6 +50,8 @@ For the trial, each council member's phone also creates a **test treasury key** 
 
 The build reads the DAO's config file and serves it as `dao.json` beside the page. It takes `DAO_CONFIG` if set, then `config/dao.json` (an instance's own file), then the example. Placeholders in square brackets are ignored. After founding, add `"daoId": "<id>"` to the instance's file so the app goes straight to that DAO.
 
+The charter comes from `DAO_CHARTER` if set, then `config/charter.it.md`, then `docs/charter-template.it.md`. Its SHA-256 goes into the genesis, and the rules page checks the text against it, so the file must not change after founding except by a rules change.
+
 The page's content security policy is built from the same file: it can connect only to the listed relays and chain APIs.
 
 ## Develop and test
@@ -66,4 +68,4 @@ The end-to-end runs: founding with five council phones and two founders (one rem
 
 ## Deploy
 
-`.github/workflows/pages.yml` builds and publishes the site to GitHub Pages whenever the repository has a `config/dao.json`, so it runs in a DAO's own copy (such as `Bitcoin-DAO/bosa-dao`) and not in `btc-dao` itself. In the copy, set Settings → Pages → Source to "GitHub Actions".
+`.github/workflows/pages.yml` builds and publishes the site to GitHub Pages whenever the repository has a `config/dao.json`, so it runs in a DAO's own copy (such as `Bitcoin-DAO/uno-testnet`) and not in `btc-dao` itself. In the copy, set Settings → Pages → Source to "GitHub Actions".

@@ -10,7 +10,7 @@ Test coins have no value. The wallet exists so that the trials behave like the r
 | --- | --- |
 | Name | BTC DAO Testnet Treasury |
 | Network | testnet4 |
-| Held by | Carl, for the Bitcoin-DAO organisation |
+| Held by | the maintainer, for the Bitcoin-DAO organisation |
 | Wallet | single signature (P2WPKH) |
 | Return address | `tb1q9lg5kyzwj8dwyxlh2k6lauqpku3r0zpeyugs0u` |
 

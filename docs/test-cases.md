@@ -1,12 +1,12 @@
 # Protocol test cases (draft)
 
-These cases define what a correct btc-dao client must do with each kind of event (requirement S4). Each case gives the starting state, the events or input, and the expected result, with the protocol section it tests. Phase 1 turns every row into an automated test with real signed fixtures; a client is ready for BOSA DAO only when all of them pass.
+These cases define what a correct btc-dao client must do with each kind of event (requirement S4). Each case gives the starting state, the events or input, and the expected result, with the protocol section it tests. Phase 1 turns every row into an automated test with real signed fixtures; a client is ready for a DAO only when all of them pass.
 
 Cases marked with a gap number tested a rule `protocol.md` did not settle when they were first written. The [Findings](#findings) table records each gap and how it was resolved.
 
 ## Conventions
 
-- **Base state** unless a case says otherwise: BOSA DAO on testnet4; council A, B, C, D, E (threshold 3); founders F1, F2; rules version 1 (7-day vote, quorum 1/3, majority as in the config, monthly rounds in Europe/Rome time, lapse after 2 rounds, fee-rate cap 20 sat/vB, treasury cap 5,000,000 sats); roster version 1 = council + founders.
+- **Base state** unless a case says otherwise: a DAO on testnet4; council A, B, C, D, E (threshold 3); founders F1, F2; rules version 1 (7-day vote, quorum 1/3, majority as in the config, monthly rounds in Europe/Rome time, lapse after 2 rounds, fee-rate cap 20 sat/vB, treasury cap 5,000,000 sats); roster version 1 = council + founders.
 - `t0` is the time of the event under test; days are counted from it.
 - "Rejected" means the event is kept, shown in the rejected view with the reason, and has no effect on state (section 8). "Ignored" means the client never treats it as part of this DAO.
 - Every result must be the same whatever order the events arrive in, and whichever relays they come from.

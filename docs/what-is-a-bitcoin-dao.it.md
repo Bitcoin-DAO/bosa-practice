@@ -26,9 +26,9 @@ Una DAO bitcoin ha due tipi di persone, e tenerle separate è ciò che la rende 
 | Ruolo | Chi | Che cosa fa | Che cosa gli serve |
 | --- | --- | --- | --- |
 | Membro | Chiunque il gruppo ammetta | Propone idee e le vota | Un telefono |
-| Membro del Consiglio | Un piccolo gruppo scelto dai membri, cinque in BOSA DAO | Approva i pagamenti firmandoli, e conferma le modifiche all'elenco dei membri e alle regole | Un piccolo dispositivo di firma tenuto offline, e la propria chiave su una carta a casa |
+| Membro del Consiglio | Un piccolo gruppo scelto dai membri, cinque nella prima DAO | Approva i pagamenti firmandoli, e conferma le modifiche all'elenco dei membri e alle regole | Un piccolo dispositivo di firma tenuto offline, e la propria chiave su una carta a casa |
 
-I membri decidono; il Consiglio esegue. Il Consiglio non può spendere senza un voto, e i membri non possono spendere senza il Consiglio. In BOSA DAO servono le firme di tre dei cinque membri del Consiglio prima che si muova anche un solo satoshi.
+I membri decidono; il Consiglio esegue. Il Consiglio non può spendere senza un voto, e i membri non possono spendere senza il Consiglio. Nella prima DAO servono le firme di tre dei cinque membri del Consiglio prima che si muova anche un solo satoshi.
 
 Un pagamento va dall'idea al versamento in cinque passi:
 
@@ -59,13 +59,13 @@ Un pagamento va dall'idea al versamento in cinque passi:
 - **Ogni membro del Consiglio controlla prima di firmare.** Il suo dispositivo di firma mostra ogni indirizzo e ogni importo sul proprio schermo, così un sito manomesso non può cambiare di nascosto la destinazione del denaro.
 - **Tutto è pubblico.** Membri, regole, proposte, voti, saldo e ogni pagamento possono essere controllati da chiunque, senza accedere.
 - **Si può sempre recuperare.** Un foglio di recupero di una pagina più tre chiavi qualsiasi del Consiglio ripristinano tutta la tesoreria in un wallet bitcoin standard, senza bisogno di questo software o del suo sito.
-- **La prova parte in piccolo.** BOSA DAO inizia sulla rete di prova di Bitcoin, poi limita la tesoreria a una somma che la comunità può permettersi di perdere, finché il sistema non ha dato prova di sé.
+- **La prova parte in piccolo.** La prima DAO si prova due volte sulla rete di prova di Bitcoin, con il nome UNO, poi limita la tesoreria a una somma che la comunità può permettersi di perdere, finché il sistema non ha dato prova di sé.
 
 ## A che cosa può servire
 
 Una DAO bitcoin va bene per qualsiasi gruppo che condivide del denaro, vuole che tutti abbiano voce, e fa pochi pagamenti al mese.
 
-- **Un fondo di comunità.** BOSA DAO, la prima, sostiene una comunità bitcoin a Bosa, in Sardegna: incontri, volantini, laboratori.
+- **Un fondo di comunità.** Una DAO può sostenere una comunità bitcoin locale: incontri, volantini, laboratori.
 - **Piccoli contributi.** I membri propongono progetti locali, artisti o volontari da sostenere, e votano quali finanziare.
 - **Eventi e feste.** Un budget comune per un evento annuale, con ogni spesa proposta e visibile.
 - **Attrezzi e spazi condivisi.** Una biblioteca degli attrezzi, un orto comunitario o un laboratorio, con riparazioni e acquisti decisi insieme.
@@ -93,4 +93,4 @@ Ogni DAO bitcoin usa la propria copia del software, con il proprio sito, le prop
 4. **Provare prima.** Fare uno o due giri sulla rete di prova di Bitcoin, con soldi finti, prima di mettere denaro vero.
 5. **Farsi trovare, se si vuole.** Un elenco comune su btcdao.tech mostra le DAO che scelgono di comparire, con saldo e proposte aperte. Non ha chiavi e non può cambiare nulla.
 
-BOSA DAO è la prima DAO, e il software sarà pubblicato solo dopo che avrà funzionato davvero e un secondo gruppo avrà creato la propria con il kit. Progetto, specifiche e avanzamento sono pubblici su [GitHub](https://github.com/Bitcoin-DAO/btc-dao).
+UNO è la prima DAO: si prova sulla rete di prova, poi il suo Consiglio sceglie il nome della DAO che passa alla rete principale. Il software sarà pubblicato solo dopo che quella DAO avrà funzionato davvero e un secondo gruppo avrà creato la propria con il kit. Progetto, specifiche e avanzamento sono pubblici su [GitHub](https://github.com/Bitcoin-DAO/btc-dao).

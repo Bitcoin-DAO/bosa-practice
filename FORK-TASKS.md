@@ -1,6 +1,6 @@
 # Fork tasks
 
-This repo counts as released only when every item below is done, the code is field-tested by BOSA DAO, and the licence has been added (last step).
+This repo counts as released only when every item below is done, the code is field-tested by the first DAO (UNO, then its mainnet successor), and the licence has been added (last step).
 
 ## Code and protocol
 - [ ] `docs/protocol.md`: every event format as exact JSON, with kind numbers and versioning
@@ -14,11 +14,11 @@ This repo counts as released only when every item below is done, the code is fie
 - [ ] S1 to S6 met and tested on testnet4 (phase 1)
 - [ ] S7: change verified against the loaded descriptor on SeedSigner (phase 2, hard gate)
 - [ ] Independent code review before mainnet funds
-- [ ] S8 and S9 in place for the BOSA DAO mainnet trial
+- [ ] S8 and S9 in place for the first mainnet DAO
 
 ## Field test
-- [ ] BOSA DAO restores and spends its testnet4 treasury in Sparrow without the website
-- [ ] BOSA DAO completes three monthly mainnet rounds without developer help
+- [ ] UNO restores and spends its testnet4 treasury in Sparrow without the website
+- [ ] The first mainnet DAO completes three monthly rounds without developer help
 
 ## Fork kit
 - [ ] Three-stage template: practice, testnet and mainnet configs from one set of answers (practice with short votes)

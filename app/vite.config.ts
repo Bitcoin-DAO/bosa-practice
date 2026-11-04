@@ -8,7 +8,7 @@ import { execSync } from 'node:child_process';
 // DAO_CONFIG picks the file; otherwise ../config/dao.json, otherwise the example.
 function daoConfig(): Plugin {
   const pick = () => {
-    const candidates = [process.env.DAO_CONFIG, '../config/dao.json', '../config/bosa-dao.testnet4.example.json'].filter(Boolean) as string[];
+    const candidates = [process.env.DAO_CONFIG, '../config/dao.json', '../config/example.testnet4.json'].filter(Boolean) as string[];
     const file = candidates.map(f => resolve(__dirname, f)).find(f => existsSync(f));
     if (!file) throw new Error('No DAO config found');
     return readFileSync(file, 'utf8');
@@ -50,6 +50,13 @@ function daoConfig(): Plugin {
   };
 }
 
+// The DAO's charter, shown on the rules page and hashed into the genesis.
+// DAO_CHARTER picks the file; otherwise ../config/charter.it.md, otherwise the template.
+const charterFile = [process.env.DAO_CHARTER, '../config/charter.it.md', '../docs/charter-template.it.md']
+  .filter(Boolean)
+  .map(f => resolve(__dirname, f as string))
+  .find(f => existsSync(f))!;
+
 const pkg = JSON.parse(readFileSync(resolve(__dirname, 'package.json'), 'utf8'));
 let build = process.env.GITHUB_SHA?.slice(0, 7);
 if (!build) {
@@ -63,6 +70,7 @@ if (!build) {
 export default defineConfig({
   base: './',
   plugins: [preact(), daoConfig()],
+  resolve: { alias: [{ find: /^@charter/, replacement: charterFile }] },
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
     __BUILD_ID__: JSON.stringify(build),

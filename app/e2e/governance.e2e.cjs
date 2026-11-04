@@ -209,7 +209,7 @@ async function councilAction(page, buttonName) {
   log('@nina protects her key and is a member');
   await open(n, '#/candidate');
   await n.getByRole('button', { name: 'Proteggi la chiave e continua' }).click({ timeout: 20000 });
-  await n.getByText('Sei membro di BOSA DAO ✓').waitFor({ timeout: 20000 });
+  await n.getByText('Sei membro di UNO ✓').waitFor({ timeout: 20000 });
   await shot(n, '08-member');
   await open(f1, '#/members');
   check(await seen(f1.getByText('6 membri · 3 nel Consiglio')), '6 members');
@@ -217,7 +217,7 @@ async function councilAction(page, buttonName) {
   log('@marta leaves; the next list drops her');
   await open(f2, '#/profile');
   await f2.getByRole('button', { name: 'Lascia la DAO' }).click();
-  await f2.getByText('Hai lasciato BOSA DAO.').waitFor({ timeout: 15000 });
+  await f2.getByText('Hai lasciato UNO.').waitFor({ timeout: 15000 });
   await councilAction(a, 'Pubblica la versione 3');
   await councilAction(B.page, 'Approva la versione 3');
   await councilAction(C.page, 'Approva la versione 3');

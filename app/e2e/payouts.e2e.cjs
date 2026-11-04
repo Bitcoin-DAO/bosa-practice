@@ -152,7 +152,7 @@ async function signUp(page, name, council) {
   await f.locator('.balance').filter({ hasText: /\d/ }).waitFor({ timeout: 30000 });
   const bal = Number((await f.locator('.balance').innerText()).replace(/[^\d]/g, ''));
   check(bal < 500000 - 120000 && bal > 500000 - 120000 - 2000, `treasury balance ${bal} = 500.000 − 120.000 − fee`);
-  check(await seen(f.getByText(/Giro \d{4}-\d{2} · BOSA-0001/)), 'movement labelled with the round');
+  check(await seen(f.getByText(/Giro \d{4}-\d{2} · UNO-0001/)), 'movement labelled with the round');
   await shot(f, '04-home');
 
   log('Independent check of the broadcast transaction with embit');

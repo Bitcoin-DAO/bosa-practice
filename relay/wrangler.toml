@@ -12,7 +12,7 @@ class_name = "RelayWebSocket"
 # Important! Change name and id settings to your own
 [[d1_databases]]
 binding = "RELAY_DATABASE"
-database_name = "bosa-dao-relay"
+database_name = "bosa-dao-relay" # created before the project went generic; D1 names cannot change, the id is what counts
 database_id = "c759c9d9-a121-4a2d-9d80-8cca1cdf3f71"
 
 # Cron trigger for 24hr database maintenance

@@ -22,8 +22,8 @@ const DAY = 86400;
 const ADDR = p2wpkh(secp256k1.getPublicKey(hexToBytes('11'.repeat(32)), true), TEST_NETWORK).address!;
 
 const site: SiteConfig = {
-  configVersion: 1, name: 'BOSA DAO', description: 'x', languages: ['it'], network: 'testnet4',
-  site: 'https://bitcoin-dao.github.io/bosa-dao', passkeyDomain: 'bitcoin-dao.github.io',
+  configVersion: 1, name: 'UNO', description: 'x', languages: ['it'], network: 'testnet4',
+  site: 'https://bitcoin-dao.github.io/uno-testnet', passkeyDomain: 'bitcoin-dao.github.io',
   council: [], founders: [], threshold: 3, descriptor: '', relays: [], chainApi: [],
   rules: {
     votingPeriodDays: 7, quorum: '1/3', simpleMajority: ['payout', 'statement', 'addMember'],
@@ -40,7 +40,7 @@ function dao() {
   const tk = MNEMONICS.map(m => treasuryKeyFromMnemonic(m, 'testnet4'));
   const descriptor = buildDescriptor(3, tk, 'testnet4');
   const genesis = buildGenesis(site, {
-    name: 'BOSA DAO', description: 'd',
+    name: 'UNO', description: 'd',
     council: c.map((s, i) => ({ label: `@c${i}`, identityKey: pubkeyOf(s), fingerprint: tk[i].fingerprint, xpub: tk[i].xpub })),
     founders: f.map((s, i) => ({ name: `@f${i}`, identityKey: pubkeyOf(s), verified: 'in_person' as const })),
     threshold: 3, descriptor, charterSha256: 'ab'.repeat(32),

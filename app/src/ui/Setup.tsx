@@ -11,7 +11,7 @@ import { hashJson, sha256Hex } from '../core/util';
 import { store, type SetupState } from '../lib/store';
 import { Header, ScanModal, ShortCode, errText, go } from './parts';
 import { GenesisSummary } from './Founder';
-import charterText from '../../../docs/charter.it.md?raw';
+import charterText from '@charter?raw';
 
 type Tab = 1 | 2 | 3 | 4;
 

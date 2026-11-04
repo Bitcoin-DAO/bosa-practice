@@ -14,7 +14,7 @@ const c = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"));
 Object.assign(c, { site: "http://localhost:4173", passkeyDomain: "localhost", relays: ["ws://127.0.0.1:8787"], chainApi: ["http://127.0.0.1:3002/api"] });
 c.rules.votingPeriodDays = 0.0015; // about 2 minutes
 require("fs").writeFileSync(process.argv[2], JSON.stringify(c, null, 2));
-' "$APP/../config/bosa-dao.testnet4.example.json" "$OUT/dao.test.json"
+' "$APP/../config/example.testnet4.json" "$OUT/dao.test.json"
 echo '{}' > "$OUT/funded.json"
 
 kill_matching() { for p in $(ps -eo pid,args | grep -E "$1" | grep -v grep | awk '{print $1}'); do kill "$p" 2>/dev/null || true; done; }
@@ -29,7 +29,7 @@ cleanup() { kill_matching "workerd|node .*wrangler|vite preview|esplora-mock"; }
 trap cleanup EXIT
 
 node "$HERE/esplora-mock.mjs" > "$OUT/esplora.log" 2>&1 &
-(cd "$APP" && DAO_CONFIG="$OUT/dao.test.json" npx vite build --outDir "$OUT/dist" --emptyOutDir > "$OUT/build.log" 2>&1 && npx vite preview --outDir "$OUT/dist" --port 4173 --strictPort --host localhost > "$OUT/preview.log" 2>&1) &
+(cd "$APP" && DAO_CONFIG="$OUT/dao.test.json" DAO_CHARTER="$APP/../config/example.charter.it.md" npx vite build --outDir "$OUT/dist" --emptyOutDir > "$OUT/build.log" 2>&1 && npx vite preview --outDir "$OUT/dist" --port 4173 --strictPort --host localhost > "$OUT/preview.log" 2>&1) &
 for i in $(seq 1 60); do curl -s -o /dev/null http://localhost:4173/ && break; sleep 1; done
 
 if [ "$WHICH" = all ] || [ "$WHICH" = founding ]; then

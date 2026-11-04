@@ -1,6 +1,6 @@
 # Design
 
-The clickable mock-up of BOSA DAO, in Italian. All names, amounts, dates and addresses are sample data; addresses are placeholder test-network (tb1) strings.
+The clickable mock-up of a DAO, with UNO as the sample, in Italian. All names, amounts, dates and addresses are sample data; addresses are placeholder test-network (tb1) strings.
 
 - `mockups/`: source files, one Design Component page (`.dc.html`) per screen, plus `canvas.json` with each screen's size.
 - `screens/`: a PNG of each screen in its default state, rendered from the source.

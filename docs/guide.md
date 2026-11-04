@@ -1,6 +1,6 @@
 # Founding and running a Bitcoin DAO: the complete guide
 
-This guide walks through every step of founding and running a DAO built on btc-dao, using BOSA DAO as the example. It is written for the people who will do the work: the organiser, the council, the maintainer and the founding members. The plain-language introduction is [what-is-a-bitcoin-dao.md](what-is-a-bitcoin-dao.md); the exact rules are in [spec.md](spec.md) and [protocol.md](protocol.md).
+This guide walks through every step of founding and running a DAO built on btc-dao, using UNO, the first DAO's trial stages, as the example. It is written for the people who will do the work: the organiser, the council, the maintainer and the founding members. The plain-language introduction is [what-is-a-bitcoin-dao.md](what-is-a-bitcoin-dao.md); the exact rules are in [spec.md](spec.md) and [protocol.md](protocol.md).
 
 **Status.** The software for the testnet stages exists (the phase 1 prototype in `app/`); hardware signing and mainnet follow. Every DAO goes through **three stages**, practice, testnet and mainnet, each a separate DAO with its own tested build (section 8). Where the design did not say what happens, the guide marks a **gap** (G-01, G-02, …): resolved gaps say how, open ones still need a decision. All are listed in the [gap register](#gap-register) at the end.
 
@@ -23,7 +23,7 @@ This guide walks through every step of founding and running a DAO built on btc-d
 | Role | How many | Job | Holds |
 | --- | --- | --- | --- |
 | Member | Any number | Proposes and votes | A phone with a passkey; optionally an identity card at home |
-| Council member | 5 in BOSA DAO | Verifies new members, publishes final counts, approves changes to the member list and settings, signs payout rounds | Everything a member holds, plus a SeedQR card, a steel seed plate, their own SeedSigner SD card and a copy of the recovery sheet; an identity card is required |
+| Council member | 5 in the reference setup | Verifies new members, publishes final counts, approves changes to the member list and settings, signs payout rounds | Everything a member holds, plus a SeedQR card, a steel seed plate, their own SeedSigner SD card and a copy of the recovery sheet; an identity card is required |
 | Organiser | 1 at founding | Runs the setup page at the founding meeting | Must be a council member, because publishing the founding settings is a council act |
 | Maintainer | 1 or 2 | Keeps the DAO's copy of the software, hosting and relay running | Access to the repository and hosting; no treasury key |
 | Sponsor | One per new member | Vouches for a new member and opens the add-member proposal | Is an existing member |
@@ -37,7 +37,7 @@ Any three council members together can move the treasury. Members cannot move mo
 1. Write down in a few sentences what the money is for and who can join. This becomes the DAO's description and the opening of its charter.
 2. Draft the founding charter: purpose, who may join, how members behave, what the money may and may not be used for, that votes and pseudonyms are public and permanent, and that members must be 18 or over. Members tick that they accept it when they join.
 
-A draft charter exists, in [Italian](charter.it.md) (binding) with an [English translation](charter.en.md), covering purpose, members, the council (including absence and death), the treasury, voting, payments, the public record, conduct, changes, closing and the trial. It still needs the founding meeting's values and a legal review. Its SHA-256 goes in the settings (`charterSha256`), so everyone can check which text is in force.
+A charter template exists, in [Italian](charter-template.it.md) (binding) with an [English translation](charter-template.en.md), and UNO's copy is filled in from it ([Italian](../config/example.charter.it.md), [English](../config/example.charter.en.md)). It covers purpose, members, the council (including absence and death), the treasury, voting, payments, the public record, conduct, changes, closing and the trial. A DAO copies it to `config/charter.it.md` and `config/charter.en.md`, and the app shows and hashes that copy. It still needs the founding meeting's values and a legal review. Its SHA-256 goes in the settings (`charterSha256`), so everyone can check which text is in force.
 
 > **Gap G-01.** Partly resolved: the "first wallet in 5 minutes" guide now exists ([Italian](wallet-guide.it.md), [English](wallet-guide.en.md)). The charter still needs its legal review before mainnet.
 
@@ -51,9 +51,9 @@ A draft charter exists, in [Italian](charter.it.md) (binding) with an [English t
 2. List the founding members who are not on the council. They join at the founding meeting without a vote.
 
 For the practice stage (section 8), 3 to 5 people are enough: the council-to-be, with a threshold that suits the people in the room, for example 2 of 3. The testnet and mainnet stages use the real council of five.
-3. Settle the starting rules. BOSA DAO's defaults:
+3. Settle the starting rules. The reference values, used by UNO:
 
-| Setting | BOSA DAO value |
+| Setting | Reference value |
 | --- | --- |
 | Council and threshold | 5, any 3 to sign |
 | Voting period | 7 days, always run in full |
@@ -69,13 +69,13 @@ For the practice stage (section 8), 3 to 5 people are enough: the council-to-be,
 
 ### 2.3 Choose the addresses and hosting
 
-1. **Practice and testnet addresses.** Both disposable stages run on GitHub Pages, published straight from their repositories: free, with HTTPS built in. BOSA DAO's practice stage is at `bitcoin-dao.github.io/bosa-practice` and its testnet stage at `bitcoin-dao.github.io/bosa-dao`. Their passkeys are tied to `bitcoin-dao.github.io`, which is fine because every stage is a separate DAO; practice passkeys are labelled "(prova generale)" so they are easy to delete afterwards. GitHub Pages cannot send custom security headers, so the content security policy is set inside the page.
-2. **Mainnet domains.** Register the DAO's domain and choose the project domain. BOSA DAO uses `bosadao.it` for mainnet, with the relay at `relay.bosadao.it`; the project site and dashboard live at `btcdao.tech`. Pay several years ahead, turn on auto-renew, and give two council members access to the registrar account.
+1. **Practice and testnet addresses.** Both disposable stages run on GitHub Pages, published straight from their repositories: free, with HTTPS built in. UNO's practice stage is at `bitcoin-dao.github.io/uno-practice` and its testnet stage at `bitcoin-dao.github.io/uno-testnet`. Their passkeys are tied to `bitcoin-dao.github.io`, which is fine because every stage is a separate DAO; practice passkeys are labelled "(prova generale)" so they are easy to delete afterwards. GitHub Pages cannot send custom security headers, so the content security policy is set inside the page.
+2. **Mainnet name and domain.** The council chooses the mainnet DAO's name before its founding meeting, and the domain follows from it, with the relay on a subdomain (for a DAO at `dao.example`: `relay.dao.example`). The project site and dashboard live at `btcdao.tech`. Pay several years ahead, turn on auto-renew, and give two council members access to the registrar account.
 3. **The domain is permanent.** Passkeys are tied to it. A move is possible (section 7.5), but costs every member a card scan or a key replacement.
-4. **Relay.** The DAO relay runs Nosflare on Cloudflare Workers, under the Bitcoin-DAO organisation's Cloudflare account, with pay-to-relay off and only the DAO's event kinds and tag allowed (protocol 7.3). One relay, `btc-dao-relay.btcdao.workers.dev`, serves the practice and testnet stages: after each founding, that DAO's id is added to its list ([relay/README.md](../relay/README.md)). The mainnet DAO gets its own, at `relay.bosadao.it`. Two public relays are listed as well (`nos.lol` and `relay.damus.io` for BOSA DAO).
+4. **Relay.** The DAO relay runs Nosflare on Cloudflare Workers, under the Bitcoin-DAO organisation's Cloudflare account, with pay-to-relay off and only the DAO's event kinds and tag allowed (protocol 7.3). One relay, `btc-dao-relay.btcdao.workers.dev`, serves the practice and testnet stages: after each founding, that DAO's id is added to its list ([relay/README.md](../relay/README.md)). The mainnet DAO gets its own, on its own domain. Two public relays are listed as well (`nos.lol` and `relay.damus.io` for UNO).
 5. **Chain data.** Choose an Esplora-compatible block explorer for balances and broadcasting (mempool.space for testnet4), and a second one as fallback.
 
-> **Gap G-03.** Who registers `bosadao.it`, and how ownership passes on, is not settled. The DAO has no legal entity, so a person or organisation must be the registrant.
+> **Gap G-03.** Who registers the mainnet DAO's domain, and how ownership passes on, is not settled; the name, and so the domain, is the council's to choose first. The DAO has no legal entity, so a person or organisation must be the registrant.
 >
 > **Gap G-04.** Partly resolved: GitHub Pages for the trial site, Nosflare on Cloudflare for the relay. Still open: the mainnet site host, and who pays for Cloudflare beyond its free tier. The relay's cost could be the DAO's first recurring payout proposal.
 
@@ -95,14 +95,14 @@ Check current prices before buying; nothing here is expensive, and the SeedSigne
 
 ### 2.5 Set up the software
 
-Done once per stage, each in its own repository in the Bitcoin-DAO organisation (for BOSA DAO: `bosa-practice`, then `bosa-dao`):
+Done once per stage, each in its own repository in the Bitcoin-DAO organisation (for UNO: `uno-practice`, then `uno-testnet`):
 
 1. Create an empty public repository and fill it from btc-dao at a released version (section 8).
 2. Write `config/dao.json`: the stage, name and purpose, network, the site address and passkey domain, the relays and chain API, the starting rules (ten-minute votes for practice) and, for practice and testnet, the BTC DAO Testnet Treasury's return address. The council, founders and descriptor stay as placeholders: the setup page fills them in at the founding meeting.
 3. In the repository's Settings → Pages, set the source to GitHub Actions. Every push then runs the tests and publishes the site (`.github/workflows/pages.yml`). Until the founding it shows founding mode: Founder sign-up and the setup page.
 4. Check the site on members' phones: a test sign-up shows whether the phone can protect the key with its passkey (no yellow warning), and whether it can print a card. Clear the test sign-up and delete its passkey afterwards.
 
-For BOSA DAO a developer does this. For later DAOs, the fork kit (phase 4) turns it into a guided setup.
+For UNO a developer does this. For later DAOs, the fork kit (phase 4) turns it into a guided setup.
 
 ### 2.6 Legal check
 
@@ -154,7 +154,7 @@ The first members join here, because the normal route needs a sponsor, a council
 3. **Read the codes aloud.** Each founder shows a QR and a short code. The organiser scans it and both read the short code aloud; it must match. Remote founders send the code by message and read it on the call.
 4. **Council keys.** In tab 2 the organiser scans each council member's code and sets the threshold. On testnet the code already carries the member's test treasury key; on mainnet, and wherever a member uses their own wallet, "Use another treasury key" takes the key and fingerprint from the key ceremony (`[fingerprint/48h/…/2h]tpub…`).
 5. **Check and publish.** In tab 4 everyone checks the summary together: the DAO, the council and threshold, the founders, the DAO id. The organiser signs and publishes the founding settings. Nothing in them can change later except by proposal.
-6. **Council approval.** At least three council members approve the founding settings on their own phones. Their approval stands in for verifying each founder: they heard every short code read aloud and approved the list. At the third approval BOSA DAO exists.
+6. **Council approval.** At least three council members approve the founding settings on their own phones. Their approval stands in for verifying each founder: they heard every short code read aloud and approved the list. At the third approval the DAO exists.
 7. **Protect and print.** Each founder's app now knows the DAO id. The passkey protects the identity key, and the founder can print their identity card. Council members print theirs before signing anything else.
 8. **Hand-out** (mainnet, and testnet from phase 2). Each council member takes their copy of the recovery sheet. The shared SeedSigner and the spare are sealed and stored.
 
@@ -168,11 +168,11 @@ If a founder loses their key before step 5, they sign up again before publicatio
 
 1. **On testnet4** (the practice and testnet stages), fund the treasury from the **BTC DAO Testnet Treasury**, the organisation's own testnet4 wallet: about 50,000 sats for a practice stage, about 500,000 for a testnet stage. Copy the donation address from the treasury page, send, and wait for it to appear; test blocks can arrive in bursts or slowly. Each disposable stage returns the coins when it closes (section 10). Step by step in [testnet-treasury.md](testnet-treasury.md). Run at least one full payout round before going near real money.
 2. **On mainnet**, anyone can donate by scanning the treasury page's receive address. Every incoming payment appears on the public treasury page.
-3. Respect the trial cap (5,000,000 sats for BOSA DAO) while the system proves itself.
+3. Respect the trial cap (5,000,000 sats in the reference rules) while the system proves itself.
 
 4. **One donation address at a time.** The treasury page shows a single address and keeps showing it until it receives a payment, then moves to the next. Unused addresses never pile up, so a standard wallet restoring from the recovery sheet always finds every coin. (Resolved G-09.)
 5. **At the cap,** the page stops showing a donation address. Anyone can still send to an old address, so if the balance goes over the cap anyway, every client shows it and members vote: raise the cap, or pay out the excess. (Resolved G-08.)
-6. **Fees.** The fee cap is a fee rate (20 sat/vB for BOSA DAO), not a fixed sum. If network fees are above it on the round date, no round is built that month: payouts wait, and that month does not count toward their lapse. (Resolved G-10.)
+6. **Fees.** The fee cap is a fee rate (20 sat/vB in the reference rules), not a fixed sum. If network fees are above it on the round date, no round is built that month: payouts wait, and that month does not count toward their lapse. (Resolved G-10.)
 
 ## 6. Everyday running
 
@@ -293,12 +293,14 @@ Every DAO is founded three times. Each stage is a separate DAO, with its own cop
 | Purpose | Rehearse every step in one sitting | Run the real DAO with test coins | The DAO itself |
 | Config `stage` | `practice` | `testnet` | `mainnet` |
 | Network | testnet4 | testnet4 | mainnet |
-| Voting period | about 10 minutes | the real rules (7 days for BOSA DAO) | the real rules |
+| Voting period | about 10 minutes | the real rules (7 days in the reference rules) | the real rules |
 | People | 3 to 5, the council-to-be | all founding members | all founding members again |
 | Treasury keys | test keys on the phones | test keys, then SeedSigner (phase 2) | new seeds from a new key ceremony, SeedSigner |
-| Address (BOSA DAO) | `bitcoin-dao.github.io/bosa-practice` | `bitcoin-dao.github.io/bosa-dao` | `bosadao.it` |
-| Repository | `bosa-practice` | `bosa-dao` | created at mainnet time |
-| Relay | the organisation's relay and public relays | the organisation's relay and public relays | its own, `relay.bosadao.it` |
+| Name | UNO | UNO | chosen by the council |
+| Charter (`config/charter.*.md`) | UNO's copy | UNO's copy | the template, filled in with the new name |
+| Address | `bitcoin-dao.github.io/uno-practice` | `bitcoin-dao.github.io/uno-testnet` | the DAO's own domain |
+| Repository | `uno-practice` | `uno-testnet` | created at mainnet time |
+| Relay | the organisation's relay and public relays | the organisation's relay and public relays | its own, on the DAO's domain |
 | Funding | about 50,000 test sats from the BTC DAO Testnet Treasury | about 500,000 test sats from the BTC DAO Testnet Treasury | real donations |
 | Last step | close the DAO, coins back to the BTC DAO Testnet Treasury | close the DAO, coins back to the BTC DAO Testnet Treasury | — |
 | Afterwards | thrown away | thrown away once mainnet runs | kept |
@@ -311,8 +313,9 @@ Every DAO is founded three times. Each stage is a separate DAO, with its own cop
 
 1. Phase 2 must be passed on the testnet stage.
 2. Council members create **new** mainnet seeds at a new key ceremony. Test seeds must never hold real funds.
-3. Hold a mainnet founding meeting (section 4) with the mainnet path, the main address `bosadao.it` and the relay at `relay.bosadao.it`.
-4. Fund with real bitcoin up to the cap, and run three monthly rounds without developer help (phase 3's gate).
+3. The council chooses the mainnet DAO's name, fills it into a fresh copy of the charter template in `config/`, and registers the domain (G-03).
+4. Hold a mainnet founding meeting (section 4) with the mainnet path, the DAO's own domain and its own relay.
+5. Fund with real bitcoin up to the cap, and run three monthly rounds without developer help (phase 3's gate).
 
 **Separate, tested builds.** Each stage runs a released version of btc-dao (a version tag), never work in progress. A version moves to the next stage only after it has passed the one before: the practice stage proves a version, the testnet stage may then take it, and mainnet may take only a version the testnet stage has run. Every build runs the protocol tests before it is published (`.github/workflows/pages.yml`), and every release passes the end-to-end runs in `app/e2e` first. A DAO's copy records which version it runs.
 
@@ -355,7 +358,7 @@ A DAO is closed by a final proposal of type **Close the DAO**, decided by vote. 
 | --- | --- | --- | --- | --- |
 | G-01 | Preparation | Wallet guide; legal review of the drafted charter | First member joins | Partly resolved |
 | G-02 | Governance | Council alone can meet quorum in a small DAO | Accepted; review if membership stays small | Accepted |
-| G-03 | Preparation | Registrant of `bosadao.it` and how it passes on | Registering the domain | Open |
+| G-03 | Preparation | The mainnet DAO's name (the council's choice), and who registers its domain and how it passes on | Mainnet founding | Open |
 | G-04 | Preparation | Mainnet site host, and who pays for hosting | Mainnet | Partly resolved |
 | G-05 | Legal | Custody, tax and liability position | Mainnet | Open |
 | G-06 | Legal | Permanent public record versus the right to erasure | Mainnet | Open |
@@ -374,4 +377,4 @@ A DAO is closed by a final proposal of type **Close the DAO**, decided by vote. 
 | G-19 | Governance | Winding up a DAO | Charter | Resolved |
 | G-20 | Software | Parts of the design not in the app yet: OpenTimestamps anchoring, the event-history export, the DAO listing (moving address), council changes with migration and sweep rounds, SeedSigner signing by animated QR, signed reproducible releases | Phase 2, and mainnet for releases | Open |
 
-Still open from the design and listed in [decisions.md](decisions.md): who sits on the BOSA DAO council and who the founders are; the event kind numbers; and the phase 1 checks: passkey support on every member's phone (confirmed on the first Android phone tested), printing a card without a saved file, SeedSigner change verification, and OpenTimestamps from the browser. Votes are public by name (decided).
+Still open from the design and listed in [decisions.md](decisions.md): who sits on UNO's council and who the founders are; the mainnet DAO's name; the event kind numbers; and the phase 1 checks: passkey support on every member's phone (confirmed on the first Android phone tested), printing a card without a saved file, SeedSigner change verification, and OpenTimestamps from the browser. Votes are public by name (decided).

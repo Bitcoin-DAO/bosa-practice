@@ -1,6 +1,6 @@
-# BOSA DAO — Bitcoin DAO Specification v0.2
+# btc-dao — Bitcoin DAO Specification v0.2
 
-Nov 2, 2026 · @Carl
+Nov 4, 2026 · Bitcoin-DAO organisation
 
 ## Purpose and principles
 
@@ -18,11 +18,11 @@ Design principles:
 - **Public by default.** Members, rules, proposals, votes, balance and payouts are visible to anyone.
 - **Static and forkable.** Static files plus one config file. The fork-readiness checklist defines when the code counts as released.
 
-## BOSA DAO: the reference instance
+## UNO: the first instance
 
-BOSA DAO is the first deployment and the proof of concept: a 3-of-5 council governing a treasury for a local bitcoin community in Bosa, Sardinia. The code is released only once BOSA DAO runs on mainnet and the fork kit has been proven on a second group.
+UNO is the first deployment and the proof of concept: a 3-of-5 council and its founding members, rehearsing on testnet4 in two disposable stages, uno-practice and uno-testnet. The mainnet DAO that follows is named by its council. The code is released only once that DAO runs on mainnet and the fork kit has been proven on a second group.
 
-| Setting | BOSA DAO value | Configurable in a fork |
+| Setting | UNO value | Configurable in a fork |
 | --- | --- | --- |
 | Purpose | Fund a local bitcoin community | Yes |
 | Council | 5 keyholders | Yes |
@@ -87,7 +87,7 @@ Every member can also hold their identity key on paper, so the DAO survives losi
 | Ordinary member | One card: the identity key as a QR code | Optional |
 | Council member | One card: the identity key as a QR code | Required before the key ceremony; kept apart from the SeedQR card |
 
-- **Printing:** from the member's profile page, straight from the browser to the printer. The card is never saved as a file or shared, so no digital copy is left behind. Every card also carries one fixed line: if bosadao.it stops working, find the new address at btcdao.tech or ask a council member. Each card also shows the DAO name, the member's pseudonym and short code.
+- **Printing:** from the member's profile page, straight from the browser to the printer. The card is never saved as a file or shared, so no digital copy is left behind. Every card also carries one fixed line: if the DAO's address stops working, find the new address at btcdao.tech or ask a council member. Each card also shows the DAO name, the member's pseudonym and short code.
 - **Keeping:** like a house key. Council members keep theirs apart from their SeedQR card, which is the one that can sign for the treasury.
 - **Restoring:** on a new phone, after losing a passkey, or at a new web address, the member scans their card, checks the short code shown, and creates a new passkey, which then protects the same key. Identity, roster and votes carry on, with no re-verification.
 - **Lost or exposed cards:** an ordinary member's card is their identity, so a finder could vote in their name until a key replacement; it can never move funds. A lost card is followed by a key replacement. A council member's card gives a finder one of the 3 council approvals any change needs, and never funds; the council replaces that key at once.
@@ -95,7 +95,7 @@ Every member can also hold their identity key on paper, so the DAO survives losi
 
 ### Moving to a new address
 
-Passkeys are tied to the DAO's domain, and the passkey encryption is salted with the DAO id, so one passkey never links a member across DAOs. If the domain is lost, the app goes up at a new address and 3 council members endorse it in a signed `dao.listing` event. Members open the endorsed address, scan their cards and create a new passkey. The restore screen shows the endorsement, and members never scan a card on an address the council has not announced. Members learn the new address in two ways that do not depend on the lost domain: the DAO's entry on btcdao.tech, a separate domain, and an announcement by the council at a meetup or on a call. The DAO relay goes down with the domain, since it sits at relay.bosadao.it; the public relays still hold every event, and the endorsed listing names the new relays.
+Passkeys are tied to the DAO's domain, and the passkey encryption is salted with the DAO id, so one passkey never links a member across DAOs. If the domain is lost, the app goes up at a new address and 3 council members endorse it in a signed `dao.listing` event. Members open the endorsed address, scan their cards and create a new passkey. The restore screen shows the endorsement, and members never scan a card on an address the council has not announced. Members learn the new address in two ways that do not depend on the lost domain: the DAO's entry on btcdao.tech, a separate domain, and an announcement by the council at a meetup or on a call. The DAO relay goes down with the domain, since it sits on a subdomain of it; the public relays still hold every event, and the endorsed listing names the new relays.
 
 A member's identity key never controls money, so a phished member can cast false votes but cannot move funds: the council still has to sign.
 
@@ -130,7 +130,7 @@ New event types for onboarding: `dao.verify` (council member, verification of a 
 
 The first members join at a founding meeting, because the normal route needs a sponsor, a council member and a vote that do not exist yet. Being listed in the DAO's founding settings, approved by the council, takes their place.
 
-1. **Site in setup mode.** The site goes up at its address (bitcoin-dao.github.io/bosa-dao on GitHub Pages for the trial) before the DAO exists.
+1. **Site in setup mode.** The site goes up at its address (bitcoin-dao.github.io/uno-testnet on GitHub Pages for the trial) before the DAO exists.
 2. **Council ceremonies.** The five council members hold the SD card and key ceremonies, giving the treasury keys, the descriptor and the recovery sheet.
 3. **Founder sign-up.** Each council member and each founding member taps Founder sign-up, creates a passkey and gets a random identity key, kept only in that browser for now. They show their short code; the setup phone scans it and both read it aloud. Remote founders do this on a video call.
 4. **Founding settings.** The setup page builds the genesis config: name, rules, council (identity keys, fingerprints, xpubs), founding members (identity keys and names), descriptor, relays and passkey domain. Its hash is the DAO id.
@@ -156,7 +156,7 @@ Rules for remote verification:
 - **The sponsor must know the candidate personally**, not only online.
 - **Remote members are marked** "verified remotely" on the members page. A later in-person verification removes the mark.
 - **Calls are never recorded.** The signed verify events are the record.
-- **Optional limits, set per DAO in the rules:** whether remote-only members may join the council, and a maximum share of remote-only members. BOSA DAO default: no limits, remote members may not join the council during the trial.
+- **Optional limits, set per DAO in the rules:** whether remote-only members may join the council, and a maximum share of remote-only members. UNO default: no limits, remote members may not join the council during the trial.
 
 Remote working for the council:
 
@@ -189,7 +189,7 @@ The sheet cannot spend anything on its own. With any 3 seeds it recovers the who
 
 ### Signing setup for the trial
 
-BOSA DAO's trial uses one shared SeedSigner, and no single item a council member carries can move funds: each SeedQR card is one full key, and 3 are needed.
+The first mainnet DAO uses one shared SeedSigner, and no single item a council member carries can move funds: each SeedQR card is one full key, and 3 are needed.
 
 | Item | Held by | Contains | Kept |
 | --- | --- | --- | --- |
@@ -205,11 +205,11 @@ No passphrase in the trial. Adding one later changes each public key, so it is d
 
 ## Governance rules
 
-Members decide by vote; the council makes money decisions binding by signing and makes membership and rule changes binding by endorsing. Every rule below is a value in the config file; the BOSA DAO defaults are shown.
+Members decide by vote; the council makes money decisions binding by signing and makes membership and rule changes binding by endorsing. Every rule below is a value in the config file; UNO's defaults are shown.
 
 ### Proposal types
 
-| Type | What it does | Pass rule (BOSA default) | Made binding by |
+| Type | What it does | Pass rule (UNO default) | Made binding by |
 | --- | --- | --- | --- |
 | Payout | Pays one or more recipients from the treasury | Simple majority, quorum met | 3 council signatures in a payout round |
 | Statement | Adopts a text: a decision, manifesto or policy | Simple majority, quorum met | The passed vote itself |
@@ -237,7 +237,7 @@ Members decide by vote; the council makes money decisions binding by signing and
 
 Past proposals of every status stay visible forever. The council may decline a passed payout, but must publish why; that refusal is itself part of the public record.
 
-Proposal numbers (BOSA-0007) are not stored in events. Every client numbers valid proposals by publication time, then event id, so all clients show the same numbers without a coordinator. The signed final tally records the number for good, and a proposal dated before the most recently tallied one is rejected, so a backdated proposal cannot renumber closed ones.
+Proposal numbers (UNO-0007) are not stored in events. Every client numbers valid proposals by publication time, then event id, so all clients show the same numbers without a coordinator. The signed final tally records the number for good, and a proposal dated before the most recently tallied one is rejected, so a backdated proposal cannot renumber closed ones.
 
 ## Proposal fields
 
@@ -247,7 +247,7 @@ Every proposal has a short binding summary plus an optional link to the full tex
 
 | Field | Filled by | Notes |
 | --- | --- | --- |
-| Proposal ID | Automatic | e.g. BOSA-0007 |
+| Proposal ID | Automatic | e.g. UNO-0007 |
 | Type | Proposer | Payout, Statement, Add member, Remove member, Change rules, Change council, Close the DAO |
 | Title | Proposer | Up to 80 characters |
 | Summary | Proposer | Up to 500 characters; the binding text members vote on |
@@ -297,7 +297,7 @@ All payouts passed since the last round go out together in one monthly transacti
 
 - **Prepare:** any council member presses Prepare round. The browser builds one PSBT paying every passed proposal, with change back to the treasury and a fee rate from the chain API, at most the fee-rate cap. If fees are above the cap, no round is built that month: payouts wait, and a month skipped for fees does not count toward their lapse, and publishes it as a `dao.round` event.
 - **Verify:** every other browser rebuilds the expected outputs from the passed proposals and refuses to show Sign if they differ by a single sat.
-- **Sign:** members sign in any order, alone or at a meeting in Bosa. Each partial signature is published; on its own it can spend nothing.
+- **Sign:** members sign in any order, alone or at a council meeting. Each partial signature is published; on its own it can spend nothing.
 - **Broadcast:** the browser that sees the third valid signature combines them and broadcasts; any other browser can rebroadcast.
 - **Decline:** a council member may refuse with a public reason; a round that never reaches 3 signatures lapses after 2 rounds. Only one round is open at a time: a replacement round spends at least one of the same coins, so the two can never both be paid.
 
@@ -351,17 +351,17 @@ A new DAO is a fork of the repo plus its own `dao.config.json`; everything that 
 
 ### Config file
 
-| Field | Holds | Example (BOSA DAO) |
+| Field | Holds | Example (UNO) |
 | --- | --- | --- |
-| `name`, `description`, `languages` | Identity and interface languages | BOSA DAO; it, en |
+| `name`, `description`, `languages` | Identity and interface languages | UNO; it, en |
 | `network` | testnet4 or mainnet | testnet4, then mainnet |
-| `site` | The DAO's web address | https://bitcoin-dao.github.io/bosa-dao, then https://bosadao.it |
-| `passkeyDomain` | The domain passkeys are tied to; never changes within a DAO (trial: bitcoin-dao.github.io) | bosadao.it |
+| `site` | The DAO's web address | https://bitcoin-dao.github.io/uno-testnet; on mainnet, the domain the council chooses |
+| `passkeyDomain` | The domain passkeys are tied to; never changes within a DAO (trial: bitcoin-dao.github.io) | chosen by the council with the mainnet name |
 | `council` | 5 entries: role label, identity key, key fingerprint, xpub | — |
 | `founders` | Founding members who are not on the council: name and identity key | Listed at the founding meeting |
 | `threshold` | Signatures needed | 3 |
 | `descriptor` | Treasury descriptor with checksum | `wsh(sortedmulti(3, …))#…` |
-| `relays` | DAO relay first, then public relays | trial: a Nosflare relay on Cloudflare plus 2 public relays; mainnet: wss://relay.bosadao.it plus 2 public relays |
+| `relays` | DAO relay first, then public relays | trial: a Nosflare relay on Cloudflare plus 2 public relays; mainnet: wss://relay.\<the DAO's domain> plus 2 public relays |
 | `chainApi` | Esplora-compatible endpoints, in order of preference | public explorer, own node later |
 | `rules` | Voting period, quorum, majorities, payout cadence and time zone, lapse limit, fee-rate cap, treasury cap | 7 days; 1/3; simple and 2/3; monthly, Europe/Rome; 2 rounds; 20 sat/vB; 5,000,000 sats |
 | `branding` | Logo, colours | — |
@@ -442,7 +442,7 @@ Four phases, each closed by a gate; the repo counts as released only after phase
    - Gate: a testnet4 payout round passes from proposal to confirmed receipt, run by five testers.
 2. **Hardware signing on testnet4.** SeedSigner QR signing, descriptor loaded on devices, recovery sheet, restore tested in Sparrow.
    - Gate: the treasury is restored and spent in Sparrow without the website.
-3. **BOSA DAO on mainnet.** New mainnet key ceremony for the five council members, a mainnet founding meeting listing every trial member as a founder, small treasury, first real monthly rounds, anchoring, public pages.
+3. **The mainnet DAO.** The council chooses its name and domain; a new mainnet key ceremony for the five council members, a mainnet founding meeting listing every trial member as a founder, small treasury, first real monthly rounds, anchoring, public pages.
    - Gate: three monthly rounds completed without developer help.
 4. **Fork kit.** Setup wizard, template repo, one-click deploy, dashboard listing, FORK-TASKS.md complete.
    - Gate: a second group deploys its own DAO from the kit and runs one round on testnet4.
@@ -451,13 +451,14 @@ Repo: btc-dao. Stack: static site, bundled and pinned libraries (`@scure/btc-sig
 
 ## Open questions
 
-- [ ] Who are the five BOSA DAO council members, and who are the founding members?
+- [ ] Who are UNO's five council members, and who are the founding members?
+- [ ] What is the mainnet DAO called? The council decides before the mainnet founding; the domain follows the name.
 - [ ] Is a quorum of one third right for a small founding group, or should it start higher?
 - [ ] Should member votes on payouts be public by name, or tallies only?
 - [ ] Decided: the DAO relay runs Nosflare on Cloudflare, under the Bitcoin-DAO organisation's account.
-- [ ] Which host for the mainnet site? The trial runs on GitHub Pages at bitcoin-dao.github.io/bosa-dao. Domains decided: btcdao.tech for the project, bosadao.it for BOSA DAO on mainnet.
+- [ ] Which host for the mainnet site? The trial runs on GitHub Pages at bitcoin-dao.github.io/uno-practice and /uno-testnet. Domains decided: btcdao.tech for the project; the mainnet DAO's domain follows the name its council chooses.
 - [ ] Can OpenTimestamps calendars be reached from the browser, or is a small helper needed?
 - [ ] Does SeedSigner's current firmware verify change against a loaded P2WSH multisig descriptor? Test before phase 2.
 - [ ] Are kinds 3570–3586 and the D tag free in the Nostr kind registry?
 - [ ] Legal check (Italy, UK): confirm keyless coordination software is not custody.
-- [ ] Decided: the software repo is named btc-dao; BOSA DAO is its first instance.
+- [ ] Decided: the software repo is named btc-dao; UNO is its first instance.

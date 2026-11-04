@@ -927,7 +927,7 @@ function tallyKey(t: TallyContent): string {
   });
 }
 
-/** The proposal's public number, e.g. BOSA-0007. */
+/** The proposal's public number, e.g. UNO-0007. */
 export const proposalLabel = (daoName: string, n: number) =>
   `${(daoName.split(/\s+/)[0] || 'DAO').toUpperCase()}-${String(n).padStart(4, '0')}`;
 

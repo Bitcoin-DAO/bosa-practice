@@ -77,8 +77,8 @@ var RELAY_ACCESS_PRICE_SATS = 212121;
 var AUTH_REQUIRED = false;
 var AUTH_TIMEOUT_MS = 6e5;
 var relayInfo = {
-  name: "BOSA DAO relay",
-  description: "Relay for BOSA DAO (btc-dao). Accepts only the DAO's own events, kinds 3570-3586 with its D tag, and keeps all of them.",
+  name: "btc-dao relay",
+  description: "Relay for btc-dao DAOs. Accepts only the DAO's own events, kinds 3570-3586 with its D tag, and keeps all of them.",
   pubkey: "",
   contact: "https://github.com/Bitcoin-DAO/btc-dao",
   supported_nips: [1, 11, 12, 16, 20],
