@@ -50,15 +50,15 @@ Replaced by btc-dao: the PIN login and register form (join flow), the accrued ba
 Decided: weekly cadence (changeable by a rules vote), and payout addresses carried in each distribution proposal. Both need a small protocol change, drafted separately: weekly round dates, and a standing confirmation so members confirm their address once.
 
 1. **Distribution rule.** Equal split per member, or by panel ownership or energy share. With one shared miner, hashrate per worker cannot attribute income to members.
-2. **Reserve share.** What percentage of each month's income stays in the treasury for the Bridge Buffer.
-3. **Cadence.** Monthly, matching btc-dao's payout rounds and one vote a month, rather than the Bridge Buffer's weekly design.
-4. **Payout addresses.** Today every payout address needs the recipient's confirmation each time, and btc-dao advises a fresh address per payout. For a monthly distribution to ten members, either members confirm each month, or btc-dao adds a standing payout address that a member registers once (a protocol change). Sun to Sats chose a single static address per member; that is a privacy trade-off worth deciding openly.
+2. **Reserve share.** What percentage of each week's income stays in the treasury for the Bridge Buffer.
+
+Note on payout addresses: a standing address that a member confirms once is reused every week, so anyone can see on chain how much each address has received. btc-dao advises a fresh address per payout; a member who cares can withdraw and replace their standing address whenever they like.
 
 Also to align: the council is 3-of-5 (the protocol's fixed five keys), five of the ten members, replacing the earlier 6-of-10 plan. The pool pays to one fixed treasury address, which is reused; reconciliation still works.
 
 ## 5. Order
 
-1. Make decisions 1 to 4, and write the rule and reserve share into a charter module.
+1. Make decisions 1 and 2, and write the rule and reserve share into a charter module.
 2. Build the distribution helper and rehearse the weekly cycle in `uno-practice`, with simulated pool payments.
 3. Connect the sun front page to the practice DAO.
 4. Found the Sun to Sats DAO on mainnet with the site live, funding model `production`, listed on btcdao.tech.
@@ -67,23 +67,28 @@ Also to align: the council is 3-of-5 (the protocol's fixed five keys), five of t
 
 A **sunblock** is a whole solar panel (500 W) that a member buys through the DAO and owns outright. It is a structured contribution layer on top of the weekly cycle: members pay in sats to cover the cost of their own panel, and the panel's output is counted in their share. The rules are drafted as the [member assets charter module](charter-modules/member-assets.md).
 
+**The model: a buying group.** The DAO works like a *gruppo di acquisto solidale*. Neighbours pool an order: the group collects each person's money, places one order with the supplier and hands each person what they paid for. It holds the money only on its members' behalf and never owns the goods. Here the order is a panel, the group's bookkeeping is the public record, and the hand-over is a passed ownership statement. The members own the panels; the DAO runs the arrangement.
+
 **The flow**
 
-1. **Pledge.** A member asks for a sunblock. The app reserves a treasury receive address for that pledge, derived from the treasury's own descriptor, so its payments can be told apart from mining income.
-2. **Pay in.** The member pays the panel's price in sats, at once or in instalments. Progress shows against the pledge.
-3. **Purchase.** When the pledge is covered, a payout proposal pays the supplier for the panel and its share of mounting and cabling. Members vote; the council signs; reconciliation matches the spend.
+1. **Pledge.** A member asks for a sunblock. The app reserves a treasury receive address for that pledge, derived from the treasury's own descriptor, and records it publicly, so its payments can be told apart from mining income.
+2. **Pay in.** The member pays the panel's price in sats, at once or in instalments. Progress shows against the pledge. Until the panel is bought, these sats are **held for the member**: kept in their own coins, never spent with the DAO's funds, and usable only to buy that panel or refund the member.
+3. **Buy for the member.** When the pledge is covered, a payout proposal pays the supplier from the pledge for the panel and its share of mounting and cabling. Members vote; the council signs; reconciliation matches the spend.
 4. **Record ownership.** After installation, a statement proposal records the sunblock, its owner and the pledge that funded it. Once passed, it is permanent and public: the sunblock register is the chain of these records.
 5. **Earn.** The distribution rule gives each member a base share, plus a panel share for each sunblock they own.
 
-**Dashboard.** Pledge payments are capital, not income. The dashboard shows them as **capital in** and leaves them out of steady I/O, so a member buying a panel does not make the DAO look more self-sustaining than it is ([dashboard spec](dashboard-spec.md), section 2a).
+**One treasury, two parts.** No second wallet is needed. The pledge addresses belong to the same 3-of-5 treasury, so the same council keys and SeedSigner sign, and a restore from the recovery sheet finds every coin. What keeps pledges apart is that each pledge's coins are never mixed with the DAO's: on chain, every member's money can be followed coin by coin. The treasury balance is shown in two parts, **DAO funds** and **held for members**.
 
-**Protocol.** Nothing new is needed to start: pledges, purchases and ownership records use the existing payout and statement proposals, plus the pledge address convention. If it works, a `pledge` proposal type could formalise it for any DAO buying shared assets for its members.
+**Dashboard.** Pledge payments are not the DAO's income. The dashboard shows them as **pledged** and leaves them out of steady I/O, so a member buying a panel does not make the DAO look more self-sustaining than it is. A spend of pledge coins for anything except that pledge's panel or refund counts as unauthorised ([dashboard spec](dashboard-spec.md), sections 2 and 2a).
+
+**Protocol.** Nothing new is needed to start: pledges, buying and ownership records use the existing payout and statement proposals, plus the pledge address convention. If it works, a `pledge` proposal type could formalise it for any DAO buying shared assets for its members.
 
 **Decisions for later**
 
 1. The weights in the distribution rule: base share against panel share.
 2. Who carries the price risk while a pledge is paid in instalments.
 3. Whether only members, or anyone, can buy a sunblock.
+4. Legal check: whether holding pledges for members counts as holding client money anywhere the DAO's members live.
 
 ## Reference files
 

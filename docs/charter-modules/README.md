@@ -10,7 +10,7 @@ Optional articles a DAO can add to the core [charter template](../charter-templa
 | [Conduct](conduct.md) | Harassment, honesty in proposals, serious breaches | The DAO meets in person or has a wider community around it |
 | [Language](language.md) | Binding language and translations | The charter exists in more than one language |
 | [Personal data](personal-data.md) | Data protection and the permanent record | Members live where data protection law applies (for example the EU or UK) |
-| [Member assets](member-assets.md) | Assets a member buys through the DAO and owns, such as a solar panel: pledges, purchase, ownership, leaving | The DAO buys equipment on members' behalf, for example a production DAO with member-owned panels |
+| [Member assets](member-assets.md) | Assets a member buys through the DAO and owns, such as a solar panel: pledges held for members, buying, ownership, leaving | The DAO buys equipment on members' behalf, like a buying group, for example a production DAO with member-owned panels |
 | [Trial phase](trial-phase.md) | Practice and testnet stages before real funds | The DAO runs the btc-dao trial stages before mainnet |
 
 A charter change, including adding or removing a module, is a rules change: the members vote on it, and the settings record the new text's hash.

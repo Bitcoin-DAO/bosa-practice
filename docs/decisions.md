@@ -44,6 +44,7 @@
 | Protocol | Defined in `protocol.md`: Nostr events in a provisional kind block 3570–3586, all regular so history is kept; every event tagged with the DAO id |
 | Charter | A short core template in English, holding only principles; numbers and procedures stay in the settings. Everything else is an optional module in `docs/charter-modules/`. Each DAO sets its binding charter language in the settings (`charterLanguage`) |
 | Funding model | Each DAO chooses a primary funding model (grant, production, mutual or revolving) after reading `funding-models.md` and discussing it at a members' meeting, before drafting its mainnet charter. Recorded in the settings (`fundingModel`), named in charter Article 1, shown on the dashboard as label and colour, beside the DAO's steady I/O (median monthly inflow ÷ median monthly outflow, 12 months), which tests whether the model is working |
+| Member assets | A DAO that buys assets for its members works like a buying group (*gruppo di acquisto solidale*): members own the assets, the DAO runs the arrangement. Pledged sats are **held for members**, not DAO funds: they stay in the same treasury, at pledge addresses on its receive branch, and their coins are never spent with the DAO's or for anything but their pledge's asset or refund. No second wallet. The treasury balance shows **DAO funds** and **held for members**; pledges are shown as **pledged**, never as income or capital |
 | DAO id | SHA-256 of the canonical (RFC 8785) genesis config; never changes |
 | Identity per DAO | The passkey-derived key is salted with the DAO id, so one passkey gives unlinkable identities in different DAOs |
 | Domains | `btcdao.tech` for the project (about, guides, fork kit, read-only dashboard); the mainnet DAO gets its own domain, chosen with its name by the council, with the relay on a subdomain; passkeys are tied to that domain so all its subdomains share them |
@@ -51,8 +52,9 @@
 
 ## Open questions
 
-- [ ] Sun to Sats showcase (`showcase-sun-to-sats.md`): distribution rule, reserve share, cadence, and whether to add a standing payout address to the protocol
-- [ ] Sun to Sats sunblocks (Layer 01, `showcase-sun-to-sats.md` section 6): distribution weights for base and panel shares, price risk on instalments, and whether non-members can pledge
+- [ ] Sun to Sats showcase (`showcase-sun-to-sats.md`): distribution rule and reserve share. Weekly cadence and standing payout addresses are decided; the protocol change for both is still to be drafted
+- [ ] Sun to Sats sunblocks (Layer 01, `showcase-sun-to-sats.md` section 6): distribution weights for base and panel shares, price risk on instalments, whether non-members can pledge, and how a pledge address goes on the public record
+- [ ] Legal check: does holding pledges for members count as holding client money (Italy, UK)? Add to the custody question below
 - [ ] Which funding model for UNO's mainnet DAO? Members to read `funding-models.md` and decide before the mainnet charter is drafted
 - [ ] Who are UNO's five council members, and who are the founding members?
 - [ ] What is the mainnet DAO called? The council decides, before the mainnet founding; the domain follows the name

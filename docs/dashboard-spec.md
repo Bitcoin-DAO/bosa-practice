@@ -26,6 +26,8 @@ The headline for every listed mainnet DAO is its whole on-chain treasury history
    - **Unauthorised**: confirmed, and no valid round matches after a grace period.
 4. The counter shows the number of unauthorised spends, with a link to each.
 
+**Pledges stay ring-fenced.** Coins at a pledge address are held for one member. A spend that uses them is authorised only if its round pays that pledge's asset or refund and spends no other coins with them. Any other spend of pledge coins counts as unauthorised, even if a round matches it.
+
 Because a round's txid is fixed by its unsigned transaction, a matching round proves the spend is exactly what the members voted for. The dashboard checks the chain itself rather than trusting `dao.receipt` (3583).
 
 **What it proves, and what it doesn't.** It proves the treasury has moved only on recorded decisions. It does not prove the decisions were wise, or that a payee delivered.
@@ -50,7 +52,7 @@ It measures whether money arrives **regularly** compared with what the DAO regul
 - **Inflow** is every payment received at a treasury address, from any descriptor the DAO has used.
 - **Outflow** is every reconciled spend: the payout outputs plus the network fee.
 - **Not counted:** change back to the treasury, and sweeps from an earlier descriptor to the current one. Both are the DAO moving its own money.
-- **Capital in, shown apart:** payments into addresses a DAO has reserved for a member's pledge (for example to buy a panel the member will own, see the [member assets module](charter-modules/member-assets.md)) are capital, not income. They are shown as **capital in** beside the totals and left out of steady I/O, so buying an asset never looks like regular income. The payout that spends a pledge on the asset is likewise left out of outflow.
+- **Held for members, shown apart:** payments into a pledge address (money a member sets aside to buy an asset they will own, such as a panel; see the [member assets module](charter-modules/member-assets.md)) are not the DAO's income. They are shown as **pledged** beside the totals and left out of steady I/O, so a member buying an asset never looks like regular income. The payout that spends a pledge on the asset, or refunds it, is likewise left out of outflow.
 
 **Shown with it**
 
@@ -90,7 +92,7 @@ Every listed DAO gets the same standard view. There are no per-item display choi
 
 - **Unauthorised spends, all DAOs: 0**: the lead figure, largest on the page.
 - Listed DAOs on mainnet, by funding model, with how many have a steady I/O above 1.
-- BTC held in mainnet treasuries, summed from their descriptors.
+- BTC held in mainnet treasuries, summed from their descriptors, with the part held for members shown apart.
 - Spends reconciled to date.
 - Proposals currently open for voting.
 
@@ -100,7 +102,7 @@ Every listed DAO gets the same standard view. There are no per-item display choi
 - Funding model (`rules.fundingModel`): shown as a label with a colour, never colour alone. Grant, production, mutual, revolving, or "not stated" when unset or unknown.
 - **Steady I/O** beside the funding model, with the 12-month totals in and out and a monthly chart (section 2a).
 - The reconciliation badge: authorised spends and **unauthorised spends: 0**, with the time of the last check.
-- Treasury: balance, UTXOs, multisig policy, and the full transaction history across every descriptor the DAO has used, each row tagged received, authorised spend, pending match or unauthorised.
+- Treasury: balance in two parts, **DAO funds** (what the members decide on together) and **held for members** (open pledges, each with its progress), then UTXOs, multisig policy, and the full transaction history across every descriptor the DAO has used, each row tagged received, authorised spend, pending match or unauthorised.
 - Member count and council count.
 - Proposal list, newest first, with number, status and tally.
 
@@ -161,5 +163,6 @@ flowchart LR
 
 - [ ] Should testnet stages publish their events to relays, or keep all data local to the DAO? The protocol currently publishes them through the DAO relay.
 - [ ] Grace period before a confirmed, unmatched spend is marked unauthorised.
+- [ ] How a pledge address is put on the public record, so dashboards can find it: a statement proposal at first, a `pledge` proposal type later?
 - [ ] Should a DAO be able to hide which council keys signed on chain (for example with a Taproot multisig)?
 - [ ] Who hosts the reference instance at btcdao.tech, and how do others run their own?
