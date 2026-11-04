@@ -43,6 +43,7 @@
 | Repo | `btc-dao` under the Bitcoin-DAO organisation; UNO is the first instance. Licence added last |
 | Protocol | Defined in `protocol.md`: Nostr events in a provisional kind block 3570–3586, all regular so history is kept; every event tagged with the DAO id |
 | Charter | A short core template in English, holding only principles; numbers and procedures stay in the settings. Everything else is an optional module in `docs/charter-modules/`. Each DAO sets its binding charter language in the settings (`charterLanguage`) |
+| Funding model | Each DAO chooses a primary funding model (grant, production, mutual or revolving) after reading `funding-models.md` and discussing it at a members' meeting, before drafting its mainnet charter. Recorded in the settings (`fundingModel`), named in charter Article 1, shown on the dashboard as label and colour; grant DAOs also show their runway |
 | DAO id | SHA-256 of the canonical (RFC 8785) genesis config; never changes |
 | Identity per DAO | The passkey-derived key is salted with the DAO id, so one passkey gives unlinkable identities in different DAOs |
 | Domains | `btcdao.tech` for the project (about, guides, fork kit, read-only dashboard); the mainnet DAO gets its own domain, chosen with its name by the council, with the relay on a subdomain; passkeys are tied to that domain so all its subdomains share them |
@@ -50,6 +51,7 @@
 
 ## Open questions
 
+- [ ] Which funding model for UNO's mainnet DAO? Members to read `funding-models.md` and decide before the mainnet charter is drafted
 - [ ] Who are UNO's five council members, and who are the founding members?
 - [ ] What is the mainnet DAO called? The council decides, before the mainnet founding; the domain follows the name
 - [ ] Is a quorum of one third right for a small founding group?

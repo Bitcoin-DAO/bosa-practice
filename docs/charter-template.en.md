@@ -10,10 +10,12 @@ This charter says what [DAO name] is for and the few principles we keep. Every m
 
 [DAO name] exists to [purpose, in a few sentences: what the money is for and who it serves].
 
+Its funding model is **[grant / production / mutual / revolving]**: [one sentence on where its money comes from and how it keeps coming]. The model is recorded in the settings (`fundingModel`), and is chosen after reading and discussing [funding models](https://github.com/Bitcoin-DAO/btc-dao/blob/main/docs/funding-models.md).
+
 ## 2 · What it is and what it is not
 
 1. [DAO name] is a group of people organising together. It is not a company and has no legal form of its own.
-2. There are no shares, tokens, dividends or returns. Joining costs nothing and earns nothing: it gives a vote.
+2. There are no shares, tokens, dividends or investment returns. Membership gives a vote, not a claim on the funds. [Mutual DAOs: members' regular contributions are set in the settings or a charter module.]
 3. A donation is a gift. It gives no rights over the funds and no extra votes.
 4. No single person can spend the funds, and neither can the website or the software.
 

@@ -231,6 +231,7 @@ Cases for the app's publishing to discovery relays and for any dashboard. "Dashb
 | Q-04 | Listing on a discovery relay whose endorsements are not by the DAO's council | Not shown | 7.4, 3.2 |
 | Q-05 | Listing on a discovery relay whose `relays` cannot be reached | Not shown until the DAO's events can be verified | 7.4 |
 | Q-06 | Listed DAO whose genesis `stage` is `practice` or `testnet` | Shown apart from mainnet DAOs; left out of network totals | 7.4 |
+| Q-07 | Listed DAO whose settings have no `fundingModel`, or an unknown value | Shown with funding model "not stated" | 3.4, dashboard spec 5 |
 | N-01 | Treasury spend whose txid matches a valid round with a receipt | Authorised | dashboard spec 2, 6.1, 6.3 |
 | N-02 | Spend in the mempool, no matching round seen yet | Pending match | dashboard spec 2 |
 | N-03 | Confirmed spend, no matching round after the grace period | Unauthorised; network and DAO counters go up by one, linked to the transaction | dashboard spec 2 |

@@ -43,6 +43,7 @@ All 19 screens are in [`design/`](design/README.md).
 | `docs/guide.md` | The step-by-step guide to founding and running a DAO, from preparation to closing, with a register of the gaps still open |
 | `docs/spec.md` | The full specification v0.2: roles, keys, onboarding (in person and remote), treasury, governance, proposal fields, payout rounds, event formats, threat model, security requirements, build plan |
 | `docs/protocol.md` | The protocol draft v1: every event's exact format, its validity rules, PSBT requirements and how a client rebuilds the DAO's state |
+| `docs/funding-models.md` | The four funding models (grant, production, mutual, revolving): each DAO reads it, discusses it and records its primary model in the settings before drafting its mainnet charter |
 | `docs/dashboard-spec.md` | The read-only dashboard (draft 0.2): one listing switch per DAO, real-time treasury reconciliation (unauthorised spends: 0), permissionless listing through `dao.listing` and discovery relays |
 | `docs/test-cases.md` | Test cases every client must pass, test vectors, and the protocol gaps they exposed |
 | `docs/decisions.md` | Decisions taken so far and open questions |

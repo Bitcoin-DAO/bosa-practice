@@ -58,7 +58,7 @@ Every listed DAO gets the same standard view. There are no per-item display choi
 **Front page.** Answers one question at a glance: are btc-dao DAOs real, active and clean?
 
 - **Unauthorised spends, all DAOs: 0**: the lead figure, largest on the page.
-- Listed DAOs on mainnet.
+- Listed DAOs on mainnet, by funding model.
 - BTC held in mainnet treasuries, summed from their descriptors.
 - Spends reconciled to date.
 - Proposals currently open for voting.
@@ -66,6 +66,7 @@ Every listed DAO gets the same standard view. There are no per-item display choi
 **DAO page**, like an address page in a block explorer:
 
 - Name, site, stage, software version and build check (protocol section 7.2).
+- Funding model (`rules.fundingModel`): shown as a label with a colour, never colour alone. Grant, production, mutual, revolving, or "not stated" when unset or unknown. For a grant DAO, also its **runway**: months left at its average monthly spending over the last six months.
 - The reconciliation badge: authorised spends and **unauthorised spends: 0**, with the time of the last check.
 - Treasury: balance, UTXOs, multisig policy, and the full transaction history across every descriptor the DAO has used, each row tagged received, authorised spend, pending match or unauthorised.
 - Member count and council count.

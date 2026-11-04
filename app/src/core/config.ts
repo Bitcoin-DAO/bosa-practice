@@ -35,6 +35,8 @@ export interface Rules {
   treasuryCapSats: number;
   remoteVerification: Record<string, unknown>;
   minimumAge: number;
+  /** Primary funding model, chosen after reading docs/funding-models.md. Informational only. */
+  fundingModel?: 'grant' | 'production' | 'mutual' | 'revolving';
   /** Language of the binding charter text, as a language code ("en", "it"). English if unset. */
   charterLanguage?: string;
   charterSha256: string;

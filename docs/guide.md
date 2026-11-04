@@ -35,7 +35,8 @@ Any three council members together can move the treasury. Members cannot move mo
 ### 2.1 Agree the purpose and the charter
 
 1. Write down in a few sentences what the money is for and who can join. This becomes the DAO's description and the opening of its charter.
-2. Draft the founding charter: purpose, who may join, how members behave, what the money may and may not be used for, that votes and pseudonyms are public and permanent, and that members must be 18 or over. Members tick that they accept it when they join.
+2. Read [funding models](funding-models.md) and discuss it at a members' meeting: where will the money come from once the first donations are spent? Choose the primary model (`grant`, `production`, `mutual` or `revolving`) and record it in the settings (`fundingModel`). This is required before the mainnet charter is drafted; the trial stages may set a model too, to rehearse the choice.
+3. Draft the founding charter: purpose, who may join, how members behave, what the money may and may not be used for, that votes and pseudonyms are public and permanent, and that members must be 18 or over. Members tick that they accept it when they join.
 
 A short core [charter template](charter-template.en.md) in English covers purpose, what the DAO is and is not, members, the council, the treasury, decisions, the public record, conduct, changes and closing. Numbers and procedures stay in the settings, which the app shows beside the charter. Optional [modules](charter-modules/) add articles a DAO may want: council handbook (keys, absence, death), council eligibility, use of funds, conduct, language, personal data and the trial phase. A DAO writes its charter in the language it sets as binding (`charterLanguage` in the settings), saves it as `config/charter.<language>.md`, and the app shows and hashes that copy. UNO's current copy ([Italian](../config/example.charter.it.md), [English](../config/example.charter.en.md)) was written from the earlier, longer template. It still needs the founding meeting's values and a legal review. Its SHA-256 goes in the settings (`charterSha256`), so everyone can check which text is in force.
 
@@ -313,7 +314,7 @@ Every DAO is founded three times. Each stage is a separate DAO, with its own cop
 
 1. Phase 2 must be passed on the testnet stage.
 2. Council members create **new** mainnet seeds at a new key ceremony. Test seeds must never hold real funds.
-3. The council chooses the mainnet DAO's name, fills it into a fresh copy of the charter template in `config/`, and registers the domain (G-03).
+3. The members confirm the funding model (`fundingModel`, see [funding models](funding-models.md)). The council then chooses the mainnet DAO's name, fills it and the funding model into a fresh copy of the charter template in `config/`, and registers the domain (G-03).
 4. Hold a mainnet founding meeting (section 4) with the mainnet path, the DAO's own domain and its own relay.
 5. Fund with real bitcoin up to the cap, and run three monthly rounds without developer help (phase 3's gate).
 
