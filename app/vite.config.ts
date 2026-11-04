@@ -6,13 +6,15 @@ import { execSync } from 'node:child_process';
 
 // The DAO's config file becomes dao.json next to the page.
 // DAO_CONFIG picks the file; otherwise ../config/dao.json, otherwise the example.
+function readDaoConfig(): string {
+  const candidates = [process.env.DAO_CONFIG, '../config/dao.json', '../config/example.testnet4.json'].filter(Boolean) as string[];
+  const file = candidates.map(f => resolve(__dirname, f)).find(f => existsSync(f));
+  if (!file) throw new Error('No DAO config found');
+  return readFileSync(file, 'utf8');
+}
+
 function daoConfig(): Plugin {
-  const pick = () => {
-    const candidates = [process.env.DAO_CONFIG, '../config/dao.json', '../config/example.testnet4.json'].filter(Boolean) as string[];
-    const file = candidates.map(f => resolve(__dirname, f)).find(f => existsSync(f));
-    if (!file) throw new Error('No DAO config found');
-    return readFileSync(file, 'utf8');
-  };
+  const pick = readDaoConfig;
   return {
     name: 'dao-config',
     configureServer(server) {
@@ -51,8 +53,10 @@ function daoConfig(): Plugin {
 }
 
 // The DAO's charter, shown on the rules page and hashed into the genesis.
-// DAO_CHARTER picks the file; otherwise ../config/charter.it.md, otherwise the template.
-const charterFile = [process.env.DAO_CHARTER, '../config/charter.it.md', '../docs/charter-template.it.md']
+// The binding text is the one in rules.charterLanguage (English if unset).
+// DAO_CHARTER picks the file; otherwise ../config/charter.<language>.md, otherwise the English template.
+const charterLanguage: string = JSON.parse(readDaoConfig()).rules?.charterLanguage ?? 'en';
+const charterFile = [process.env.DAO_CHARTER, `../config/charter.${charterLanguage}.md`, '../docs/charter-template.en.md']
   .filter(Boolean)
   .map(f => resolve(__dirname, f as string))
   .find(f => existsSync(f))!;

@@ -34,6 +34,7 @@
     "treasuryCapSats": 5000000,
     "remoteVerification": { "councilMembersOnCall": 2, "remoteMembersMayJoinCouncil": false, "maxRemoteShare": null },
     "minimumAge": 18,
+    "charterLanguage": "it",
     "charterSha256": "[sha256 of the Italian charter text]"
   },
   "testnetTreasury": { "name": "BTC DAO Testnet Treasury", "address": "[testnet4 address]" },

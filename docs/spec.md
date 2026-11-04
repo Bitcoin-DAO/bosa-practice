@@ -305,29 +305,9 @@ All payouts passed since the last round go out together in one monthly transacti
 
 All DAO activity is signed Nostr events, published to the DAO's own relay plus at least two public relays. The DAO relay runs Nosflare on Cloudflare, set to accept only the DAO's event kinds (3570–3586) carrying its D tag, with paid access turned off. Every client rebuilds the DAO's state from these events and the chain; nothing is trusted because a server said so.
 
-Every event carries a `D` tag holding the DAO id and a `v` tag with the protocol version. The DAO id is the SHA-256 of the canonical genesis config, so it never changes. Kinds 3570–3586 are a provisional block of regular events, so relays keep the full history; they must be checked against the Nostr kind registry before v1.
+Every event carries a `D` tag holding the DAO id and a `v` tag with the protocol version. The DAO id is the SHA-256 of the canonical genesis config, so it never changes. Kinds 3570–3586 are a provisional block of regular events, so relays keep the full history.
 
-| Event (kind) | Signed by | Content | Valid when |
-| --- | --- | --- | --- |
-| `dao.genesis` (3570) | Founding council member | Initial config: name, rules, council identity keys, xpubs, descriptor, relays | Published by a key in its council; its hash is the DAO id; endorsed by 3 council identity keys |
-| `dao.endorse` (3571) | Council member (identity key) | Hash of a genesis, roster, settings, key replacement, tally or listing | Signer is on the council in effect; the object takes effect at the third endorsement |
-| `dao.roster` (3572) | Any council member | Full member list with version number, previous-version hash and the basis for each change | 3 endorsements; every change backed by a passed proposal (including a council change), a leave or a key replacement; two conflicting versions are disputed until the next version picks one |
-| `dao.settings` (3573) | Any council member | Rules, council keys, threshold and descriptor, with version number, previous-version hash and the passed proposal behind it | 3 endorsements; backed by a passed rules change, or a council change and its confirmed migration |
-| `dao.proposal` (3574) | Member | Type, title, summary, optional link with fingerprint, language, and a payload per type (payouts: recipient and outputs) | Signer is on the roster at publication; payload valid for its type |
-| `dao.confirm` (3575) | Payout recipient | Proposal id, the confirmed address, optional BIP-322 signature | Address is in the proposal's outputs |
-| `dao.vote` (3576) | Member | Proposal id, yes / no / abstain | Signer eligible; latest vote per member counts |
-| `dao.tally` (3577) | Council member | Proposal id, close time, roster and settings versions, votes counted and excluded with reasons, result, the proposal's number | Published after the close; only one undisputed tally per proposal |
-| `dao.verify` (3578) | Council member | Candidate key, in person or remote, short code | Short code matches the candidate key |
-| `dao.rekey` (3579) | Council member | Old key, new key, mode, short code | 3 endorsements; remote also needs a second council verification |
-| `dao.leave` (3580) | Member leaving | Empty | Signer is not on the council |
-| `dao.round` (3581) | Council member | Payout round: proposal ids, unsigned PSBT, fee rate and fee | PSBT outputs match exactly the passed proposals listed; change to the treasury; fee within the cap; no other round open unless this one spends one of its coins |
-| `dao.sign` (3582) | Council member (identity key) | Round id, partially signed PSBT or a decline with reason | Signature verifies against that member's treasury key |
-| `dao.receipt` (3583) | Any council member | Round id, txid, block height | Transaction confirmed on chain and matches the round |
-| `dao.anchor` (3584) | Any member | Digest of a closed decision, the event ids it covers, OpenTimestamps proof | Proof verifies against Bitcoin |
-| `dao.listing` (3585) | Council member | Name, site address, relays, descriptor, software version | Endorsed by 3 council identity keys; the latest endorsed site is the DAO's address |
-| `dao.keywrap` (3586) | Member (identity key) | Hash of a passkey credential id, and the identity key encrypted by that passkey | Signer is a member; the latest per credential counts |
-
-`docs/protocol.md` in the repo defines every event exactly: its fields, validity rules, the PSBT requirements and the order in which a client rebuilds the DAO's state. Another team can write a compatible client from it alone. Where this table and the protocol differ, the protocol is the more precise.
+The events, their fields and validity rules are defined in one place only: [`protocol.md`](protocol.md), section 2 lists them all. Another team can write a compatible client from it alone.
 
 ## Public record and anchoring
 
@@ -379,7 +359,7 @@ For a group without a developer:
 
 ### Read-only dashboard
 
-A separate static site lists every DAO that publishes a `dao.listing` event: name, balance, open proposals, payout history and software version, with outdated versions flagged. It shows each DAO's endorsed address, so members can find a DAO that has moved. It holds no keys and changes nothing; anyone can run their own copy, and DAOs work normally if it goes down.
+A separate static site shows DAOs that switch on listing, with their reconciled treasury, proposals and software version. It holds no keys and changes nothing; anyone can run their own copy, and DAOs work normally if it goes down. Defined in [`dashboard-spec.md`](dashboard-spec.md).
 
 ## Threat model
 

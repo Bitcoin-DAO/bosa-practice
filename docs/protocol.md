@@ -150,7 +150,7 @@ If two different versions with the same number each reach `threshold` endorsemen
   "version": 2,
   "prev": "<sha256 of settings version 1 content>",
   "basis": ["<id of the passed change_rules or change_council proposal>", "<id of the migration's dao.receipt, for a council change>"],
-  "rules": { "votingPeriodDays": 7, "quorum": "1/3", "timezone": "Europe/Rome", "maxFeeRateSatVb": 20, "charterSha256": "<sha256 of the binding charter text>", "treasuryCapSats": 5000000, "...": "..." },
+  "rules": { "votingPeriodDays": 7, "quorum": "1/3", "timezone": "Europe/Rome", "maxFeeRateSatVb": 20, "charterLanguage": "it", "charterSha256": "<sha256 of the binding charter text>", "treasuryCapSats": 5000000, "...": "..." },
   "closed": false,
   "council": [{"label": "Council 1", "identityKey": "<hex>", "fingerprint": "<8 hex>", "xpub": "<xpub>"}],
   "threshold": 3,
@@ -158,7 +158,7 @@ If two different versions with the same number each reach `threshold` endorsemen
 }
 ```
 
-Settings hold everything about the DAO that can change by vote: the rules, the council's keys, the threshold and the treasury descriptor. Version 1 is implied by the genesis: `{"version": 1, "rules", "closed": false, "council", "threshold", "descriptor"}`, taken from the genesis config. `rules.charterSha256` fixes which charter text is in force: the SHA-256 of the binding text (Italian, for UNO) as UTF-8. The app shows the charter and checks it against this hash; a charter change is a `change_rules` proposal that changes the hash. Version 1 is taken from the genesis config. Same chain, basis and conflict rules as rosters. A rules change needs a passed and tallied `change_rules` proposal. A council change needs a passed and tallied `change_council` proposal plus the `dao.receipt` of its migration round; the new version names the new council, threshold and descriptor, and from its effective time payout rounds spend from the new descriptor.
+Settings hold everything about the DAO that can change by vote: the rules, the council's keys, the threshold and the treasury descriptor. Version 1 is implied by the genesis: `{"version": 1, "rules", "closed": false, "council", "threshold", "descriptor"}`, taken from the genesis config. `rules.charterLanguage` names the language of the binding charter text, as a language code (`en`, `it`; English if unset). `rules.charterSha256` fixes which charter text is in force: the SHA-256 of the binding text, in that language, as UTF-8. Translations may exist; where they differ, the binding text applies. Changing the binding language is a rules change, like changing the text. The app shows the charter and checks it against this hash; a charter change is a `change_rules` proposal that changes the hash. Version 1 is taken from the genesis config. Same chain, basis and conflict rules as rosters. A rules change needs a passed and tallied `change_rules` proposal. A council change needs a passed and tallied `change_council` proposal plus the `dao.receipt` of its migration round; the new version names the new council, threshold and descriptor, and from its effective time payout rounds spend from the new descriptor.
 
 ### 3.5 Founding
 
@@ -340,9 +340,11 @@ Tags: `["e", <tally id>]`. Content: `{"digest": "<sha256>", "covers": ["<event i
 
 Content: `{"name": "UNO", "site": "https://...", "relays": ["wss://..."], "descriptor": "<public descriptor>", "software": "btc-dao 0.1.0", "build": "<sha256 of the release bundle>"}`. Takes effect with `threshold` endorsements. Dashboards list only endorsed listings, and flag any DAO whose `software` is older than the latest release or whose `build` does not match the signed release. The app shows its own version and build fingerprint on the Rules page, so members can compare.
 
+**Dashboard switch** (optional): the content may carry `"listed": true`, set by the app's *show on public dashboards* switch. Dashboards show a DAO only when its latest endorsed listing has `"listed": true`. A listing without it, or with `"listed": false`, keeps working for its other purposes (the DAO's address, the build check) but is not shown on dashboards. Leaving dashboards is a new listing with `"listed": false`, endorsed like any other. The switch governs display only: every event stays public on the relays.
+
 The `site` of the latest endorsed listing is the DAO's address. Moving the DAO to a new domain is done by publishing a new listing and collecting `threshold` endorsements; no member needs re-verifying. The card-restore screen shows the endorsed address and its endorsements, and clients warn when they are opened at any other address. Members should never scan an identity card on an address the council has not endorsed.
 
-After a domain loss, members find the new address in two ways that do not depend on the lost domain: the project dashboard (btcdao.tech), which shows each DAO's latest endorsed `site`, and an announcement by the council in person or on a call. A DAO relay on the lost domain goes down with it. The public relays in the config still hold every event, so the new listing can be fetched there, and its `relays` field names the DAO's new relays.
+After a domain loss, members find the new address in two ways that do not depend on the lost domain: the project dashboard (btcdao.tech), which shows the latest endorsed `site` of each DAO that is listed, and an announcement by the council in person or on a call. A DAO relay on the lost domain goes down with it. The public relays in the config still hold every event, so the new listing can be fetched there, and its `relays` field names the DAO's new relays.
 
 ### 7.3 DAO relay
 
@@ -354,6 +356,16 @@ Each DAO runs one relay of its own beside at least two public relays. Its policy
 - keep every accepted event; never delete.
 
 The reference setup is Nosflare on Cloudflare Workers, configured in `relay/`: pay-to-relay and sign-in off, only kinds 3570–3586, a required `D` tag (pinned to the DAO id once it exists), and pruning off. For UNO's stages it runs at a `workers.dev` address under the Bitcoin-DAO organisation's Cloudflare account; a mainnet DAO runs its own on its own domain. Any relay with the same policy can replace it.
+
+### 7.4 Discovery relays
+
+A DAO publishes to the relays in its own config, and its DAO relay accepts only events tagged with its own DAO id, so on its own a new DAO cannot be found by a dashboard that does not already know it. Discovery relays close that gap.
+
+- **What goes there:** each `dao.listing` and the `dao.endorse` events that endorse it (object `listing`). Nothing else is needed: the listing's `relays` field tells a dashboard where to fetch the rest of the DAO's events by `#D`.
+- **Who publishes:** the app publishes a listing and its endorsements to the discovery relays as well as to the DAO's own relays, but only when the listing has `"listed": true`. A DAO that does not opt in never appears there.
+- **Which relays:** a short list shipped with each btc-dao release, so every app and every dashboard starts from the same set. The project runs one (the btcdao.tech relay); the others are public relays. A dashboard may watch more relays.
+- **Policy:** a discovery relay accepts kinds 3585 and 3571 with any `D` tag, from any key, keeps every accepted event and never deletes. Dashboards validate every listing and endorsement against the DAO's own events before showing it, so a discovery relay needs no trust.
+- **Stages:** dashboards show trial stages (practice and testnet, read from the genesis config's `stage`) apart from mainnet DAOs and leave them out of network totals. Whether trial stages publish at all is open (`decisions.md`).
 
 ## 8. Rebuilding state
 

@@ -50,7 +50,7 @@ For the trial, each council member's phone also creates a **test treasury key** 
 
 The build reads the DAO's config file and serves it as `dao.json` beside the page. It takes `DAO_CONFIG` if set, then `config/dao.json` (an instance's own file), then the example. Placeholders in square brackets are ignored. After founding, add `"daoId": "<id>"` to the instance's file so the app goes straight to that DAO.
 
-The charter comes from `DAO_CHARTER` if set, then `config/charter.it.md`, then `docs/charter-template.it.md`. Its SHA-256 goes into the genesis, and the rules page checks the text against it, so the file must not change after founding except by a rules change.
+The charter comes from `DAO_CHARTER` if set, then `config/charter.<language>.md` for the binding language in the config (`rules.charterLanguage`, English if unset), then `docs/charter-template.en.md`. Its SHA-256 goes into the genesis, and the rules page checks the text against it, so the file must not change after founding except by a rules change.
 
 The page's content security policy is built from the same file: it can connect only to the listed relays and chain APIs.
 

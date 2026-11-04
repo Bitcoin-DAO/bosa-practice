@@ -38,10 +38,12 @@ All 19 screens are in [`design/`](design/README.md).
 | `docs/what-is-a-bitcoin-dao.md`, `docs/what-is-a-bitcoin-dao.it.md` | A plain-language introduction, in English and Italian: what a Bitcoin DAO is, how it works, what it can be used for |
 | `docs/wallet-guide.it.md`, `docs/wallet-guide.en.md` | "Your first bitcoin wallet in 5 minutes" for members, in Italian and English |
 | `docs/testnet-treasury.md` | The BTC DAO Testnet Treasury: the organisation's testnet4 wallet that funds every practice and testnet stage and gets the coins back when each one closes |
-| `docs/charter-template.it.md`, `docs/charter-template.en.md` | The founding charter template, Italian (binding) and English: each DAO fills in its name and purpose and keeps its copy in `config/` |
+| `docs/charter-template.en.md` | The core charter template in English: purpose, members, council, treasury, decisions, public record, conduct, changes and closing. Each DAO fills it in, writes it in its binding language (`charterLanguage` in the settings) and keeps its copy in `config/` |
+| `docs/charter-modules/` | Optional charter articles a DAO can add: council handbook, council eligibility, use of funds, conduct, language, personal data, trial phase |
 | `docs/guide.md` | The step-by-step guide to founding and running a DAO, from preparation to closing, with a register of the gaps still open |
 | `docs/spec.md` | The full specification v0.2: roles, keys, onboarding (in person and remote), treasury, governance, proposal fields, payout rounds, event formats, threat model, security requirements, build plan |
 | `docs/protocol.md` | The protocol draft v1: every event's exact format, its validity rules, PSBT requirements and how a client rebuilds the DAO's state |
+| `docs/dashboard-spec.md` | The read-only dashboard (draft 0.2): one listing switch per DAO, real-time treasury reconciliation (unauthorised spends: 0), permissionless listing through `dao.listing` and discovery relays |
 | `docs/test-cases.md` | Test cases every client must pass, test vectors, and the protocol gaps they exposed |
 | `docs/decisions.md` | Decisions taken so far and open questions |
 | `design/` | The mock-up screens (Italian) as source and PNG, plus the spec's diagrams |

@@ -89,6 +89,7 @@
       "maxRemoteShare": null
     },
     "minimumAge": 18,
+    "charterLanguage": "it",
     "charterSha256": "[sha256 of the Italian charter text]"
   },
   "testnetTreasury": {

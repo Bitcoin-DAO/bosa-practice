@@ -193,9 +193,12 @@ Cases marked with a gap number tested a rule `protocol.md` did not settle when t
 | A-01 | Anchor whose digest matches the sorted covered ids and whose proof verifies | Shown as anchored at that block | 7.1 |
 | A-02 | Anchor whose `covers` leaves out a counted vote | Rejected | 7.1 |
 | A-03 | Pending proof replaced by an upgraded one with the same digest | Upgraded proof used | 7.1 |
-| L-01 | New listing with a new `site`, 3 endorsements | New address in effect; dashboard and restore screen show it | 7.2 |
+| L-01 | New listing with a new `site`, 3 endorsements | New address in effect; restore screen shows it, and the dashboard too if the DAO is listed | 7.2 |
 | L-02 | New listing with 2 endorsements | Old address stays | 7.2 |
 | L-03 | Client opened at an address that is not the endorsed `site` | Warning shown | 7.2 |
+| L-04 | Endorsed listing with `"listed": true` | Dashboard shows the DAO's standard view | 7.2 |
+| L-05 | Endorsed listing without `listed` | Address and build check work as usual; dashboard does not show the DAO | 7.2 |
+| L-06 | Listed DAO publishes a new listing with `"listed": false`, 3 endorsements | Dashboard stops showing the DAO; its events stay on the relays | 7.2 |
 
 ## 14. Treasury housekeeping and closing
 
@@ -215,6 +218,26 @@ Cases marked with a gap number tested a rule `protocol.md` did not settle when t
 | X-03 | Close proposal passed, destination not confirmed | No closing round | 4.2 |
 | X-04 | Final settings with `closed: true` endorsed by 3 | No new proposals, votes or rounds accepted; record still readable | 6.1 |
 | U-01 | Listing whose `build` does not match the signed release | Dashboard flags the DAO | 7.2 |
+
+## 15. Discovery and dashboard reconciliation
+
+Cases for the app's publishing to discovery relays and for any dashboard. "Dashboard" means any client that implements `dashboard-spec.md`.
+
+| ID | Case | Expected | § |
+| --- | --- | --- | --- |
+| Q-01 | Listing with `"listed": true` reaches 3 endorsements | App publishes the listing and its 3 endorsements to the shipped discovery relays as well as the DAO's own relays | 7.4 |
+| Q-02 | Listing with `"listed": false`, or without `listed` | App does not publish it to discovery relays | 7.4 |
+| Q-03 | Dashboard finds a listing on a discovery relay | Fetches the DAO's events by `#D` from the listing's `relays`, verifies genesis, settings and the listing's endorsements, then shows the DAO | 7.4, 8 |
+| Q-04 | Listing on a discovery relay whose endorsements are not by the DAO's council | Not shown | 7.4, 3.2 |
+| Q-05 | Listing on a discovery relay whose `relays` cannot be reached | Not shown until the DAO's events can be verified | 7.4 |
+| Q-06 | Listed DAO whose genesis `stage` is `practice` or `testnet` | Shown apart from mainnet DAOs; left out of network totals | 7.4 |
+| N-01 | Treasury spend whose txid matches a valid round with a receipt | Authorised | dashboard spec 2, 6.1, 6.3 |
+| N-02 | Spend in the mempool, no matching round seen yet | Pending match | dashboard spec 2 |
+| N-03 | Confirmed spend, no matching round after the grace period | Unauthorised; network and DAO counters go up by one, linked to the transaction | dashboard spec 2 |
+| N-04 | Spend from an earlier descriptor matching a valid sweep round | Authorised | 6.1 |
+| N-05 | Two rounds share an input; one confirms | Confirmed one authorised; the other shown void, not unauthorised | 6.1 |
+| N-06 | Matching round arrives after the spend was marked unauthorised | Re-marked authorised; the change shown in the DAO's history | dashboard spec 2 |
+| N-07 | Receipt names a txid the chain does not confirm at that height | Receipt rejected; reconciliation uses the chain, not the receipt | 6.3 |
 
 ## Test vectors
 

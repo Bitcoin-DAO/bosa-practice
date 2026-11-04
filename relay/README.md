@@ -46,6 +46,17 @@ If Cloudflare's own builds fail (they timed out while initialising on the organi
 
 After each founding, add that DAO's id to `ALLOWED_DAO_IDS` in `src/config.ts`, run `npm run build` and commit. Cloudflare redeploys by itself. This relay serves UNO's practice and testnet stages; a mainnet DAO gets its own relay on its own domain.
 
+## To do: a database with a generic name
+
+The relay's D1 database is still called `bosa-dao-relay`, a name from before the project went generic. Cloudflare cannot rename a D1 database, so it stays as it is while UNO's practice and testnet stages run. After the testnet stage is closed, and before any mainnet DAO uses this relay:
+
+1. In Cloudflare, create a new D1 database (for example `btc-dao-relay-db`, Western Europe).
+2. Put its id in `database_id` and its name in `database_name` in `wrangler.toml`, and commit; the relay redeploys.
+3. Open the relay's `workers.dev` address once to create the tables, then check a client can publish and read an event.
+4. Delete the old `bosa-dao-relay` database.
+
+The new database starts empty. That is fine once UNO's stages are closed; the public relays still hold their events.
+
 ## Mainnet
 
 A mainnet DAO deploys its own copy of this relay, adds `relay.<its domain>` under the worker's Settings → Domains & Routes once the domain is on Cloudflare, and lists it in its config.

@@ -37,7 +37,7 @@ Any three council members together can move the treasury. Members cannot move mo
 1. Write down in a few sentences what the money is for and who can join. This becomes the DAO's description and the opening of its charter.
 2. Draft the founding charter: purpose, who may join, how members behave, what the money may and may not be used for, that votes and pseudonyms are public and permanent, and that members must be 18 or over. Members tick that they accept it when they join.
 
-A charter template exists, in [Italian](charter-template.it.md) (binding) with an [English translation](charter-template.en.md), and UNO's copy is filled in from it ([Italian](../config/example.charter.it.md), [English](../config/example.charter.en.md)). It covers purpose, members, the council (including absence and death), the treasury, voting, payments, the public record, conduct, changes, closing and the trial. A DAO copies it to `config/charter.it.md` and `config/charter.en.md`, and the app shows and hashes that copy. It still needs the founding meeting's values and a legal review. Its SHA-256 goes in the settings (`charterSha256`), so everyone can check which text is in force.
+A short core [charter template](charter-template.en.md) in English covers purpose, what the DAO is and is not, members, the council, the treasury, decisions, the public record, conduct, changes and closing. Numbers and procedures stay in the settings, which the app shows beside the charter. Optional [modules](charter-modules/) add articles a DAO may want: council handbook (keys, absence, death), council eligibility, use of funds, conduct, language, personal data and the trial phase. A DAO writes its charter in the language it sets as binding (`charterLanguage` in the settings), saves it as `config/charter.<language>.md`, and the app shows and hashes that copy. UNO's current copy ([Italian](../config/example.charter.it.md), [English](../config/example.charter.en.md)) was written from the earlier, longer template. It still needs the founding meeting's values and a legal review. Its SHA-256 goes in the settings (`charterSha256`), so everyone can check which text is in force.
 
 > **Gap G-01.** Partly resolved: the "first wallet in 5 minutes" guide now exists ([Italian](wallet-guide.it.md), [English](wallet-guide.en.md)). The charter still needs its legal review before mainnet.
 
@@ -272,7 +272,7 @@ Used if the domain is lost, seized or not renewed. The DAO listing it relies on 
 
 1. The maintainer puts the site up at the new address. The relay on the old domain goes down with it; the public relays still hold every event.
 2. Three council members approve a new DAO listing naming the new address and relays.
-3. The council announces the new address in person or on a call, and the btcdao.tech dashboard shows it.
+3. The council announces the new address in person or on a call, and the btcdao.tech dashboard shows it if the DAO is listed.
 4. Members open the new address, check it is the approved one, scan their identity card and create a new passkey. Same identity, same votes, no re-verification.
 5. Members without a card go through key replacement.
 
@@ -280,7 +280,7 @@ Used if the domain is lost, seized or not renewed. The DAO listing it relies on 
 
 1. The maintainer announces each new version to members as a statement proposal, with what changes, before deploying it.
 2. Releases are signed and built reproducibly (S2), so anyone can check that the published files match the code.
-3. The app shows its version and build fingerprint on the Rules page; the DAO's listing records them, and the btcdao.tech dashboard flags DAOs running an outdated version or a build that does not match the signed release.
+3. The app shows its version and build fingerprint on the Rules page; the DAO's listing records them, and the btcdao.tech dashboard flags listed DAOs running an outdated version or a build that does not match the signed release.
 
 Funds stay safe whatever the software does, because council members check every payment on the SeedSigner screen. (Resolved G-16.)
 
@@ -338,7 +338,7 @@ Every member of the trial DAO is listed as a founder at the mainnet founding mee
 | A payment looks wrong on the SeedSigner | Nothing has been signed | Do not sign. Decline with the reason and tell the council |
 | Three council members collude | They can move the funds outside the app | It shows publicly as a payment with no round. Members can replace the council, but the money cannot be recovered. The cap limits the loss |
 
-A council member's seed belongs to the DAO and does not pass to their heirs. Each council member keeps a sealed note with their plate, without the seed, asking their family to contact the council; the council changes the key and has the plate and SeedQR card destroyed in front of a council member. Any absence of more than one round triggers a council change. (Resolved G-18, charter Article 4.)
+A council member's seed belongs to the DAO and does not pass to their heirs. Each council member keeps a sealed note with their plate, without the seed, asking their family to contact the council; the council changes the key and has the plate and SeedQR card destroyed in front of a council member. Any absence of more than one round triggers a council change. (Resolved G-18, charter module [council handbook](charter-modules/council-handbook.md).)
 
 ## 10. Closing a DAO
 
@@ -373,7 +373,7 @@ A DAO is closed by a final proposal of type **Close the DAO**, decided by vote. 
 | G-15 | Treasury | Retiring old keys after a council change; coins sent to an old treasury | First council change | Resolved |
 | G-16 | Software | Who approves updates and how members check the running version | Phase 1 | Resolved |
 | G-17 | Membership | Carrying members from the trial to mainnet | Mainnet founding | Resolved |
-| G-18 | Council | Death or long incapacity of a council member | Charter | Resolved in the draft charter (Article 4.8) |
+| G-18 | Council | Death or long incapacity of a council member | Charter | Resolved in the council handbook module |
 | G-19 | Governance | Winding up a DAO | Charter | Resolved |
 | G-20 | Software | Parts of the design not in the app yet: OpenTimestamps anchoring, the event-history export, the DAO listing (moving address), council changes with migration and sweep rounds, SeedSigner signing by animated QR, signed reproducible releases | Phase 2, and mainnet for releases | Open |
 

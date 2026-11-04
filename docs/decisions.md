@@ -42,6 +42,7 @@
 | Recovery | Recovery sheet with the descriptor is essential: 3 seeds alone cannot recover a multisig |
 | Repo | `btc-dao` under the Bitcoin-DAO organisation; UNO is the first instance. Licence added last |
 | Protocol | Defined in `protocol.md`: Nostr events in a provisional kind block 3570–3586, all regular so history is kept; every event tagged with the DAO id |
+| Charter | A short core template in English, holding only principles; numbers and procedures stay in the settings. Everything else is an optional module in `docs/charter-modules/`. Each DAO sets its binding charter language in the settings (`charterLanguage`) |
 | DAO id | SHA-256 of the canonical (RFC 8785) genesis config; never changes |
 | Identity per DAO | The passkey-derived key is salted with the DAO id, so one passkey gives unlinkable identities in different DAOs |
 | Domains | `btcdao.tech` for the project (about, guides, fork kit, read-only dashboard); the mainnet DAO gets its own domain, chosen with its name by the council, with the relay on a subdomain; passkeys are tied to that domain so all its subdomains share them |
@@ -57,6 +58,10 @@
 - [ ] Can OpenTimestamps calendars be reached from the browser, or is a small helper needed?
 - [ ] Does SeedSigner's current firmware verify change against a loaded P2WSH multisig descriptor? Test before phase 2
 - [ ] Is passkey PRF supported on every member's phone? (Confirmed on the first Android phone tested)
-- [ ] Are kinds 3570–3586 and the `D` tag free in the Nostr registry?
+- [ ] Are kinds 3570–3586 free? Registry and GitHub checked on 4 November 2026: no NIP defines any kind from 3500 to 3699 (nostr-protocol/nips at commit 400d157), and GitHub code search found no Nostr use of these kinds. Still to do: query a few large relays for kinds 3570–3586 (for example `nak req -k 3570 -k 3585 wss://relay.damus.io`)
+- [ ] Keep the `D` tag or change it before v1? NIP-CC (Geocaching) already uses `D` for cache difficulty (values 1–5, kind 37516). No clash in practice, since btc-dao always filters `#D` together with kinds 3570–3586 and a DAO id is 64 hex characters; but the letter is shared, so either note that in the NIP draft or pick a letter no NIP uses
+- [ ] Should testnet stages publish their events to relays, or keep all data local to the DAO, with only mainnet publishing? See `dashboard-spec.md` section 9
+- [ ] After UNO's testnet stage closes, replace the relay's D1 database with one under a generic name (`relay/README.md`, "To do"). Left as is until then
 - [ ] Legal check (Italy, UK): confirm keyless coordination software is not custody
-- [ ] Legal review of the drafted charter (`charter-template.it.md`, and UNO's copy) and the wallet guide
+- [ ] Legal review of the core charter (`charter-template.en.md`), the personal data module, UNO's charter and the wallet guide
+- [ ] Rebuild UNO's charter from the core template plus the modules it needs (likely council handbook, use of funds, conduct, language, personal data, trial phase), with Italian as its binding language
