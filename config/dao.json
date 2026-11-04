@@ -1,14 +1,14 @@
 {
   "configVersion": 1,
   "stage": "practice",
-  "name": "BOSA DAO",
-  "description": "Prova generale di BOSA DAO: tutto qui verrà buttato via.",
+  "name": "UNO",
+  "description": "Prova generale di UNO: tutto qui verrà buttato via.",
   "languages": [
     "it",
     "en"
   ],
   "network": "testnet4",
-  "site": "https://bitcoin-dao.github.io/bosa-practice",
+  "site": "https://bitcoin-dao.github.io/uno-practice",
   "passkeyDomain": "bitcoin-dao.github.io",
   "council": [
     {
