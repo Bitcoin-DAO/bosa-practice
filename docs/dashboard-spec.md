@@ -32,6 +32,36 @@ Because a round's txid is fixed by its unsigned transaction, a matching round pr
 
 The same check runs inside the DAO app during the trial stages, so the key metric is proven locally before it is shown in public.
 
+## 2a. Steady I/O: is the funding model working?
+
+Every listed DAO shows one number beside its declared funding model:
+
+> **Steady I/O = median monthly inflow ÷ median monthly outflow, over the last 12 complete months**
+
+It measures whether money arrives **regularly** compared with what the DAO regularly spends. Medians make it steady: a one-off donation of any size lands in a single month and does not move the number. Read beside the declared model, it tests the label without judging it.
+
+- **Above 1:** regular income covers regular spending.
+- **Below 1:** the DAO lives on its reserves or on occasional gifts.
+- **Near 0:** no regular income, which is expected for a grant DAO.
+
+**Definitions**
+
+- **Months** are calendar months in the DAO's settings time zone (`rules.timezone`). Only complete months count.
+- **Inflow** is every payment received at a treasury address, from any descriptor the DAO has used.
+- **Outflow** is every reconciled spend: the payout outputs plus the network fee.
+- **Not counted:** change back to the treasury, and sweeps from an earlier descriptor to the current one. Both are the DAO moving its own money.
+
+**Shown with it**
+
+- Totals in and out over the same 12 months, so a large donation is still visible.
+- A 12-month chart of money in and out per month, so a one-off gift looks like one, and a steady stream looks like a stream.
+
+**Edge cases**
+
+- Fewer than 3 complete months since founding: "too new".
+- Median monthly outflow of 0: "no regular spending", with the totals.
+- The dashboard does not rank DAOs by this number.
+
 ## 3. Data sources
 
 The dashboard has two inputs and writes nothing back:
@@ -58,7 +88,7 @@ Every listed DAO gets the same standard view. There are no per-item display choi
 **Front page.** Answers one question at a glance: are btc-dao DAOs real, active and clean?
 
 - **Unauthorised spends, all DAOs: 0**: the lead figure, largest on the page.
-- Listed DAOs on mainnet, by funding model.
+- Listed DAOs on mainnet, by funding model, with how many have a steady I/O above 1.
 - BTC held in mainnet treasuries, summed from their descriptors.
 - Spends reconciled to date.
 - Proposals currently open for voting.
@@ -66,7 +96,8 @@ Every listed DAO gets the same standard view. There are no per-item display choi
 **DAO page**, like an address page in a block explorer:
 
 - Name, site, stage, software version and build check (protocol section 7.2).
-- Funding model (`rules.fundingModel`): shown as a label with a colour, never colour alone. Grant, production, mutual, revolving, or "not stated" when unset or unknown. For a grant DAO, also its **runway**: months left at its average monthly spending over the last six months.
+- Funding model (`rules.fundingModel`): shown as a label with a colour, never colour alone. Grant, production, mutual, revolving, or "not stated" when unset or unknown.
+- **Steady I/O** beside the funding model, with the 12-month totals in and out and a monthly chart (section 2a).
 - The reconciliation badge: authorised spends and **unauthorised spends: 0**, with the time of the last check.
 - Treasury: balance, UTXOs, multisig policy, and the full transaction history across every descriptor the DAO has used, each row tagged received, authorised spend, pending match or unauthorised.
 - Member count and council count.

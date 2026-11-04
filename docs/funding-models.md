@@ -21,7 +21,7 @@ The DAO collects donations and pays them out to projects its members choose. Thi
 
 - **How it lasts:** only while donors give. Spending without new donations empties it.
 - **Typical failure:** the first enthusiasm funds a burst of projects; donations slow, the pot empties, and members drift away.
-- **If you choose it:** say so plainly. The dashboard shows a grant DAO's **runway**, the months left at its current spending rate, so donors and members see how long it can go on. Consider a spending rule in your settings or charter, for example never spending more than a set share of the treasury each quarter.
+- **If you choose it:** say so plainly. On the dashboard, a grant DAO's steady I/O (below) will usually sit near 0, which is honest: it lives on gifts, and donors and members can see that. Consider a spending rule in your settings or charter, for example never spending more than a set share of the treasury each quarter.
 
 ### Production
 
@@ -59,4 +59,4 @@ The DAO advances funds to projects, and the projects pay back, in full or as a s
 
 - **Settings:** `rules.fundingModel` is one of `grant`, `production`, `mutual`, `revolving`. It is set at founding and changed by a rules vote, like any other rule.
 - **Charter:** Article 1 names the model in a sentence.
-- **Dashboard:** each listed DAO shows its model as a label and a colour. A DAO with no model set shows as "not stated".
+- **Dashboard:** each listed DAO shows its model as a label and a colour ("not stated" if unset), and beside it its **steady I/O**: median monthly inflow divided by median monthly outflow over the last 12 complete months. Above 1, regular income covers regular spending; below 1, the DAO draws on reserves or occasional gifts. A one-off donation does not move it. It is how members and donors see whether the chosen model is working. Defined in [`dashboard-spec.md`](dashboard-spec.md), section 2a.
