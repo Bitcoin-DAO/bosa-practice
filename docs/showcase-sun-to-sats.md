@@ -89,6 +89,11 @@ A **sunblock** is a whole solar panel (500 W) that a member buys through the DAO
 2. Who carries the price risk while a pledge is paid in instalments.
 3. Whether only members, or anyone, can buy a sunblock.
 4. Legal check: whether holding pledges for members counts as holding client money anywhere the DAO's members live.
+5. **Deferred payouts into a pledge** (the automatic route from Layer 0 to Layer 01). A member opts in once to have their weekly share paid into their own pledge address. The distribution helper sends what the pledge still needs there and the rest to their standing address. When the pledge is covered, the panel is bought and full payouts resume. It is the member's own choice, not a group vote: the weekly distribution is voted on as usual. The share is paid out to the pledge address as its own coin, not kept back in the treasury, so pledges stay ring-fenced. Needed before it can run:
+   - the protocol allows a payout output to a pledge address only when the output names the pledge's owner and the owner has opted in (today any payout to a treasury address is refused);
+   - pledge addresses go on the public record (decision 4 in the [dashboard spec](dashboard-spec.md) open questions);
+   - a signed "defer to my pledge" switch, checked when the round is published and ended by leaving or a new key, like a standing address;
+   - the dashboard counts a deferred share as outflow and as **pledged**, and shows the spend as a move from DAO funds to held for members, not as unauthorised.
 
 ## Reference files
 
