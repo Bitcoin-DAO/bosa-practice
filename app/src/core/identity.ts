@@ -82,9 +82,11 @@ export interface FounderCode {
   council?: { fingerprint: string; xpub: string };
 }
 
+/** Accepts the bare code, or a shared message that contains it (the code is the {...} part). */
 export function parseFounderCode(text: string): FounderCode | undefined {
   try {
-    const o = JSON.parse(text.trim());
+    const s = text.trim();
+    const o = JSON.parse(s.startsWith('{') ? s : s.slice(s.indexOf('{'), s.lastIndexOf('}') + 1));
     if (o?.t !== 'btcdao-founder' || o.v !== 1) return undefined;
     if (typeof o.name !== 'string' || !o.name.trim() || o.name.length > 40) return undefined;
     if (!/^[0-9a-f]{64}$/.test(o.key)) return undefined;

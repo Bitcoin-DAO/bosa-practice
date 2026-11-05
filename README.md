@@ -1,6 +1,6 @@
 # UNO · practice
 
-**This is UNO's practice copy of [btc-dao](https://github.com/Bitcoin-DAO/btc-dao)** (stage 1 of 3: practice, testnet, mainnet). It runs btc-dao 0.1.0 on testnet4 with votes of about ten minutes, so a few people can rehearse the whole life of the DAO in one sitting: founding, joining, voting, a lost key, restoring from a card and a payout round. Everything here is thrown away afterwards; the testnet stage is [`uno-testnet`](https://github.com/Bitcoin-DAO/uno-testnet).
+**This is UNO's practice copy of [btc-dao](https://github.com/Bitcoin-DAO/btc-dao)** (stage 1 of 3: practice, testnet, mainnet). It runs btc-dao v0.1.1 (commit 27e39e2) on testnet4 with votes of about ten minutes, so a few people can rehearse the whole life of the DAO in one sitting: founding, joining, voting, a lost key, restoring from a card and a payout round. Everything here is thrown away afterwards; the testnet stage is [`uno-testnet`](https://github.com/Bitcoin-DAO/uno-testnet).
 
 The site is at **https://bitcoin-dao.github.io/uno-practice**, built from `config/dao.json` by `.github/workflows/pages.yml`. After the rehearsal, everyone deletes their practice passkey ("… (prova generale)") and this repository is archived.
 

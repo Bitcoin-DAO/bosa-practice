@@ -48,12 +48,45 @@ export function Founder() {
           <span class="small">{t('fs.shortCodeLabel')}</span>
         </div>
         <p class="small">{t('fs.remote')}</p>
+        <ShareButton text={t('fs.shareText', { dao: site.name, role: t(pending.council ? 'fs.roleCouncil' : 'fs.roleFounder'), name: pending.name, short: formatShortCode(shortCode(pending.pubkey)), code: text })} />
         <CopyButton text={text} label={t('fs.copyCode')} />
         {!pending.prfSupported && <p class="warnbox">{t('fs.noPrf')}</p>}
         <button type="button" class="btn primary" onClick={() => setCodeDone(true)}>{t('fs.done')}</button>
+        <button type="button" class="btn link" onClick={() => void restartSignup(site.site)}>{t('fs.restart')}</button>
         {pending.council && <button type="button" class="btn secondary" onClick={() => go('/setup')}>{t('fs.goSetup')}</button>}
       </main>
     </>
+  );
+}
+
+/** Throws away this phone's sign-up, and the setup draft, which belongs to the identity being thrown away. */
+async function restartSignup(site: string) {
+  if (!confirm(t('fs.restartConfirm'))) return;
+  await store.clearPending(site);
+  await store.clearSetup(site);
+  setState({ pending: undefined });
+}
+
+/** Opens the phone's share sheet with one message: who, the short code and the full code. Copies it where sharing is not available. */
+function ShareButton({ text }: { text: string }) {
+  const [ok, setOk] = useState(false);
+  return (
+    <button
+      type="button"
+      class="btn secondary"
+      onClick={async () => {
+        try {
+          if (navigator.share) await navigator.share({ text });
+          else await navigator.clipboard.writeText(text);
+          setOk(true);
+          setTimeout(() => setOk(false), 2000);
+        } catch {
+          /* cancelled or not allowed */
+        }
+      }}
+    >
+      {ok ? t('fs.shared') : t('fs.share')}
+    </button>
   );
 }
 
@@ -210,11 +243,7 @@ function Wait({ pending }: { pending: PendingFounder }) {
     }
   };
 
-  const restart = async () => {
-    if (!confirm(t('fs.restartConfirm'))) return;
-    await store.clearPending(site.site);
-    setState({ pending: undefined });
-  };
+  const restart = () => restartSignup(site.site);
 
   return (
     <>

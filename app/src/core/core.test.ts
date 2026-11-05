@@ -89,6 +89,9 @@ describe('identity', () => {
     const key = pubkeyOf(newSecret());
     expect(parseFounderCode(JSON.stringify({ t: 'btcdao-founder', v: 1, name: '@elena', key }))?.name).toBe('@elena');
     expect(parseFounderCode(JSON.stringify({ t: 'btcdao-founder', v: 1, name: '', key }))).toBeUndefined();
+    const shared = `Sandbox DAO · Founder · @elena · ABCD-EFGH\n\n${JSON.stringify({ t: 'btcdao-founder', v: 1, name: '@elena', key })}`;
+    expect(parseFounderCode(shared)?.name).toBe('@elena');
+    expect(parseFounderCode('no code here')).toBeUndefined();
   });
 });
 

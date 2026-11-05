@@ -115,7 +115,7 @@ For UNO a developer does this. For later DAOs, the fork kit (phase 4) turns it i
 
 Each council member goes through two ceremonies before the mainnet founding meeting, and before the testnet stage moves to hardware signing in phase 2. They can be held on the same day.
 
-**Practice, and the testnet stage in phase 1, skip the ceremonies.** There, each council member's phone creates a test treasury key when they sign up as a founder and tick "I am on the council": 12 words, shown on their profile page, with only the public key going into their sign-up code. They sign payout rounds on the phone, or in Sparrow or Nunchuk. Test keys must never hold real funds.
+**Practice, and the testnet stage in phase 1, skip the ceremonies.** There, each council member's phone creates a test treasury key when they sign up as a founder and tick "I request a council seat": 12 words, shown on their profile page, with only the public key going into their sign-up code. They sign payout rounds on the phone, or in Sparrow or Nunchuk. Test keys must never hold real funds.
 
 ### 3.1 SD card ceremony
 
@@ -152,7 +152,7 @@ The first members join here, because the normal route needs a sponsor, a council
 
 1. **Open the setup page.** The organiser (a council member) opens it on their phone. Tab 1 holds the basics: name, purpose, address, passkey domain, network and starting rules.
 2. **Founder sign-up.** Each founder, council members included, opens Founder sign-up on their own phone, enters a name and creates a passkey. The app makes a random identity key and keeps it in that browser only for now. Founders must not clear the browser or switch phones until the founding is finished.
-3. **Read the codes aloud.** Each founder shows a QR and a short code. The organiser scans it and both read the short code aloud; it must match. Remote founders send the code by message and read it on the call.
+3. **Read the codes aloud.** Each founder shows a QR and a short code. The organiser scans it and both read the short code aloud; it must match. Remote founders send the code by message and read it on the call. Without a call, a founder taps **Share** and sends the message to the DAO's group: it carries their name, short code and full code, the organiser pastes it into setup, and the group sees who sent it.
 4. **Council keys.** In tab 2 the organiser scans each council member's code and sets the threshold. On testnet the code already carries the member's test treasury key; on mainnet, and wherever a member uses their own wallet, "Use another treasury key" takes the key and fingerprint from the key ceremony (`[fingerprint/48h/…/2h]tpub…`).
 5. **Check and publish.** In tab 4 everyone checks the summary together: the DAO, the council and threshold, the founders, the DAO id. The organiser signs and publishes the founding settings. Nothing in them can change later except by proposal.
 6. **Council approval.** At least three council members approve the founding settings on their own phones. Their approval stands in for verifying each founder: they heard every short code read aloud and approved the list. At the third approval the DAO exists.
