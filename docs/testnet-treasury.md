@@ -11,8 +11,8 @@ Test coins have no value. The wallet exists so that the trials behave like the r
 | Name | BTC DAO Testnet Treasury |
 | Network | testnet4 |
 | Held by | the maintainer, for the Bitcoin-DAO organisation |
-| Wallet | single signature (P2WPKH) |
-| Return address | `tb1q9lg5kyzwj8dwyxlh2k6lauqpku3r0zpeyugs0u` |
+| Wallet | single signature (P2SH address), in Mycelium Testnet |
+| Return address | `2N5SK7BFXGzefmMs9AHui2Y71fUh3uVVn2S` |
 
 The return address is also in each disposable stage's `config/dao.json` as `testnetTreasury`, so the app fills it in when someone proposes closing the DAO. Reusing one address for returns is fine on testnet4; on mainnet it would not be.
 
