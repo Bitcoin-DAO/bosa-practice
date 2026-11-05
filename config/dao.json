@@ -28,18 +28,6 @@
       "identityKey": "[npub]",
       "fingerprint": "[8 hex]",
       "xpub": "[tpub at m/48'/1'/0'/2']"
-    },
-    {
-      "label": "Council 4",
-      "identityKey": "[npub]",
-      "fingerprint": "[8 hex]",
-      "xpub": "[tpub at m/48'/1'/0'/2']"
-    },
-    {
-      "label": "Council 5",
-      "identityKey": "[npub]",
-      "fingerprint": "[8 hex]",
-      "xpub": "[tpub at m/48'/1'/0'/2']"
     }
   ],
   "founders": [
@@ -54,8 +42,8 @@
       "verified": "remote"
     }
   ],
-  "threshold": 3,
-  "descriptor": "wsh(sortedmulti(3,[fp1/48h/1h/0h/2h]tpub1/<0;1>/*,[fp2/48h/1h/0h/2h]tpub2/<0;1>/*,[fp3/48h/1h/0h/2h]tpub3/<0;1>/*,[fp4/48h/1h/0h/2h]tpub4/<0;1>/*,[fp5/48h/1h/0h/2h]tpub5/<0;1>/*))#[checksum]",
+  "threshold": 2,
+  "descriptor": "wsh(sortedmulti(2,[fp1/48h/1h/0h/2h]tpub1/<0;1>/*,[fp2/48h/1h/0h/2h]tpub2/<0;1>/*,[fp3/48h/1h/0h/2h]tpub3/<0;1>/*))#[checksum]",
   "relays": [
     "wss://btc-dao-relay.btcdao.workers.dev",
     "wss://nos.lol",
