@@ -45,4 +45,4 @@ A practice or testnet stage ends by closing the DAO, which sends the whole balan
 
 | Date | Stage | Out (sats) | Back (sats) | Note |
 | --- | --- | --- | --- | --- |
-| | | | | |
+| 2026-11-05 | — | | | Top-up: 100,000 sats from the maintainer's own testnet4 wallet into the new treasury wallet (`2N5SK…Vn2S`) |
