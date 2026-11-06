@@ -1,5 +1,5 @@
 import { useState } from 'preact/hooks';
-import { refreshTreasury, useApp } from '../app';
+import { chainApis, refreshTreasury, useApp } from '../app';
 import { fmtDate, fmtSats, t } from '../i18n';
 import { Address, Footer, Header, Qr, go } from './parts';
 import { Join } from './Join';
@@ -8,6 +8,7 @@ import { councilTodo } from './Council';
 import { cadenceOf, roundDatesAfter } from '../core/time';
 import { proposalLabel, type RoundView } from '../core/state';
 import { parseDescriptor, treasuryAddress } from '../core/descriptor';
+import { explorerOf } from '../core/chain';
 
 export function Home() {
   const app = useApp();
@@ -19,7 +20,7 @@ export function Home() {
   const m = current.threshold;
   const cap = current.rules.treasuryCapSats;
   const atCap = tr ? tr.balance >= cap : false;
-  const explorer = (cfg.chainApi[0] ?? '').replace(/\/api\/?$/, '');
+  const explorer = explorerOf(chainApis()[0] ?? '');
   const open = app.dao!.proposals.filter(p => p.status === 'open').reverse();
   const round = app.dao!.rounds.find(r => r.status === 'open');
   const waiting = app.dao!.proposals.filter(p => app.dao!.payments.get(p.event.id)?.status === 'waiting' && p.content.type === 'payout');

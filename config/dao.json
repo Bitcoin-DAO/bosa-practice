@@ -44,7 +44,8 @@
     "wss://relay.damus.io"
   ],
   "chainApi": [
-    "https://mempool.space/testnet4/api"
+    "https://mempool.space/testnet4/api",
+    "blockbook:https://blockbook.tbtc.zelcore.io"
   ],
   "rules": {
     "votingPeriodDays": 0.007,

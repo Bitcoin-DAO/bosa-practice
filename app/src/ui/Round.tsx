@@ -1,11 +1,10 @@
 // Payout rounds (protocol 6.1-6.3): prepare (council), check and sign, broadcast, receipt.
 import { useEffect, useState } from 'preact/hooks';
 import { mnemonicToSeedSync } from '@scure/bip39';
-import { broadcastRound, refreshTreasury, signAndPublish, useApp } from '../app';
+import { broadcastRound, chainApis, refreshTreasury, signAndPublish, useApp } from '../app';
 import { fmtSats, t } from '../i18n';
 import { KIND } from '../core/events';
-import { usable } from '../core/config';
-import { feeRate as suggestedFeeRate, txStatus } from '../core/chain';
+import { explorerOf, feeRate as suggestedFeeRate, pushPageOf, txStatus } from '../core/chain';
 import { parseDescriptor } from '../core/descriptor';
 import { buildRound, finalizeRound, masterFromSeed, memberSignatures, signWithMnemonicKey, type BuiltRound } from '../core/round';
 import { cadenceOf, roundLabel } from '../core/time';
@@ -13,7 +12,6 @@ import { proposalLabel, type Output, type RoundView } from '../core/state';
 import { Address, Footer, Header, errText, go } from './parts';
 import { useNameOf } from './Proposals';
 
-const explorerOf = (api: string) => api.replace(/\/api\/?$/, '');
 
 export function PrepareRound() {
   const app = useApp();
@@ -21,7 +19,7 @@ export function PrepareRound() {
   const cfg = s.founded!.config;
   const settings = s.settings[s.settings.length - 1].content;
   const max = settings.rules.maxFeeRateSatVb;
-  const apis = usable(cfg.chainApi);
+  const apis = chainApis();
   const [suggested, setSuggested] = useState<number>();
   const [rate, setRate] = useState('');
   const [built, setBuilt] = useState<BuiltRound>();
@@ -142,7 +140,7 @@ export function RoundDetail({ id }: { id: string }) {
   const [copied, setCopied] = useState(false);
   const [onChain, setOnChain] = useState<boolean>();
   const r = s.rounds.find(x => x.event.id === id);
-  const apis = usable(cfg.chainApi);
+  const apis = chainApis();
 
   useEffect(() => {
     if (r?.inspection) txStatus(apis, r.inspection.txid).then(st => setOnChain(!!st));
@@ -260,7 +258,7 @@ export function RoundDetail({ id }: { id: string }) {
                 <div class="stack">
                   <p class="small">{t('rd.manual')}</p>
                   <button type="button" class="btn secondary" onClick={() => navigator.clipboard.writeText(rawHex).catch(() => undefined)}>{t('rd.copyTx')}</button>
-                  <a href={`${explorerOf(apis[0] ?? '')}/tx/push`} target="_blank" rel="noopener">{explorerOf(apis[0] ?? '').replace(/^https:\/\//, '')}/tx/push ↗</a>
+                  <a href={pushPageOf(apis[0] ?? '')} target="_blank" rel="noopener">{pushPageOf(apis[0] ?? '').replace(/^https?:\/\//, '')} ↗</a>
                 </div>
               )}
             </>

@@ -89,7 +89,12 @@ const tallied = new Set<string>();
 const broadcasted = new Set<string>();
 const receipted = new Set<string>();
 
-const chainApis = () => usable(state.dao?.founded?.config.chainApi ?? []);
+/**
+ * Where the app reads the chain: the site's current list first, then the one recorded at founding.
+ * A source is a site setting, not a rule: it can show data but never move coins (every payment is
+ * checked against the treasury's descriptor), so a DAO can add a source without a vote.
+ */
+export const chainApis = () => [...new Set([...usable(state.site?.chainApi ?? []), ...usable(state.dao?.founded?.config.chainApi ?? [])])];
 
 /** Combine the round's signatures, finalise and broadcast. Anyone may do this; doing it twice is harmless. */
 export async function broadcastRound(r: RoundView): Promise<string> {
@@ -217,7 +222,7 @@ export function refreshTreasury(): Promise<void> {
   treasuryRead = (async () => {
     try {
       const d = parseDescriptor(cfg.descriptor, cfg.network);
-      const view = await loadTreasury(d, cfg.network, usable(cfg.chainApi));
+      const view = await loadTreasury(d, cfg.network, chainApis());
       treasuryCache.set(daoId, view);
       setState({ treasury: view, treasuryAt: Date.now(), treasuryError: undefined });
     } catch (e) {

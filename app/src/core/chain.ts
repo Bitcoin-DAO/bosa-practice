@@ -1,4 +1,7 @@
-// Treasury balance, donation address and movements from an Esplora-compatible API (protocol 6.4, 8.6).
+// Treasury balance, donation address and movements from the chain (protocol 6.4, 8.6).
+// Two kinds of source, listed in the config's chainApi: an Esplora API (mempool.space style, the default)
+// and a Blockbook server, written "blockbook:<address>". The app asks in Esplora's terms; Blockbook's
+// answers are translated, so the rest of the app never sees the difference.
 import type { Network } from './config';
 import { treasuryAddress, type ParsedDescriptor } from './descriptor';
 import type { Utxo } from './round';
@@ -62,21 +65,125 @@ const defaultFetch: Fetcher = async url => {
   }
 };
 
+/** A chain source from the config's chainApi: an Esplora API, or a Blockbook server written "blockbook:<address>". */
+export interface Source {
+  kind: 'esplora' | 'blockbook';
+  base: string;
+}
+
+export function sourceOf(entry: string): Source {
+  const m = entry.match(/^blockbook:(.+)$/i);
+  return m ? { kind: 'blockbook', base: m[1].replace(/\/+$/, '') } : { kind: 'esplora', base: entry.replace(/\/+$/, '') };
+}
+
+/** The source's web explorer, for links to a transaction (`${explorerOf(e)}/tx/<txid>`). */
+export function explorerOf(entry: string): string {
+  const s = sourceOf(entry);
+  return s.kind === 'blockbook' ? s.base : s.base.replace(/\/api$/, '');
+}
+
+/** The explorer page where anyone can paste a signed transaction to broadcast it. */
+export function pushPageOf(entry: string): string {
+  return sourceOf(entry).kind === 'blockbook' ? `${explorerOf(entry)}/sendtx` : `${explorerOf(entry)}/tx/push`;
+}
+
+/** The URL that answers one Esplora-style request, and how to turn its answer into Esplora's shape. */
+interface Request {
+  url: string;
+  conv: (r: unknown) => unknown;
+}
+
+const num = (v: unknown) => Number(v ?? 0) || 0;
+
+interface BbTx {
+  txid: string;
+  vin?: { addresses?: string[]; value?: string }[];
+  vout?: { addresses?: string[]; value?: string }[];
+  fees?: string;
+  confirmations?: number;
+  blockHeight?: number;
+  blockTime?: number;
+}
+
+const bbTx = (t: BbTx): EsploraTx => ({
+  txid: t.txid,
+  fee: num(t.fees),
+  status: (t.confirmations ?? 0) > 0 ? { confirmed: true, block_height: t.blockHeight, block_time: t.blockTime } : { confirmed: false },
+  vin: (t.vin ?? []).map(i => ({ prevout: { scriptpubkey_address: i.addresses?.[0], value: num(i.value) } })),
+  vout: (t.vout ?? []).map(o => ({ scriptpubkey_address: o.addresses?.[0], value: num(o.value) })),
+});
+
+/** Blockbook's API v2 for each request the app makes (https://github.com/trezor/blockbook/blob/master/docs/api.md). */
+function blockbookRequest(base: string, path: string): Request | undefined {
+  let m: RegExpMatchArray | null;
+  if ((m = path.match(/^\/address\/([^/]+)$/)))
+    return {
+      url: `${base}/api/v2/address/${m[1]}?details=basic`,
+      conv: r => {
+        const a = r as { balance?: string; unconfirmedBalance?: string; txs?: number; unconfirmedTxs?: number };
+        return {
+          chain_stats: { funded_txo_sum: num(a.balance), spent_txo_sum: 0, tx_count: num(a.txs) },
+          mempool_stats: { funded_txo_sum: num(a.unconfirmedBalance), spent_txo_sum: 0, tx_count: num(a.unconfirmedTxs) },
+        };
+      },
+    };
+  if ((m = path.match(/^\/address\/([^/]+)\/txs$/)))
+    return { url: `${base}/api/v2/address/${m[1]}?details=txs&pageSize=1000`, conv: r => ((r as { transactions?: BbTx[] }).transactions ?? []).map(bbTx) };
+  if ((m = path.match(/^\/address\/([^/]+)\/utxo$/)))
+    return { url: `${base}/api/v2/utxo/${m[1]}`, conv: r => (r as { txid: string; vout: number; value: string }[]).map(u => ({ txid: u.txid, vout: u.vout, value: num(u.value) })) };
+  if ((m = path.match(/^\/tx\/([0-9a-f]{64})\/status$/)))
+    return {
+      url: `${base}/api/v2/tx/${m[1]}`,
+      conv: r => {
+        const t = r as BbTx;
+        return (t.confirmations ?? 0) > 0 ? { confirmed: true, block_height: t.blockHeight } : { confirmed: false };
+      },
+    };
+  if (path === '/v1/fees/recommended')
+    return {
+      url: `${base}/api/v2/estimatefee/3`,
+      conv: r => {
+        const satVb = Math.ceil(num((r as { result?: string }).result) * 1e5); // BTC per kvB to sat per vB
+        return { halfHourFee: satVb, hourFee: satVb, minimumFee: 1 };
+      },
+    };
+  return undefined;
+}
+
+function requestFor(entry: string, path: string): Request | undefined {
+  const s = sourceOf(entry);
+  return s.kind === 'blockbook' ? blockbookRequest(s.base, path) : { url: s.base + path, conv: r => r };
+}
+
+/** When each source last failed: a source that failed recently is asked last, so one slow source does not slow every request. */
+const failedAt = new Map<string, number>();
+const DEMOTE_MS = 5 * 60_000;
+
+function inOrder(apis: string[]): string[] {
+  const recent = (a: string) => Date.now() - (failedAt.get(a) ?? 0) < DEMOTE_MS;
+  return [...apis.filter(a => !recent(a)), ...apis.filter(recent)];
+}
+
 /**
- * Try each API in turn; on the real network, retry each one twice with a pause.
- * Public APIs (mempool.space) refuse bursts, and a refusal reaches the page only as "Failed to fetch".
+ * Ask the sources in turn: each one once, then (on the real network) twice more after a pause.
+ * Public APIs throttle bursts; a refusal reaches the page only as "Failed to fetch", a slowdown as a timeout.
  */
 async function get<T>(apis: string[], path: string, f: Fetcher, until = Infinity): Promise<T> {
   const live = f === defaultFetch;
   let last: unknown;
-  for (const api of apis) {
-    for (let attempt = 0; attempt < (live ? 3 : 1); attempt++) {
+  for (let attempt = 0; attempt < (live ? 3 : 1); attempt++) {
+    if (attempt > 0) await sleep(attempt === 1 ? 2000 : 5000);
+    for (const api of inOrder(apis)) {
       if (Date.now() > until) throw new Error(`no complete answer in ${READ_BUDGET_MS / 60_000} min`);
-      if (attempt > 0) await sleep(attempt === 1 ? 2000 : 5000);
+      const req = requestFor(api, path);
+      if (!req) continue;
       try {
-        return (await f(api.replace(/\/$/, '') + path)) as T;
+        const r = req.conv(await f(req.url)) as T;
+        failedAt.delete(api);
+        return r;
       } catch (e) {
         last = e;
+        failedAt.set(api, Date.now());
       }
     }
   }
@@ -154,16 +261,27 @@ export async function feeRate(apis: string[], f: Fetcher = defaultFetch): Promis
   return Math.max(1, r.halfHourFee || r.hourFee || r.minimumFee || 1);
 }
 
+/** Send a signed transaction to each source in turn until one accepts it. */
 export async function broadcast(apis: string[], hex: string): Promise<string> {
   let last: unknown;
-  for (const api of apis) {
+  for (const api of inOrder(apis)) {
+    const s = sourceOf(api);
     try {
-      const r = await fetch(api.replace(/\/$/, '') + '/tx', { method: 'POST', body: hex, headers: { 'Content-Type': 'text/plain' } });
-      const text = await r.text();
-      if (r.ok) return text.trim();
-      last = new Error(text);
+      if (s.kind === 'blockbook') {
+        const r = await fetch(`${s.base}/api/v2/sendtx/`, { method: 'POST', body: hex, headers: { 'Content-Type': 'text/plain' } });
+        const j = (await r.json().catch(() => ({}))) as { result?: string; error?: string | { message?: string } };
+        if (r.ok && j.result) return j.result.trim();
+        last = new Error(typeof j.error === 'string' ? j.error : (j.error?.message ?? `${r.status}`));
+      } else {
+        const r = await fetch(s.base + '/tx', { method: 'POST', body: hex, headers: { 'Content-Type': 'text/plain' } });
+        const text = await r.text();
+        if (r.ok) return text.trim();
+        last = new Error(text);
+      }
+      failedAt.set(api, Date.now());
     } catch (e) {
       last = e;
+      failedAt.set(api, Date.now());
     }
   }
   throw last ?? new Error('no chain API');

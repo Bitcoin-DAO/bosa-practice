@@ -33,7 +33,7 @@ function daoConfig(): Plugin {
       const cfg = JSON.parse(pick());
       const ok = (u: string) => !/\[/.test(u);
       const relays = (cfg.relays as string[]).filter(ok);
-      const apis = (cfg.chainApi as string[]).filter(ok).map(u => new URL(u).origin);
+      const apis = (cfg.chainApi as string[]).filter(ok).map(u => new URL(u.replace(/^blockbook:/i, '')).origin); // "blockbook:<address>" sources too
       const dev = ctx.server ? ' ws: http://localhost:* http://127.0.0.1:*' : '';
       const csp = [
         "default-src 'self'",

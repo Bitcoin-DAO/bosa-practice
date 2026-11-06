@@ -2,6 +2,21 @@
 
 Each release is a git tag (`v0.1.1`). A DAO's copy runs one tagged release and records it in its README; a release moves to a DAO's next stage only after passing the one before ([guide, section 8](docs/guide.md#8-the-three-stages-practice-testnet-mainnet)).
 
+## v0.1.5 · 6 November 2026
+
+Found in UNO's practice run: mempool.space's testnet4 indexer was unstable for most of the day, and it was the only source.
+
+**A second chain source: Blockbook**
+- `chainApi` entries can now be Blockbook servers, written `blockbook:<address>`, next to Esplora APIs. The app asks in Esplora's terms and translates Blockbook's answers for all six requests: address activity, transactions, unspent coins, transaction status, fee estimate and broadcast.
+- Sources are asked in order; a source that fails is asked last for the next five minutes, so one slow source does not slow every request.
+- The site's current `chainApi` is used first, then the one recorded at founding, so a founded DAO can add a source without a vote. A source shows data but never moves coins: every payment is checked against the treasury's descriptor.
+- Explorer links and the manual broadcast page follow the first source (Blockbook: `/tx/<txid>` and `/sendtx`).
+- Example config: Zelcore's testnet4 Blockbook (`blockbook:https://blockbook.tbtc.zelcore.io`) as the second source.
+
+**Tests**
+- Unit tests read UNO's practice treasury from Blockbook answers and fall back from a silent Esplora source.
+- The end-to-end mock chain also answers as Blockbook (`CHAIN=blockbook bash e2e/run.sh payouts`): a full payout round, broadcast included, with Blockbook as the only source.
+
 ## v0.1.4 · 6 November 2026
 
 Found in UNO's practice run: with mempool.space unstable, the treasury page kept loading or showed only an error.

@@ -342,7 +342,7 @@ A new DAO is a fork of the repo plus its own `dao.config.json`; everything that 
 | `threshold` | Signatures needed | 3 |
 | `descriptor` | Treasury descriptor with checksum | `wsh(sortedmulti(3, …))#…` |
 | `relays` | DAO relay first, then public relays | trial: a Nosflare relay on Cloudflare plus 2 public relays; mainnet: wss://relay.\<the DAO's domain> plus 2 public relays |
-| `chainApi` | Esplora-compatible endpoints, in order of preference | public explorer, own node later |
+| `chainApi` | Chain sources, in order of preference: Esplora APIs (mempool.space style) and Blockbook servers, written `blockbook:<address>`. A source that fails is asked last for five minutes. The site's current list is used first, then the one recorded at founding: a source can show data but never move coins | public explorers, own node later |
 | `rules` | Voting period, quorum, majorities, payout cadence and time zone, lapse limit, fee-rate cap, treasury cap | 7 days; 1/3; simple and 2/3; monthly, Europe/Rome; 2 rounds; 20 sat/vB; 5,000,000 sats |
 | `branding` | Logo, colours | — |
 

@@ -1,4 +1,5 @@
 // A small Esplora/mempool.space stand-in for the end-to-end tests: a chain held in memory.
+// The same chain also answers in Blockbook's API v2 under /bb (CHAIN=blockbook in run.sh).
 // Coins come from out/funded.json ({address: {value, txid}}), written by the tests. Broadcast
 // transactions spend them and confirm after a few seconds; each one is saved for an embit check.
 import http from 'node:http';
@@ -89,6 +90,8 @@ http.createServer((req, res) => {
     res.end(typeof body === 'string' ? body : JSON.stringify(body));
   };
   const url = req.url.split('?')[0];
+  const query = new URL(req.url, 'http://x').searchParams;
+  if (url.startsWith('/bb/')) return blockbook(req, url.slice(3), query, send);
   if (req.method === 'POST' && url === '/api/tx') {
     let body = '';
     req.on('data', c => (body += c));
@@ -119,3 +122,47 @@ http.createServer((req, res) => {
   if ((m = url.match(/^\/api\/address\/([a-z0-9]+)$/))) return send(200, stats(m[1]));
   send(404, {});
 }).listen(3002, '127.0.0.1', () => console.log('esplora mock on 3002'));
+
+/** The same chain in Blockbook's API v2: amounts as strings of sats, confirmations instead of a status. */
+function blockbook(req, url, query, send) {
+  const conf = t => (t.confirmed ? height - t.height + 1 : 0);
+  const bbTx = (txid, t) => ({
+    txid, fees: String(t.fee), confirmations: conf(t), blockHeight: t.confirmed ? t.height : -1, blockTime: t.time ?? Math.floor(Date.now() / 1000),
+    vin: t.vin.map(i => ({ addresses: [i.prevout.address], value: String(i.prevout.value) })),
+    vout: t.vout.map(o => ({ addresses: [o.address], value: String(o.value) })),
+  });
+  if (req.method === 'POST' && url === '/api/v2/sendtx/') {
+    let body = '';
+    req.on('data', c => (body += c));
+    req.on('end', () => {
+      try { send(200, { result: accept(body.trim()) }); } catch (e) { send(400, { error: String(e.message) }); }
+    });
+    return;
+  }
+  if (url === '/api/v2/estimatefee/3') return send(200, { result: '0.00002' });
+  let m;
+  if ((m = url.match(/^\/api\/v2\/tx\/([0-9a-f]{64})$/))) {
+    const t = txs.get(m[1]);
+    return t ? send(200, bbTx(m[1], t)) : send(400, { error: 'txid not found' });
+  }
+  if ((m = url.match(/^\/api\/v2\/utxo\/([a-z0-9]+)$/))) {
+    const out = [];
+    for (const [k, u] of utxos) if (u.address === m[1]) {
+      const [txid, vout] = k.split(':');
+      out.push({ txid, vout: Number(vout), value: String(u.value), confirmations: conf(txs.get(txid)) });
+    }
+    return send(200, out);
+  }
+  if ((m = url.match(/^\/api\/v2\/address\/([a-z0-9]+)$/))) {
+    const s = stats(m[1]);
+    const mine = [...txs.entries()].filter(([, t]) => t.vout.some(o => o.address === m[1]) || t.vin.some(i => i.prevout.address === m[1])).reverse();
+    if (query.get('details') === 'txs') return send(200, { address: m[1], transactions: mine.map(([id, t]) => bbTx(id, t)) });
+    return send(200, {
+      address: m[1],
+      balance: String(s.chain_stats.funded_txo_sum - s.chain_stats.spent_txo_sum),
+      unconfirmedBalance: String(s.mempool_stats.funded_txo_sum - s.mempool_stats.spent_txo_sum),
+      txs: s.chain_stats.tx_count, unconfirmedTxs: s.mempool_stats.tx_count,
+    });
+  }
+  send(400, { error: 'unknown' });
+}

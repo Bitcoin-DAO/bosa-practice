@@ -1,7 +1,7 @@
 #!/bin/bash
 # End-to-end tests: a local relay (relay/ under wrangler), a mock chain API, the built app, Playwright.
 # Needs: npm install in app/ and relay/, Playwright with Chromium, ffmpeg (camera test).
-# Usage: bash e2e/run.sh [founding|governance|payouts|all]
+# Usage: bash e2e/run.sh [founding|governance|payouts|all]   (CHAIN=blockbook: the mock chain answers as Blockbook only)
 set -e
 HERE="$(cd "$(dirname "$0")" && pwd)"
 APP="$HERE/.."
@@ -11,7 +11,8 @@ WHICH="${1:-all}"
 mkdir -p "$OUT"
 node -e '
 const c = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"));
-Object.assign(c, { site: "http://localhost:4173", passkeyDomain: "localhost", relays: ["ws://127.0.0.1:8787"], chainApi: ["http://127.0.0.1:3002/api"] });
+Object.assign(c, { site: "http://localhost:4173", passkeyDomain: "localhost", relays: ["ws://127.0.0.1:8787"],
+  chainApi: process.env.CHAIN === "blockbook" ? ["blockbook:http://127.0.0.1:3002/bb"] : ["http://127.0.0.1:3002/api"] });
 c.rules.votingPeriodDays = 0.0015; // about 2 minutes
 require("fs").writeFileSync(process.argv[2], JSON.stringify(c, null, 2));
 ' "$APP/../config/example.testnet4.json" "$OUT/dao.test.json"
