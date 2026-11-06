@@ -139,11 +139,20 @@ export function RoundDetail({ id }: { id: string }) {
   const [pasted, setPasted] = useState('');
   const [copied, setCopied] = useState(false);
   const [onChain, setOnChain] = useState<boolean>();
+  const [sentVia, setSentVia] = useState<string>();
+  const [checked, setChecked] = useState(false); // asked the sources since the last broadcast
   const r = s.rounds.find(x => x.event.id === id);
   const apis = chainApis();
 
+  // Ask the sources whether they know the transaction; while it is ready but unconfirmed, ask again every minute.
   useEffect(() => {
-    if (r?.inspection) txStatus(apis, r.inspection.txid).then(st => setOnChain(!!st));
+    if (!r?.inspection) return;
+    const txid = r.inspection.txid;
+    const check = () => void txStatus(chainApis(), txid).then(st => setOnChain(!!st));
+    check();
+    if (!r.ready || r.receipt) return;
+    const timer = setInterval(check, 60_000);
+    return () => clearInterval(timer);
   }, [r?.inspection?.txid, r?.ready, r?.receipt?.id]);
 
   if (!r) return <><Header /><main><p class="lead">{t('pd.notFound')}</p></main><Footer /></>;
@@ -177,16 +186,21 @@ export function RoundDetail({ id }: { id: string }) {
     const reason = prompt(t('rd.declineReason'));
     if (reason) void run(() => signAndPublish(KIND.sign, { decline: reason }, [['e', r.event.id]]));
   };
-  const [rawHex, setRawHex] = useState<string>();
-  const doBroadcast = () => run(async () => {
+  // The finished transaction, offered so anyone can push it by hand until it is seen on the network.
+  let rawHex: string | undefined;
+  if (r.ready) {
     try {
-      await broadcastRound(r);
-      setOnChain(true);
-    } catch (e) {
-      // Offer the finished transaction so anyone can push it by hand.
-      setRawHex(finalizeRound(r.signEvents.map(x => JSON.parse(x.content).psbt)).hex);
-      throw e;
-    }
+      rawHex = finalizeRound(r.signEvents.map(x => JSON.parse(x.content).psbt)).hex;
+    } catch { /* shown as the round's errors */ }
+  }
+  const doBroadcast = () => run(async () => {
+    const sent = await broadcastRound(r);
+    setSentVia(explorerOf(sent.source).replace(/^https?:\/\//, ''));
+    setChecked(false);
+    setTimeout(() => void txStatus(chainApis(), sent.txid).then(st => {
+      setOnChain(!!st);
+      setChecked(true);
+    }), 5000);
   });
   const height = r.receipt ? (JSON.parse(r.receipt.content).block_height as number) : undefined;
 
@@ -253,12 +267,19 @@ export function RoundDetail({ id }: { id: string }) {
           {r.status === 'open' && r.ready && (
             <>
               <p class="ok">{t('rd.ready')}</p>
-              {onChain ? <p class="small">{t('rd.broadcasted')}</p> : <button type="button" class="btn primary" disabled={busy} onClick={doBroadcast}>{t('rd.broadcast')}</button>}
+              {onChain ? (
+                <p class="small">{t('rd.broadcasted')}</p>
+              ) : (
+                <>
+                  {sentVia && <p class="small">{t(onChain === false && checked ? 'rd.notSeen' : 'rd.accepted', { source: sentVia })}</p>}
+                  <button type="button" class="btn primary" disabled={busy} onClick={doBroadcast}>{t(sentVia ? 'rd.again' : 'rd.broadcast')}</button>
+                </>
+              )}
               {rawHex && !onChain && (
                 <div class="stack">
                   <p class="small">{t('rd.manual')}</p>
                   <button type="button" class="btn secondary" onClick={() => navigator.clipboard.writeText(rawHex).catch(() => undefined)}>{t('rd.copyTx')}</button>
-                  <a href={pushPageOf(apis[0] ?? '')} target="_blank" rel="noopener">{pushPageOf(apis[0] ?? '').replace(/^https?:\/\//, '')} ↗</a>
+                  {apis.map(a => <a href={pushPageOf(a)} target="_blank" rel="noopener">{pushPageOf(a).replace(/^https?:\/\//, '')} ↗</a>)}
                 </div>
               )}
             </>

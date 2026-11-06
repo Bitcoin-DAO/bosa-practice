@@ -4,7 +4,7 @@ import { stageError, stageOf, usable, type SiteConfig } from './core/config';
 import { KIND, sign, template, type Event } from './core/events';
 import { rebuild, type DaoState, type Member } from './core/state';
 import { parseDescriptor } from './core/descriptor';
-import { broadcast, loadTreasury, txStatus, type TreasuryView } from './core/chain';
+import { broadcast, loadTreasury, txStatus, type Broadcast, type TreasuryView } from './core/chain';
 import { finalizeRound } from './core/round';
 import type { RoundView } from './core/state';
 import { prfSalt, pubkeyOf, unwrapSecret, wrapSecret } from './core/identity';
@@ -86,7 +86,10 @@ function derive(events: Event[], extra: Partial<AppState> = {}) {
 }
 
 const tallied = new Set<string>();
-const broadcasted = new Set<string>();
+/** When this phone last broadcast each round's transaction. */
+const broadcasted = new Map<string, number>();
+/** A broadcast that no source has seen after this long is sent again. */
+const REBROADCAST_MS = 10 * 60_000;
 const receipted = new Set<string>();
 
 /**
@@ -97,13 +100,13 @@ const receipted = new Set<string>();
 export const chainApis = () => [...new Set([...usable(state.site?.chainApi ?? []), ...usable(state.dao?.founded?.config.chainApi ?? [])])];
 
 /** Combine the round's signatures, finalise and broadcast. Anyone may do this; doing it twice is harmless. */
-export async function broadcastRound(r: RoundView): Promise<string> {
+export async function broadcastRound(r: RoundView): Promise<Broadcast> {
   const psbts = r.signEvents.map(e => parseJson<{ psbt: string }>(e.content)!.psbt);
   const { hex } = finalizeRound(psbts);
-  const txid = await broadcast(chainApis(), hex);
-  broadcasted.add(r.inspection!.txid);
+  const sent = await broadcast(chainApis(), hex, r.inspection!.txid);
+  broadcasted.set(sent.txid, Date.now());
   void refreshTreasury();
-  return txid;
+  return sent;
 }
 
 /** Council apps broadcast ready rounds and publish the receipt once the transaction confirms (protocol 6.2, 6.3). */
@@ -114,7 +117,8 @@ async function autoRounds() {
     if (r.status !== 'open' || !r.inspection) continue;
     const txid = r.inspection.txid;
     const st = await txStatus(chainApis(), txid);
-    if (!st && r.ready && !broadcasted.has(txid)) {
+    // Not known to any source: broadcast, and again if a source took it but it never reached the network.
+    if (!st && r.ready && Date.now() - (broadcasted.get(txid) ?? 0) > REBROADCAST_MS) {
       try {
         await broadcastRound(r);
       } catch {

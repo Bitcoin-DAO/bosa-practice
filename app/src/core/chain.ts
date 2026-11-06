@@ -131,14 +131,17 @@ function blockbookRequest(base: string, path: string): Request | undefined {
     return { url: `${base}/api/v2/address/${m[1]}?details=txs&pageSize=1000`, conv: r => ((r as { transactions?: BbTx[] }).transactions ?? []).map(bbTx) };
   if ((m = path.match(/^\/address\/([^/]+)\/utxo$/)))
     return { url: `${base}/api/v2/utxo/${m[1]}`, conv: r => (r as { txid: string; vout: number; value: string }[]).map(u => ({ txid: u.txid, vout: u.vout, value: num(u.value) })) };
-  if ((m = path.match(/^\/tx\/([0-9a-f]{64})\/status$/)))
+  if ((m = path.match(/^\/tx\/([0-9a-f]{64})\/status$/))) {
+    const id = m[1];
     return {
-      url: `${base}/api/v2/tx/${m[1]}`,
+      url: `${base}/api/v2/tx/${id}`,
       conv: r => {
         const t = r as BbTx;
+        if (t?.txid !== id) throw new Error(`${base}: transaction not known`);
         return (t.confirmations ?? 0) > 0 ? { confirmed: true, block_height: t.blockHeight } : { confirmed: false };
       },
     };
+  }
   if (path === '/v1/fees/recommended')
     return {
       url: `${base}/api/v2/estimatefee/3`,
@@ -261,8 +264,18 @@ export async function feeRate(apis: string[], f: Fetcher = defaultFetch): Promis
   return Math.max(1, r.halfHourFee || r.hourFee || r.minimumFee || 1);
 }
 
-/** Send a signed transaction to each source in turn until one accepts it. */
-export async function broadcast(apis: string[], hex: string): Promise<string> {
+export interface Broadcast {
+  txid: string;
+  /** The source that accepted the transaction, as written in `chainApi`. */
+  source: string;
+}
+
+/**
+ * Send a signed transaction to each source in turn until one accepts it.
+ * A source has accepted only when it answers with the transaction's own id: an unstable service
+ * can answer 200 with a holding page, and that must not read as "broadcast".
+ */
+export async function broadcast(apis: string[], hex: string, txid: string): Promise<Broadcast> {
   let last: unknown;
   for (const api of inOrder(apis)) {
     const s = sourceOf(api);
@@ -270,13 +283,13 @@ export async function broadcast(apis: string[], hex: string): Promise<string> {
       if (s.kind === 'blockbook') {
         const r = await fetch(`${s.base}/api/v2/sendtx/`, { method: 'POST', body: hex, headers: { 'Content-Type': 'text/plain' } });
         const j = (await r.json().catch(() => ({}))) as { result?: string; error?: string | { message?: string } };
-        if (r.ok && j.result) return j.result.trim();
-        last = new Error(typeof j.error === 'string' ? j.error : (j.error?.message ?? `${r.status}`));
+        if (r.ok && j.result?.trim() === txid) return { txid, source: api };
+        last = new Error(`${explorerOf(api).replace(/^https?:\/\//, '')}: ${typeof j.error === 'string' ? j.error : (j.error?.message ?? `${r.status}`)}`);
       } else {
         const r = await fetch(s.base + '/tx', { method: 'POST', body: hex, headers: { 'Content-Type': 'text/plain' } });
-        const text = await r.text();
-        if (r.ok) return text.trim();
-        last = new Error(text);
+        const text = (await r.text()).trim();
+        if (r.ok && text === txid) return { txid, source: api };
+        last = new Error(`${explorerOf(api).replace(/^https?:\/\//, '')}: ${r.ok ? 'unexpected answer' : text.slice(0, 200) || r.status}`);
       }
       failedAt.set(api, Date.now());
     } catch (e) {
@@ -292,9 +305,13 @@ export interface TxStatus {
   block_height?: number;
 }
 
+/** Where the transaction stands, or undefined when no source knows it (or none answers properly). */
 export async function txStatus(apis: string[], txid: string, f: Fetcher = defaultFetch): Promise<TxStatus | undefined> {
   try {
-    return await get<TxStatus>(apis, `/tx/${txid}/status`, f);
+    const st = await get<TxStatus>(apis, `/tx/${txid}/status`, f);
+    // Only a real status counts: anything else (an error object, a holding page) means "not known".
+    if (!st || typeof st.confirmed !== 'boolean') return undefined;
+    return st.confirmed ? { confirmed: true, block_height: st.block_height } : { confirmed: false };
   } catch {
     return undefined;
   }

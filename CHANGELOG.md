@@ -2,6 +2,21 @@
 
 Each release is a git tag (`v0.1.1`). A DAO's copy runs one tagged release and records it in its README; a release moves to a DAO's next stage only after passing the one before ([guide, section 8](docs/guide.md#8-the-three-stages-practice-testnet-mainnet)).
 
+## v0.1.6 · 6 November 2026
+
+Found in UNO's practice run: the first payout round showed "Broadcast ✓", but neither mempool.space nor Blockbook had the transaction.
+
+**A broadcast counts only when the network has it**
+- A source has accepted a transaction only when it answers with that transaction's id. An unstable service can answer "OK" with a holding page, and that read as success.
+- A transaction counts as on the network only when a source returns a real status for it. An error answer (Blockbook's "not found") or anything else means "not known".
+- After a broadcast the round page names the source that took it ("Accepted by blockbook.tbtc.zelcore.io") and shows "On the network ✓" only once a source reports the transaction. It checks again every minute until the payment confirms.
+- Until then the round page keeps **Broadcast again** (sending it twice is harmless) and the signed transaction to copy, with each source's broadcast page for doing it by hand.
+- Council phones broadcast a ready round again by themselves if no source has seen it 10 minutes after they last sent it.
+
+**Tests**
+- Unit tests: an unknown transaction, an error answer and a holding page are not a status; a broadcast is accepted only with the transaction's id.
+- End-to-end (Esplora and Blockbook): the round page names the accepting source, then shows the transaction on the network.
+
 ## v0.1.5 · 6 November 2026
 
 Found in UNO's practice run: mempool.space's testnet4 indexer was unstable for most of the day, and it was the only source.

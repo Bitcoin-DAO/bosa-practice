@@ -1,6 +1,6 @@
 # UNO · practice
 
-**This is UNO's practice copy of [btc-dao](https://github.com/Bitcoin-DAO/btc-dao)** (stage 1 of 3: practice, testnet, mainnet). It runs btc-dao v0.1.5 (commit 39d5fcc) on testnet4 with votes of about ten minutes, so a few people can rehearse the whole life of the DAO in one sitting: founding, joining, voting, a lost key, restoring from a card and a payout round. Everything here is thrown away afterwards; the testnet stage is [`uno-testnet`](https://github.com/Bitcoin-DAO/uno-testnet).
+**This is UNO's practice copy of [btc-dao](https://github.com/Bitcoin-DAO/btc-dao)** (stage 1 of 3: practice, testnet, mainnet). It runs btc-dao v0.1.6 (commit abe04e2) on testnet4 with votes of about ten minutes, so a few people can rehearse the whole life of the DAO in one sitting: founding, joining, voting, a lost key, restoring from a card and a payout round. Everything here is thrown away afterwards; the testnet stage is [`uno-testnet`](https://github.com/Bitcoin-DAO/uno-testnet).
 
 **Council: 2 of 2** for the practice, so the whole run, payout rounds included, works with two phones. Both keys are needed for every payment, so losing either one locks the test treasury; the lost-key step replaces an identity key, not a treasury key. UNO's charter and the testnet stage keep 3 of 5.
 

@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { explorerOf, feeRate, loadTreasury, pushPageOf, sourceOf, txStatus, type Fetcher } from './chain';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { broadcast, explorerOf, feeRate, loadTreasury, pushPageOf, sourceOf, txStatus, type Fetcher } from './chain';
 import { parseDescriptor, treasuryAddress } from './descriptor';
 
 // UNO's practice treasury (2 of 2), as founded on 6 November 2026.
@@ -76,5 +76,38 @@ describe('chain sources', () => {
   it('turns Blockbook fee estimates and transaction status into the app\'s terms', async () => {
     expect(await feeRate([`blockbook:${BB}`], blockbook)).toBe(2); // 0.00002 BTC/kvB = 2 sat/vB
     expect(await txStatus([`blockbook:${BB}`], TXID, blockbook)).toEqual({ confirmed: true, block_height: 159356 });
+  });
+
+  it('does not take an unknown transaction for one on the network', async () => {
+    const other = 'ab'.repeat(32);
+    // Blockbook answering with an error object, or with another transaction.
+    const bbErr: Fetcher = async url => (url.includes(other) ? { error: `txid ${other} not found` } : blockbook(url));
+    expect(await txStatus([`blockbook:${BB}`], other, bbErr)).toBeUndefined();
+    // Esplora answering 200 with something that is not a status (a holding page read as JSON).
+    expect(await txStatus(['https://esplora.example/api'], other, async () => ({ message: 'maintenance' }))).toBeUndefined();
+    expect(await txStatus(['https://esplora.example/api'], other, async () => ({ confirmed: false }))).toEqual({ confirmed: false });
+  });
+});
+
+describe('broadcast', () => {
+  afterEach(() => vi.unstubAllGlobals());
+  const txid = 'cd'.repeat(32);
+  const answer = (body: string, ok = true) => Promise.resolve(new Response(body, { status: ok ? 200 : 400 }));
+
+  it('counts a source as accepting only when it answers with the transaction id', async () => {
+    const seen: string[] = [];
+    vi.stubGlobal('fetch', (url: string) => {
+      seen.push(url);
+      if (url.startsWith('https://esplora.example')) return answer('<html>Service temporarily unavailable</html>');
+      return answer(JSON.stringify({ result: txid }));
+    });
+    const sent = await broadcast(['https://esplora.example/api', `blockbook:${BB}`], '00', txid);
+    expect(sent).toEqual({ txid, source: `blockbook:${BB}` });
+    expect(seen).toEqual(['https://esplora.example/api/tx', `${BB}/api/v2/sendtx/`]);
+  });
+
+  it('fails when no source returns the id', async () => {
+    vi.stubGlobal('fetch', () => answer(JSON.stringify({ error: { message: 'min relay fee not met' } }), false));
+    await expect(broadcast([`blockbook:${BB}`], '00', txid)).rejects.toThrow('min relay fee not met');
   });
 });

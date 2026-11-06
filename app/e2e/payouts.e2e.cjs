@@ -139,7 +139,8 @@ async function signUp(page, name, council) {
   await B.page.getByRole('button', { name: 'Firma con la chiave di prova' }).click();
   await B.page.getByText('Firme sufficienti ✓').waitFor({ timeout: 20000 });
   await B.page.getByRole('button', { name: 'Trasmetti la transazione' }).click();
-  check(await seen(B.page.getByText(/Trasmessa ✓/)), 'broadcast');
+  check(await seen(B.page.getByText(/Accettata da 127\.0\.0\.1|Sulla rete ✓/)), 'broadcast accepted, with the source named');
+  check(await seen(B.page.getByText(/Sulla rete ✓/)), 'broadcast seen on the network');
 
   log('Confirmation and receipt');
   await new Promise(r => setTimeout(r, 6000));
