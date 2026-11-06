@@ -7,6 +7,7 @@ import { ProposalCard } from './Proposals';
 import { councilTodo } from './Council';
 import { cadenceOf, roundDatesAfter } from '../core/time';
 import { proposalLabel, type RoundView } from '../core/state';
+import { parseDescriptor, treasuryAddress } from '../core/descriptor';
 
 export function Home() {
   const app = useApp();
@@ -55,6 +56,8 @@ export function Home() {
             <div class="dots" aria-hidden="true">{Array.from({ length: n }, (_, i) => <i class={i < m ? 'on' : ''} />)}</div>
           </div>
         </section>
+
+        {!tr && app.treasuryError && <Donate address={firstAddress(cfg.descriptor, cfg.network)} />}
 
         {tr && (atCap ? (
           <section class="card">
@@ -136,6 +139,11 @@ function roundTitle(r: RoundView) {
   const app = useApp();
   const nums = r.content.proposals.map(id => app.dao!.proposals.find(p => p.event.id === id)).filter(Boolean).map(p => proposalLabel(app.site!.name, p!.number));
   return `${t('home.roundLabel', { round: r.content.round })} · ${nums.join(', ')}`;
+}
+
+/** The treasury's first receive address, worked out on the phone: funds sent to any treasury address are found later. */
+function firstAddress(descriptor: string, network: Parameters<typeof parseDescriptor>[1]): string {
+  return treasuryAddress(parseDescriptor(descriptor, network), network, 0, 0).address;
 }
 
 function Donate({ address }: { address: string }) {

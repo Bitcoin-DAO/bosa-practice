@@ -2,6 +2,14 @@
 
 Each release is a git tag (`v0.1.1`). A DAO's copy runs one tagged release and records it in its README; a release moves to a DAO's next stage only after passing the one before ([guide, section 8](docs/guide.md#8-the-three-stages-practice-testnet-mainnet)).
 
+## v0.1.2 · 6 November 2026
+
+Found in UNO's practice run (2 of 2, two phones).
+
+**Treasury page survives the blockchain service**
+- Reading the treasury no longer sends bursts: two addresses at a time with a short pause, each request retried twice and given up after 15 seconds. mempool.space refused the old bursts, which reached the page only as "Failed to fetch", and a stalled request could leave the page loading for ever.
+- When the blockchain cannot be read, the page still shows the treasury's funding address, worked out on the phone from the descriptor.
+
 ## v0.1.1 · 5 November 2026
 
 **Remote founding without a call**

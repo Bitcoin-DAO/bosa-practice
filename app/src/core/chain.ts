@@ -39,20 +39,37 @@ export interface TreasuryView {
 
 export type Fetcher = (url: string) => Promise<unknown>;
 
+const TIMEOUT_MS = 15_000;
+const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+
+/** One request, given up after TIMEOUT_MS so a stalled request cannot hang the page. */
 const defaultFetch: Fetcher = async url => {
-  const r = await fetch(url);
-  if (!r.ok) throw new Error(`${r.status} ${url}`);
-  return r.json();
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), TIMEOUT_MS);
+  try {
+    const r = await fetch(url, { signal: ctl.signal });
+    if (!r.ok) throw new Error(`${r.status} ${url}`);
+    return await r.json();
+  } finally {
+    clearTimeout(timer);
+  }
 };
 
-/** Try each API in turn. */
+/**
+ * Try each API in turn; on the real network, retry each one twice with a pause.
+ * Public APIs (mempool.space) refuse bursts, and a refusal reaches the page only as "Failed to fetch".
+ */
 async function get<T>(apis: string[], path: string, f: Fetcher): Promise<T> {
+  const live = f === defaultFetch;
   let last: unknown;
   for (const api of apis) {
-    try {
-      return (await f(api.replace(/\/$/, '') + path)) as T;
-    } catch (e) {
-      last = e;
+    for (let attempt = 0; attempt < (live ? 3 : 1); attempt++) {
+      if (attempt > 0) await sleep(1000 * 2 ** (attempt - 1));
+      try {
+        return (await f(api.replace(/\/$/, '') + path)) as T;
+      } catch (e) {
+        last = e;
+      }
     }
   }
   throw last ?? new Error('no chain API');
@@ -67,10 +84,14 @@ export async function loadTreasury(d: ParsedDescriptor, network: Network, apis: 
   let donationIndex = -1;
   let changeIndex = -1;
 
+  // Two addresses at a time, with a short pause between pairs, to stay under public APIs' burst limits.
+  const live = f === defaultFetch;
+  const BATCH = live ? 2 : 5;
   for (const branch of [0, 1] as const) {
     let gap = 0;
-    for (let i = 0; gap < GAP; i += 5) {
-      const batch = Array.from({ length: 5 }, (_, k) => treasuryAddress(d, network, branch, i + k).address);
+    for (let i = 0; gap < GAP; i += BATCH) {
+      if (live && i > 0) await sleep(300);
+      const batch = Array.from({ length: BATCH }, (_, k) => treasuryAddress(d, network, branch, i + k).address);
       const stats = await Promise.all(
         batch.map(a => get<{ chain_stats: AddrStats; mempool_stats: AddrStats }>(apis, `/address/${a}`, f)),
       );
