@@ -3,7 +3,12 @@ import type { Network } from './config';
 import { treasuryAddress, type ParsedDescriptor } from './descriptor';
 import type { Utxo } from './round';
 
-const GAP = 20;
+/**
+ * Unused addresses to check past the last used one. The app only ever shows the first unused address
+ * (donations) and takes change in order, so used addresses stay contiguous and a short gap is enough.
+ * Each extra address is one more request to a public API that slows down bursts.
+ */
+const GAP = 5;
 
 interface AddrStats {
   funded_txo_sum: number;
@@ -39,7 +44,7 @@ export interface TreasuryView {
 
 export type Fetcher = (url: string) => Promise<unknown>;
 
-const TIMEOUT_MS = 15_000;
+const TIMEOUT_MS = 30_000;
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
 /** One request, given up after TIMEOUT_MS so a stalled request cannot hang the page. */
@@ -84,13 +89,13 @@ export async function loadTreasury(d: ParsedDescriptor, network: Network, apis: 
   let donationIndex = -1;
   let changeIndex = -1;
 
-  // Two addresses at a time, with a short pause between pairs, to stay under public APIs' burst limits.
+  // One address at a time on the real network, with a short pause: public APIs slow down bursts until requests time out.
   const live = f === defaultFetch;
-  const BATCH = live ? 2 : 5;
+  const BATCH = live ? 1 : 5;
   for (const branch of [0, 1] as const) {
     let gap = 0;
     for (let i = 0; gap < GAP; i += BATCH) {
-      if (live && i > 0) await sleep(300);
+      if (live && (i > 0 || branch > 0)) await sleep(250);
       const batch = Array.from({ length: BATCH }, (_, k) => treasuryAddress(d, network, branch, i + k).address);
       const stats = await Promise.all(
         batch.map(a => get<{ chain_stats: AddrStats; mempool_stats: AddrStats }>(apis, `/address/${a}`, f)),

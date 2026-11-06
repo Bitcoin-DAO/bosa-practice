@@ -2,6 +2,17 @@
 
 Each release is a git tag (`v0.1.1`). A DAO's copy runs one tagged release and records it in its README; a release moves to a DAO's next stage only after passing the one before ([guide, section 8](docs/guide.md#8-the-three-stages-practice-testnet-mainnet)).
 
+## v0.1.3 · 6 November 2026
+
+Found in UNO's practice run: with mempool.space working again, the treasury still timed out.
+
+**Treasury page asks far less of the blockchain service**
+- The treasury check looks 5 unused addresses past the last used one, not 20. The app only ever shows the first unused address and takes change in order, so used addresses stay contiguous. A new treasury now needs about 10 requests instead of 40.
+- Requests go one at a time with a short pause, and each may take up to 30 seconds. mempool.space slows bursts down rather than refusing them, so later requests in a burst ran past the old 15-second limit.
+
+**Docs**
+- Testnet treasury log: 10,000 sats to UNO's practice.
+
 ## v0.1.2 · 6 November 2026
 
 Found in UNO's practice run (2 of 2, two phones).
