@@ -150,6 +150,9 @@ async function signUp(page, name, council) {
   await shot(f, '03-paid');
   await open(f, '#/');
   await f.locator('.balance').filter({ hasText: /\d/ }).waitFor({ timeout: 30000 });
+  // The remembered reading shows first; wait for the background refresh to finish.
+  await f.getByText(/aggiornamento…/).waitFor({ state: 'detached', timeout: 60000 }).catch(() => {});
+  await new Promise(r => setTimeout(r, 500));
   const bal = Number((await f.locator('.balance').innerText()).replace(/[^\d]/g, ''));
   check(bal < 500000 - 120000 && bal > 500000 - 120000 - 2000, `treasury balance ${bal} = 500.000 − 120.000 − fee`);
   check(await seen(f.getByText(/Giro \d{4}-\d{2} · UNO-0001/)), 'movement labelled with the round');

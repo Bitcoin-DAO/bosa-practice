@@ -2,6 +2,19 @@
 
 Each release is a git tag (`v0.1.1`). A DAO's copy runs one tagged release and records it in its README; a release moves to a DAO's next stage only after passing the one before ([guide, section 8](docs/guide.md#8-the-three-stages-practice-testnet-mainnet)).
 
+## v0.1.4 · 6 November 2026
+
+Found in UNO's practice run: with mempool.space unstable, the treasury page kept loading or showed only an error.
+
+**The treasury page shows what it last knew**
+- Each phone remembers the last treasury reading and shows it at once, with the time it was read ("Read from the blockchain: 6 Nov, 13:48"), then refreshes in the background ("updating…"). A failed refresh shows "not updated, the blockchain is not answering" and keeps the balance.
+- The funding address shows while the treasury is loading too.
+- One reading at a time; a reading is refreshed after 5 minutes, at once after a payout round moves, and retried by itself at most every 2 minutes after a failure.
+- A whole reading gives up after 2 minutes, and errors say what failed ("/address/…: no answer in 30 s").
+
+**Payout rounds use only live coins**
+- Preparing a round waits for a fresh reading of the treasury's coins and never builds from the remembered one.
+
 ## v0.1.3 · 6 November 2026
 
 Found in UNO's practice run: with mempool.space working again, the treasury still timed out.

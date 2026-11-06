@@ -11,7 +11,7 @@ import { prfSalt, pubkeyOf, unwrapSecret, wrapSecret } from './core/identity';
 import { parseJson } from './core/util';
 import { query, publish, type PublishResult } from './lib/relays';
 import { createPasskey, credTagOf, getPrf } from './lib/passkey';
-import { prefs, session, store, type LocalIdentity, type PendingFounder } from './lib/store';
+import { prefs, session, store, type LocalIdentity, type PendingFounder, treasuryCache } from './lib/store';
 
 export type Lang = 'it' | 'en';
 
@@ -29,6 +29,8 @@ export interface AppState {
   isCouncil?: boolean;
   treasury?: TreasuryView;
   treasuryError?: string;
+  treasuryAt?: number; // when the shown treasury was read (ms)
+  treasuryLoading?: boolean;
   lang: Lang;
   lastSync?: number;
 }
@@ -173,19 +175,63 @@ export async function sync() {
     secret = session.get(daoId) ?? identity?.plain;
   }
   derive(events, { identity, secret, loading: false, pending });
-  if (daoId && !state.treasury) void refreshTreasury();
+  if (daoId) {
+    if (!state.treasury) {
+      const cached = treasuryCache.get<TreasuryView>(daoId);
+      if (cached) setState({ treasury: cached.view, treasuryAt: cached.at });
+    }
+    // One read at a time, and not on every sync: repeated reads pile up and public APIs throttle them.
+    const age = Date.now() - (state.treasuryAt ?? 0);
+    const sinceTry = Date.now() - lastTreasuryTry;
+    const failedRecently = !!state.treasuryError && sinceTry < TREASURY_RETRY_MS; // after a failure, wait before trying again by itself
+    // A round seen broadcast or confirmed since the last reading changes the treasury: read again whatever its age.
+    const marker = (state.dao?.rounds ?? []).map(r => `${r.event.id}:${r.receipt ? 'c' : r.ready ? 'r' : 'o'}`).join(',');
+    const moved = marker !== lastRoundMarker;
+    lastRoundMarker = marker;
+    if ((moved || age > TREASURY_FRESH_MS) && !failedRecently) void refreshTreasury();
+  }
   void autoTally().then(autoRounds);
 }
 
-export async function refreshTreasury() {
-  const cfg = state.dao?.founded?.config;
-  if (!cfg) return;
-  try {
-    const d = parseDescriptor(cfg.descriptor, cfg.network);
-    setState({ treasury: await loadTreasury(d, cfg.network, usable(cfg.chainApi)), treasuryError: undefined });
-  } catch (e) {
-    setState({ treasuryError: String((e as Error).message ?? e) });
+const TREASURY_FRESH_MS = 5 * 60_000; // a reading older than this is refreshed in the background (the remembered one shows meanwhile); rounds trigger a read at once
+const TREASURY_RETRY_MS = 2 * 60_000; // after a failed read, wait this long before trying again by itself
+let treasuryRead: Promise<void> | undefined;
+let readAgain = false;
+let lastTreasuryTry = 0;
+let lastRoundMarker: string | undefined;
+
+/**
+ * Read the treasury from the chain. Only one read runs at a time. A call made while a read is running
+ * queues one more read after it, so a caller (after a broadcast, say) always gets a read that started later.
+ */
+export function refreshTreasury(): Promise<void> {
+  if (treasuryRead) {
+    readAgain = true;
+    return treasuryRead.then(() => (treasuryRead ? treasuryRead : undefined));
   }
+  const cfg = state.dao?.founded?.config;
+  const daoId = state.dao?.founded?.daoId;
+  if (!cfg || !daoId) return Promise.resolve();
+  lastTreasuryTry = Date.now();
+  setState({ treasuryLoading: true });
+  treasuryRead = (async () => {
+    try {
+      const d = parseDescriptor(cfg.descriptor, cfg.network);
+      const view = await loadTreasury(d, cfg.network, usable(cfg.chainApi));
+      treasuryCache.set(daoId, view);
+      setState({ treasury: view, treasuryAt: Date.now(), treasuryError: undefined });
+    } catch (e) {
+      setState({ treasuryError: String((e as Error).message ?? e) });
+    } finally {
+      treasuryRead = undefined;
+      setState({ treasuryLoading: false });
+      if (readAgain) {
+        readAgain = false;
+        void refreshTreasury();
+      }
+    }
+  })();
+  return treasuryRead;
 }
 
 /** Sign with the unlocked key, publish to every relay, and fold the event into local state. */

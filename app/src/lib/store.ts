@@ -79,6 +79,25 @@ export const session = {
   clear: (daoId: string) => sessionStorage.removeItem(`session:${daoId}`),
 };
 
+/** The last treasury view read from the chain, per DAO, so a page shows it at once instead of waiting. */
+export const treasuryCache = {
+  get<T>(daoId: string): { at: number; view: T } | undefined {
+    try {
+      const v = localStorage.getItem(`treasury:${daoId}`);
+      return v ? JSON.parse(v) : undefined;
+    } catch {
+      return undefined;
+    }
+  },
+  set(daoId: string, view: unknown) {
+    try {
+      localStorage.setItem(`treasury:${daoId}`, JSON.stringify({ at: Date.now(), view }));
+    } catch {
+      /* ignore */
+    }
+  },
+};
+
 export const prefs = {
   lang(): 'it' | 'en' | undefined {
     try {

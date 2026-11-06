@@ -38,8 +38,15 @@ export function Home() {
               <div class="balance">{fmtSats(tr.balance)} <small>sats</small></div>
               {tr.unconfirmed !== 0 && <span class="small">{t('home.unconfirmed', { amount: fmtSats(tr.unconfirmed) })}</span>}
               {cfg.network !== 'mainnet' && <span class="small">{t('home.testValue')}</span>}
+              <span class="small">
+                {app.treasuryAt && t('home.readAt', { time: fmtTime(app.treasuryAt, app.lang) })}
+                {app.treasuryLoading ? ` · ${t('home.updating')}` : app.treasuryError ? ` · ${t('home.notUpdated')}` : ''}
+              </span>
+              {app.treasuryError && !app.treasuryLoading && (
+                <button type="button" class="btn link" onClick={() => refreshTreasury()}>{t('retry')}</button>
+              )}
             </>
-          ) : app.treasuryError ? (
+          ) : app.treasuryError && !app.treasuryLoading ? (
             <>
               <p class="error">{t('home.chainError', { msg: app.treasuryError })}</p>
               <button type="button" class="btn secondary" onClick={() => refreshTreasury()}>{t('retry')}</button>
@@ -57,7 +64,7 @@ export function Home() {
           </div>
         </section>
 
-        {!tr && app.treasuryError && <Donate address={firstAddress(cfg.descriptor, cfg.network)} />}
+        {!tr && <Donate address={firstAddress(cfg.descriptor, cfg.network)} />}
 
         {tr && (atCap ? (
           <section class="card">
@@ -139,6 +146,10 @@ function roundTitle(r: RoundView) {
   const app = useApp();
   const nums = r.content.proposals.map(id => app.dao!.proposals.find(p => p.event.id === id)).filter(Boolean).map(p => proposalLabel(app.site!.name, p!.number));
   return `${t('home.roundLabel', { round: r.content.round })} · ${nums.join(', ')}`;
+}
+
+function fmtTime(ms: number, lang: string): string {
+  return new Intl.DateTimeFormat(lang === 'en' ? 'en-GB' : 'it-IT', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' }).format(new Date(ms));
 }
 
 /** The treasury's first receive address, worked out on the phone: funds sent to any treasury address are found later. */

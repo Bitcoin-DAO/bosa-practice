@@ -45,6 +45,8 @@ export interface TreasuryView {
 export type Fetcher = (url: string) => Promise<unknown>;
 
 const TIMEOUT_MS = 30_000;
+/** A whole treasury reading gives up after this, so a throttled API cannot keep the page loading for many minutes. */
+const READ_BUDGET_MS = 2 * 60_000;
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
 /** One request, given up after TIMEOUT_MS so a stalled request cannot hang the page. */
@@ -64,12 +66,13 @@ const defaultFetch: Fetcher = async url => {
  * Try each API in turn; on the real network, retry each one twice with a pause.
  * Public APIs (mempool.space) refuse bursts, and a refusal reaches the page only as "Failed to fetch".
  */
-async function get<T>(apis: string[], path: string, f: Fetcher): Promise<T> {
+async function get<T>(apis: string[], path: string, f: Fetcher, until = Infinity): Promise<T> {
   const live = f === defaultFetch;
   let last: unknown;
   for (const api of apis) {
     for (let attempt = 0; attempt < (live ? 3 : 1); attempt++) {
-      if (attempt > 0) await sleep(1000 * 2 ** (attempt - 1));
+      if (Date.now() > until) throw new Error(`no complete answer in ${READ_BUDGET_MS / 60_000} min`);
+      if (attempt > 0) await sleep(attempt === 1 ? 2000 : 5000);
       try {
         return (await f(api.replace(/\/$/, '') + path)) as T;
       } catch (e) {
@@ -77,7 +80,8 @@ async function get<T>(apis: string[], path: string, f: Fetcher): Promise<T> {
       }
     }
   }
-  throw last ?? new Error('no chain API');
+  const msg = last instanceof Error ? (last.name === 'AbortError' ? `no answer in ${TIMEOUT_MS / 1000} s` : last.message) : 'no chain API';
+  throw new Error(`${path.replace(/\/[0-9a-z]{20,}/gi, '/…')}: ${msg}`);
 }
 
 export async function loadTreasury(d: ParsedDescriptor, network: Network, apis: string[], f: Fetcher = defaultFetch): Promise<TreasuryView> {
@@ -91,6 +95,7 @@ export async function loadTreasury(d: ParsedDescriptor, network: Network, apis: 
 
   // One address at a time on the real network, with a short pause: public APIs slow down bursts until requests time out.
   const live = f === defaultFetch;
+  const until = live ? Date.now() + READ_BUDGET_MS : Infinity;
   const BATCH = live ? 1 : 5;
   for (const branch of [0, 1] as const) {
     let gap = 0;
@@ -98,7 +103,7 @@ export async function loadTreasury(d: ParsedDescriptor, network: Network, apis: 
       if (live && (i > 0 || branch > 0)) await sleep(250);
       const batch = Array.from({ length: BATCH }, (_, k) => treasuryAddress(d, network, branch, i + k).address);
       const stats = await Promise.all(
-        batch.map(a => get<{ chain_stats: AddrStats; mempool_stats: AddrStats }>(apis, `/address/${a}`, f)),
+        batch.map(a => get<{ chain_stats: AddrStats; mempool_stats: AddrStats }>(apis, `/address/${a}`, f, until)),
       );
       stats.forEach((s, k) => {
         const txs = s.chain_stats.tx_count + s.mempool_stats.tx_count;
@@ -124,7 +129,7 @@ export async function loadTreasury(d: ParsedDescriptor, network: Network, apis: 
 
   const mine = new Set(used);
   const txs = new Map<string, EsploraTx>();
-  for (const a of used) for (const tx of await get<EsploraTx[]>(apis, `/address/${a}/txs`, f)) txs.set(tx.txid, tx);
+  for (const a of used) for (const tx of await get<EsploraTx[]>(apis, `/address/${a}/txs`, f, until)) txs.set(tx.txid, tx);
   const movements: Movement[] = [...txs.values()]
     .map(tx => {
       const out = tx.vout.filter(o => o.scriptpubkey_address && mine.has(o.scriptpubkey_address)).reduce((s, o) => s + o.value, 0);
@@ -135,7 +140,7 @@ export async function loadTreasury(d: ParsedDescriptor, network: Network, apis: 
 
   const utxos: Utxo[] = [];
   for (const a of used) {
-    for (const u of await get<{ txid: string; vout: number; value: number }[]>(apis, `/address/${a}/utxo`, f)) {
+    for (const u of await get<{ txid: string; vout: number; value: number }[]>(apis, `/address/${a}/utxo`, f, until)) {
       utxos.push({ txid: u.txid, vout: u.vout, value: u.value, address: a, ...where.get(a)! });
     }
   }

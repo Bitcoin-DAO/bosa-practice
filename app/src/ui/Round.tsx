@@ -28,6 +28,8 @@ export function PrepareRound() {
   const [msg, setMsg] = useState<string>();
   const [busy, setBusy] = useState(false);
 
+  // A round is built only from a live reading of the treasury's coins, never from the remembered one.
+  const [opened] = useState(() => Date.now());
   useEffect(() => {
     void refreshTreasury();
     suggestedFeeRate(apis).then(r => {
@@ -46,6 +48,7 @@ export function PrepareRound() {
   const r = Number(rate);
   const rateOk = Number.isFinite(r) && r >= 1 && r <= max;
   const aboveCap = suggested !== undefined && suggested > max;
+  const live = !!app.treasury && !app.treasuryLoading && (app.treasuryAt ?? 0) >= opened;
 
   const build = () => {
     setMsg(undefined);
@@ -103,7 +106,11 @@ export function PrepareRound() {
               {suggested !== undefined && <span class="small" style="font-weight:400">{t('rd.feeSuggested', { rate: suggested })}</span>}
             </label>
             {aboveCap && <p class="warnbox">{t('rd.feeAboveCap', { max })}</p>}
-            <button type="button" class="btn secondary" disabled={!rateOk || !app.treasury || aboveCap} onClick={build}>{t('rd.build')}</button>
+            <button type="button" class="btn secondary" disabled={!rateOk || !live || aboveCap} onClick={build}>{t('rd.build')}</button>
+            {!live && (app.treasuryLoading || !app.treasuryError) && <p class="small">{t('rd.readingCoins')}</p>}
+            {!live && !app.treasuryLoading && app.treasuryError && (
+              <p class="small">{t('rd.coinsError', { msg: app.treasuryError })} <button type="button" class="btn link" onClick={() => refreshTreasury()}>{t('retry')}</button></p>
+            )}
           </>
         )}
         {built && (
