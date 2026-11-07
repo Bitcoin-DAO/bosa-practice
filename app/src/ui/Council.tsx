@@ -112,6 +112,9 @@ export function Council() {
       <Header />
       <main>
         <h1>{t('cn.title')}</h1>
+        {app.identity && !app.identity.treasury && app.site!.network !== 'mainnet' && (
+          <p class="warnbox">{t('tk.missing')} <a href="#/profile">{t('tk.link')}</a></p>
+        )}
         {s.rosterDisputed && <p class="warnbox">{t('cn.disputed')}</p>}
 
         {(waitingPay > 0 || openR) && (

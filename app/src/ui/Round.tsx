@@ -246,7 +246,7 @@ export function RoundDetail({ id }: { id: string }) {
           {r.status === 'open' && app.isCouncil && app.secret && myEntry && (
             iSigned ? <p class="ok">{t('rd.signed')}</p> : (
               <>
-                {tk ? <button type="button" class="btn primary" disabled={busy} onClick={signTest}>{t('rd.signTest')}</button> : <p class="small">{t('rd.noKey')}</p>}
+                {tk ? <button type="button" class="btn primary" disabled={busy} onClick={signTest}>{t('rd.signTest')}</button> : <p class="small">{t('rd.noKey')} <a href="#/profile">{t('tk.link')}</a></p>}
                 <button type="button" class="btn link" style="align-self:flex-start" onClick={() => setExt(!ext)}>{t('rd.external')}</button>
                 {ext && (
                   <div class="stack">

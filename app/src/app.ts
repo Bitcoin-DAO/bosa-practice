@@ -7,8 +7,9 @@ import { parseDescriptor } from './core/descriptor';
 import { broadcast, loadTreasury, txStatus, type Broadcast, type TreasuryView } from './core/chain';
 import { finalizeRound } from './core/round';
 import type { RoundView } from './core/state';
-import { prfSalt, pubkeyOf, unwrapSecret, wrapSecret } from './core/identity';
+import { prfSalt, pubkeyOf, treasuryKeyFromMnemonic, unwrapSecret, wrapSecret } from './core/identity';
 import { parseJson } from './core/util';
+import { t } from './i18n';
 import { query, publish, type PublishResult } from './lib/relays';
 import { createPasskey, credTagOf, getPrf } from './lib/passkey';
 import { prefs, session, store, type LocalIdentity, type PendingFounder, treasuryCache } from './lib/store';
@@ -338,6 +339,29 @@ export async function restoreFromCard(secret: string, name: string): Promise<'wr
 export function passkeyName(name: string): string {
   const s = state.site ? stageOf(state.site) : 'testnet';
   return s === 'practice' ? `${name} · ${state.site!.name} (${state.lang === 'en' ? 'practice' : 'prova generale'})` : `${name} · ${state.site?.name ?? ''}`;
+}
+
+/**
+ * Trial stages only: put a council member's test treasury key back on this phone from its 12 words,
+ * after a restore from the identity card (which carries the identity key only). The words must give
+ * exactly the treasury key recorded for this member on the council; anything else is refused.
+ */
+export async function restoreTreasuryKey(words: string): Promise<void> {
+  const { site, dao, identity, me } = state;
+  if (!site || !dao || !identity || !me) throw new Error(t('tk.notMember'));
+  if (site.network === 'mainnet') throw new Error(t('tk.mainnet'));
+  const entry = dao.settingsAt(dao.now).content.council.find(c => dao.personOf(c.identityKey) === me.person);
+  if (!entry) throw new Error(t('tk.notCouncil'));
+  let key;
+  try {
+    key = treasuryKeyFromMnemonic(words.trim().toLowerCase().split(/\s+/).join(' '), site.network);
+  } catch {
+    throw new Error(t('tk.badWords'));
+  }
+  if (key.xpub !== entry.xpub || key.fingerprint !== entry.fingerprint.toLowerCase()) throw new Error(t('tk.wrongKey', { fp: entry.fingerprint }));
+  const next: LocalIdentity = { ...identity, treasury: key };
+  await store.setIdentity(next);
+  setState({ identity: next });
 }
 
 export function signOut() {

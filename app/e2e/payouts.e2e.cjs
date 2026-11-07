@@ -133,6 +133,38 @@ async function signUp(page, name, council) {
   const rid = a.url().split('/round/')[1];
   check(await seen(a.getByText('Hai firmato ✓')), 'preparer signed with the trial key');
   check(await seen(a.getByText('Firme: 1 di 2')), '1 of 2 signatures');
+  log('@marco loses the trial treasury key (as after a card restore) and types the 12 words back');
+  const mb = B.page;
+  await open(mb, '#/profile');
+  await mb.getByRole('button', { name: 'Mostra le 12 parole' }).click();
+  const words = (await mb.locator('p.mono').filter({ hasText: /^([a-z]+ ){11}[a-z]+$/ }).first().textContent()).trim();
+  await mb.evaluate(() => new Promise((res, rej) => {
+    const rq = indexedDB.open('btc-dao');
+    rq.onerror = () => rej(rq.error);
+    rq.onsuccess = () => {
+      const tx = rq.result.transaction('kv', 'readwrite');
+      const kv = tx.objectStore('kv');
+      const all = kv.getAllKeys();
+      all.onsuccess = () => {
+        for (const k of all.result.filter(k => String(k).startsWith('identity:'))) {
+          const g = kv.get(k);
+          g.onsuccess = () => { const v = g.result; delete v.treasury; kv.put(v, k); };
+        }
+      };
+      tx.oncomplete = () => res();
+    };
+  }));
+  await open(mb, `#/round/${rid}`);
+  check(await seen(mb.getByRole('link', { name: 'Rimetti le 12 parole →' })), 'round page says the key is missing, with a link');
+  await open(mb, '#/profile');
+  const box = mb.getByLabel(/Scrivi le 12 parole/);
+  const wrong = 'abandon '.repeat(11) + 'about';
+  await box.fill(wrong);
+  await mb.getByRole('button', { name: 'Rimetti la chiave su questo telefono' }).click();
+  check(await seen(mb.getByText(/Queste parole danno un'altra chiave/)), 'words of another key are refused');
+  await box.fill(words.toUpperCase().replace(/ /g, '   '));
+  await mb.getByRole('button', { name: 'Rimetti la chiave su questo telefono' }).click();
+  check(await seen(mb.getByText(/Chiave della tesoreria rimessa/)), 'own words accepted (case and spacing ignored)');
   await open(B.page, `#/round/${rid}`);
   await B.page.getByRole('button', { name: 'Firma con la chiave di prova' }).waitFor({ timeout: 20000 });
   await shot(B.page, '02-sign');

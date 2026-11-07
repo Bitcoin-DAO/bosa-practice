@@ -1,5 +1,5 @@
 import { useState } from 'preact/hooks';
-import { signAndPublish, signOut, useApp } from '../app';
+import { restoreTreasuryKey, signAndPublish, signOut, useApp } from '../app';
 import { KIND } from '../core/events';
 import { fmtDate, t } from '../i18n';
 import { validAddress } from '../core/state';
@@ -14,6 +14,22 @@ export function Profile() {
   const [editing, setEditing] = useState(false);
   const [payMsg, setPayMsg] = useState<string>();
   const [busy, setBusy] = useState(false);
+  const [tkWords, setTkWords] = useState('');
+  const [tkMsg, setTkMsg] = useState<string>();
+  const [tkDone, setTkDone] = useState(false);
+  const enterWords = async () => {
+    setTkMsg(undefined);
+    setBusy(true);
+    try {
+      await restoreTreasuryKey(tkWords);
+      setTkWords('');
+      setTkDone(true);
+    } catch (e) {
+      setTkMsg(errText(e));
+    } finally {
+      setBusy(false);
+    }
+  };
   const setStanding = async (address?: string) => {
     if (!address && !confirm(t('profile.payoutRemoveConfirm'))) return;
     setPayMsg(undefined);
@@ -64,9 +80,19 @@ export function Profile() {
           <ShortCode pubkey={me.key} />
         </div>
         {app.secret ? <PrintCard council={me.council} /> : <p class="note">{t('profile.locked')}</p>}
+        {me.council && !tk && network !== 'mainnet' && (
+          <div class="card" id="treasury-key">
+            <h3>{t('profile.treasuryKey')}</h3>
+            <p class="warn">{t('tk.missing')}</p>
+            <label class="field">{t('tk.enter')}<textarea class="mono" autoComplete="off" spellcheck={false} autoCapitalize="none" value={tkWords} onInput={e => setTkWords((e.target as HTMLTextAreaElement).value)} /></label>
+            <button type="button" class="btn primary" disabled={busy || tkWords.trim().split(/\s+/).length !== 12} onClick={enterWords}>{t('tk.save')}</button>
+            {tkMsg && <p class="warnbox">{tkMsg}</p>}
+          </div>
+        )}
         {me.council && tk && (
           <div class="card">
             <h3>{t('profile.treasuryKey')}</h3>
+            {tkDone && <p class="ok">{t('tk.done')}</p>}
             <p class="small">{t('profile.treasuryKeyText', { fp: tk.fingerprint })}</p>
             <button type="button" class="btn link" style="align-self:flex-start" onClick={() => setWords(!words)}>{words ? t('profile.hideWords') : t('profile.showWords')}</button>
             {words && <p class="mono" style="font-size:15px;line-height:1.8">{tk.mnemonic}</p>}

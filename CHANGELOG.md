@@ -2,6 +2,19 @@
 
 Each release is a git tag (`v0.1.1`). A DAO's copy runs one tagged release and records it in its README; a release moves to a DAO's next stage only after passing the one before ([guide, section 8](docs/guide.md#8-the-three-stages-practice-testnet-mainnet)).
 
+## v0.1.7 · 7 November 2026
+
+Found before UNO's lost-key test: the identity card restores the identity key only, so a council member who restored from the card could vote but no longer sign rounds. In a 2-of-2 practice DAO that would have locked the treasury.
+
+**Trial treasury key: type the 12 words back in**
+- Profile → Treasury key: a council member whose phone has no trial treasury key gets a box for the 12 words.
+- The words must give exactly the treasury key recorded for that member on the council (same fingerprint and xpub). Words of any other key are refused, so a typo cannot install the wrong key. Capitals and extra spaces are ignored.
+- The round page and the Council page say when the key is missing, with a link to the box.
+- Test networks only. On mainnet the treasury key stays on the SeedSigner and never touches the phone.
+
+**Tests**
+- End-to-end: a council phone loses its trial key, the round page flags it, another key's words are refused, its own words are accepted, and it signs the round.
+
 ## v0.1.6 · 6 November 2026
 
 Found in UNO's practice run: the first payout round showed "Broadcast ✓", but neither mempool.space nor Blockbook had the transaction.
